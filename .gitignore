@@ -16,3 +16,10 @@ build/
 
 # Logs
 *.log
+
+# IDE
+.idea/
+
+# Claude Code
+.claude/scheduled_tasks.json
+.claude/worktrees/

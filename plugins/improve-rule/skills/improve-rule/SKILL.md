@@ -36,6 +36,7 @@ description: 管理 .claude/rules/ 配置文件：初始化模板、五维度评
 
 | 文件 | 内容 |
 |------|------|
+| `coding-philosophy.md` | 编码哲学与行为原则 |
 | `dialogue-style.md` | 输出规范与交互行为 |
 | `security.md` | 敏感信息检测与安全响应 |
 | `coding-conventions.md` | 编码原则与任务管理 |
@@ -229,6 +230,7 @@ description: 管理 .claude/rules/ 配置文件：初始化模板、五维度评
 
 详见 [reference/](reference/) 目录：
 
+- [coding-philosophy.md](reference/coding-philosophy.md) — 编码哲学、行为原则
 - [dialogue-style.md](reference/dialogue-style.md) — 输出规范、交互行为
 - [security.md](reference/security.md) — 敏感信息检测、安全响应
 - [coding-conventions.md](reference/coding-conventions.md) — 编码原则、任务管理

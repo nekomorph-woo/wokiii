@@ -110,6 +110,12 @@
       "source": "./plugins/prd-to-modules",
       "description": "将大 PRD 纵向拆分为自闭环的功能模块，设计模块间依赖关系和对内对外接口，最终为每个模块生成执行计划。Use when 用户要求拆分 PRD 为模块、设计模块接口、规划模块依赖、或提到 \"模块拆分\" / \"模块设计\" / \"prd-to-modules\"。",
       "version": "0.1.0"
+    },
+    {
+      "name": "resolve-finding",
+      "source": "./plugins/resolve-finding",
+      "description": "通过 /grill-me 拷问逼出决策，反向修补设计文档歧义/冲突，生成代码修改计划。Use when 用户要求解决审阅报告待处理项、修复代码与设计文档不一致、处理待决策项、提到\"resolve finding\"。",
+      "version": "0.1.0"
     }
   ]
 }

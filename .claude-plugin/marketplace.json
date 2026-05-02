@@ -116,6 +116,12 @@
       "source": "./plugins/resolve-finding",
       "description": "通过 /grill-me 拷问逼出决策，反向修补设计文档歧义/冲突，生成代码修改计划。Use when 用户要求解决审阅报告待处理项、修复代码与设计文档不一致、处理待决策项、提到\"resolve finding\"。",
       "version": "0.1.0"
+    },
+    {
+      "name": "audit-design-docs",
+      "source": "./plugins/audit-design-docs",
+      "description": "系统性审阅多份设计文档，执行实体级索引构建、多维交叉审阅（追溯/一致性/完整性/依赖/假设）、歧义点深拷问，输出结构化审阅报告。Use when 用户要求审阅设计文档、审查架构方案、审计文档一致性、或提到\"设计审阅\"/\"文档审计\"/\"审阅报告\"/\"设计文档对齐\"。",
+      "version": "0.1.0"
     }
   ]
 }

@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "DDAi 插件市场，为 Claude Code 用户提供需求、编程、设计、方案、审视等能力扩展",
-    "version": "0.6.0"
+    "version": "0.7.0"
   },
   "plugins": [
     {
@@ -121,6 +121,12 @@
       "name": "audit-design-docs",
       "source": "./plugins/audit-design-docs",
       "description": "系统性审阅多份设计文档，执行实体级索引构建、多维交叉审阅（追溯/一致性/完整性/依赖/假设）、歧义点深拷问，输出结构化审阅报告。Use when 用户要求审阅设计文档、审查架构方案、审计文档一致性、或提到\"设计审阅\"/\"文档审计\"/\"审阅报告\"/\"设计文档对齐\"。",
+      "version": "0.1.0"
+    },
+    {
+      "name": "deny-access",
+      "source": "./plugins/deny-access",
+      "description": "管理 Claude Code 文件排除规则，同步维护所有工具层的 deny 配置。Use when 用户要求保护敏感文件、添加/移除 deny 规则、排除 .env/secrets 等文件、或提到 \"deny access\" / \"文件保护\" / \"排除文件\"。",
       "version": "0.1.0"
     }
   ]

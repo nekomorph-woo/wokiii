@@ -50,6 +50,7 @@ ooops-up             出餐：规范化提交
 | `distill-the-essence` | 分析会话日志，提取编码习惯生成 rules |
 | `seal-the-pantry` | 管理文件排除规则，保护敏感文件 |
 | `write-a-skill` | 创建符合规范的新技能 |
+| `wok-dashboard` | 部署交互式文档 dashboard，可视化阅读管道产出 |
 
 ## 安装
 
@@ -75,7 +76,7 @@ ooops-up             出餐：规范化提交
 
 ```
 wok/
-├── plugins/                      # 15 个 marketplace 插件
+├── plugins/                      # 16 个 marketplace 插件
 ├── .claude/
 │   ├── rules/                    # 项目规则
 │   └── skills/                   # 项目内部技能

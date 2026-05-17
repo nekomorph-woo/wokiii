@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "wok 插件市场，为 Claude Code 用户提供需求、编程、设计、方案、审视等能力扩展",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "plugins": [
     {
@@ -97,6 +97,12 @@
       "name": "pick-the-finding",
       "source": "./plugins/pick-the-finding",
       "description": "探索现有代码的设计约束、架构模式和潜在问题，为后续设计提供现状基线。Use when 用户要求探索代码库、理解现有架构、分析设计约束，或提到 \"pick\" / \"挑\" / \"探索代码\" / \"pick-the-finding\"。",
+      "version": "1.0.0"
+    },
+    {
+      "name": "wok-dashboard",
+      "source": "./plugins/wok-dashboard",
+      "description": "部署交互式 HTML dashboard 到 feature 目录，提供管道文档的可视化阅读和备注能力。Use when 用户要求部署 dashboard、打开 dashboard、或提到 \"dashboard\" / \"wok-dashboard\"。",
       "version": "1.0.0"
     }
   ]

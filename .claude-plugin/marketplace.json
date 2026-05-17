@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "DDAi 插件市场，为 Claude Code 用户提供需求、编程、设计、方案、审视等能力扩展",
-    "version": "0.8.0"
+    "version": "0.9.0"
   },
   "plugins": [
     {
@@ -16,9 +16,9 @@
       "version": "0.2.0"
     },
     {
-      "name": "quick-commit",
-      "source": "./plugins/quick-commit",
-      "description": "规范化 commit message 格式，支持关联 issue 自动关闭。Use when 用户要求 commit、提交代码、或规范 commit message。",
+      "name": "ooops-up",
+      "source": "./plugins/ooops-up",
+      "description": "规范化 commit message 格式，支持关联 issue 自动关闭。Use when 用户要求 commit、提交代码、冲！、或提到 \"ooops-up\" / \"commit\"。",
       "version": "0.2.0"
     },
     {
@@ -28,39 +28,39 @@
       "version": "0.1.0"
     },
     {
-      "name": "tdd",
-      "source": "./plugins/tdd",
-      "description": "测试驱动开发，采用垂直切片的 RED-GREEN-REFACTOR 循环。Use when 用户要求使用 TDD 开发功能或修复 bug、提到 \"red-green-refactor\" / \"测试先行\" / \"TDD\"。",
+      "name": "cook-by-recipe",
+      "source": "./plugins/cook-by-recipe",
+      "description": "测试驱动开发，采用垂直切片的 RED-GREEN-REFACTOR 循环。Use when 用户要求使用 TDD 开发功能或修复 bug、提到 \"cook\" / \"按谱烹饪\" / \"red-green-refactor\" / \"测试先行\" / \"TDD\"。",
       "version": "0.1.0"
     },
     {
-      "name": "triage-issue",
-      "source": "./plugins/triage-issue",
-      "description": "调查问题根因并创建带 TDD 修复计划的 issue。Use when 用户报告 bug、要求创建 issue、提到 \"triage\" / \"排查\" / \"诊断\"。",
+      "name": "diagnose-the-symptom",
+      "source": "./plugins/diagnose-the-symptom",
+      "description": "调查问题根因并创建带 TDD 修复计划的 issue。Use when 用户报告 bug、要求创建 issue、提到 \"diagnose\" / \"排查\" / \"诊断\" / \"diagnose-the-symptom\"。",
       "version": "0.1.0"
     },
     {
-      "name": "design-an-interface",
-      "source": "./plugins/design-an-interface",
-      "description": "生成多个差异显著的模块接口设计方案。Use when 用户要求设计 API、探索接口选项、对比模块形态、或提到 \"design it twice\" / \"设计接口\" / \"设计两次\"。",
+      "name": "plate-the-dish",
+      "source": "./plugins/plate-the-dish",
+      "description": "生成多个差异显著的模块接口设计方案。Use when 用户要求设计 API、探索接口选项、对比模块形态、或提到 \"plate\" / \"摆盘\" / \"设计接口\" / \"plate-the-dish\"。",
       "version": "0.1.0"
     },
     {
-      "name": "improve-rule",
-      "source": "./plugins/improve-rule",
-      "description": "管理 .claude/rules/ 配置文件：初始化模板、五维度评估规则质量、改进规则、审计规则间冲突。Use when 用户要求初始化规则、评估规则、改进规则、审计规则，或提到 \"rules\" / \"对话风格\" / \"improve-rule\"。",
+      "name": "refine-the-technique",
+      "source": "./plugins/refine-the-technique",
+      "description": "管理 .claude/rules/ 配置文件：初始化模板、五维度评估规则质量、改进规则、审计规则间冲突。Use when 用户要求初始化规则、评估规则、改进规则、审计规则，或提到 \"rules\" / \"对话风格\" / \"refine-the-technique\" / \"磨刀\"。",
       "version": "0.4.0"
     },
     {
-      "name": "analyse-to-rule",
-      "source": "./plugins/analyse-to-rule",
-      "description": "分析近7日会话日志，提取编码习惯、工程实践和沟通偏好，自动生成用户级和项目级 rules 文件。Use when 用户要求生成规则、分析习惯、提取洞见、或提到 \"insights\" / \"洞见\" / \"规则生成\" / \"analyse-to-rule\"。",
+      "name": "distill-the-essence",
+      "source": "./plugins/distill-the-essence",
+      "description": "分析近7日跨项目会话日志，提取编码习惯、工程实践和沟通偏好，生成用户级和项目级 rules 文件。Use when 用户要求生成规则、分析习惯、提取洞见、或提到 \"insights\" / \"洞见\" / \"规则生成\" / \"distill-the-essence\" / \"萃取\"。",
       "version": "0.1.0"
     },
     {
-      "name": "deny-access",
-      "source": "./plugins/deny-access",
-      "description": "管理 Claude Code 文件排除规则，同步维护所有工具层的 deny 配置。Use when 用户要求保护敏感文件、添加/移除 deny 规则、排除 .env/secrets 等文件、或提到 \"deny access\" / \"文件保护\" / \"排除文件\"。",
+      "name": "seal-the-pantry",
+      "source": "./plugins/seal-the-pantry",
+      "description": "管理 Claude Code 文件排除规则，同步维护所有工具层的 deny 配置。Use when 用户要求保护敏感文件、添加/移除 deny 规则、排除 .env/secrets 等文件、或提到 \"seal\" / \"文件保护\" / \"排除文件\" / \"seal-the-pantry\" / \"锁食材库\"。",
       "version": "0.1.0"
     },
     {
@@ -76,9 +76,9 @@
       "version": "0.1.0"
     },
     {
-      "name": "spice-best-ratio",
-      "source": "./plugins/spice-best-ratio",
-      "description": "交叉验证模块设计的一致性和完整性，检查接口对齐、依赖方向和跨模块遗漏。Use when 用户要求交叉验证、检查设计一致性、审查模块设计，或提到 \"crosscheck\" / \"交叉验证\" / \"设计审查\" / \"spice-best-ratio\"。",
+      "name": "season-the-dish",
+      "source": "./plugins/season-the-dish",
+      "description": "交叉验证模块设计的一致性和完整性，检查接口对齐、依赖方向和跨模块遗漏。Use when 用户要求交叉验证、检查设计一致性、审查模块设计，或提到 \"season\" / \"调味\" / \"交叉验证\" / \"season-the-dish\"。",
       "version": "0.1.0"
     },
     {
@@ -88,9 +88,9 @@
       "version": "0.1.0"
     },
     {
-      "name": "nitpick-the-finding",
-      "source": "./plugins/nitpick-the-finding",
-      "description": "探索现有代码的设计约束、架构模式和潜在问题，为后续设计提供现状基线。Use when 用户要求探索代码库、理解现有架构、分析设计约束，或提到 \"nitpick\" / \"探索代码\" / \"代码分析\" / \"nitpick-the-finding\"。",
+      "name": "pick-the-finding",
+      "source": "./plugins/pick-the-finding",
+      "description": "探索现有代码的设计约束、架构模式和潜在问题，为后续设计提供现状基线。Use when 用户要求探索代码库、理解现有架构、分析设计约束，或提到 \"pick\" / \"挑\" / \"探索代码\" / \"pick-the-finding\"。",
       "version": "0.1.0"
     }
   ]

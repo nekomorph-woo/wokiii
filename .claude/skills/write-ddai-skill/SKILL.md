@@ -29,7 +29,7 @@ description: 创建 DDAi 项目技能或 marketplace 插件，区分内部维护
 ### Good Case
 
 ```
-✅ plugins/quick-commit/                → 面向用户的 commit 工具，marketplace 分发
+✅ plugins/ooops-up/                → 面向用户的 commit 工具，marketplace 分发
 ✅ plugins/tdd/                         → TDD 工作流，任何项目可用
 ✅ .claude/skills/ddai-commit/          → 仅 DDAi 项目使用的 commit 规范
 ✅ .claude/skills/ddai-manage-version/  → 管理 DDAi 版本号，仅本项目需要

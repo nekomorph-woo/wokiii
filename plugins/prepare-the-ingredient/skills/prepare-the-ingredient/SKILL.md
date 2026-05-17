@@ -3,7 +3,7 @@ name: prepare-the-ingredient
 description: 将需求拆分为模块并迭代设计，输出模块接口契约和设计决策。Use when 用户要求拆分模块、设计架构、模块化需求，或提到 "modularize" / "模块拆分" / "模块设计" / "prepare-the-ingredient"。
 pipeline:
   upstream: [define-a-delicacy]
-  downstream: [spice-best-ratio]
+  downstream: [season-the-dish]
   gate: true
   output: document
   adaptive: true
@@ -18,7 +18,7 @@ pipeline:
 1. 读取上游 `_define.md` 的 frontmatter（可选）
 2. 识别模块和依赖关系
 3. 用 `/grill-me` 拷问模块边界
-4. 用 `/design-an-interface` 设计模板模块接口
+4. 用 `/plate-the-dish` 设计模板模块接口
 5. 迭代验证后批量展开
 
 ## 工作流程
@@ -55,9 +55,9 @@ pipeline:
 
 ### 4. 模板模块设计
 
-选择一个核心模块作为模板，委托 `/design-an-interface` 进行多方案对比：
+选择一个核心模块作为模板，委托 `/plate-the-dish` 进行多方案对比：
 
-- `/design-an-interface` 生成 3+ 个差异显著的接口设计方案
+- `/plate-the-dish` 生成 3+ 个差异显著的接口设计方案
 - 用户选择最优方案
 - 产出 `plans/<feature-name>/modules/<name>/design.md`（intent: reference）— 接口契约
 - 产出 `plans/<feature-name>/modules/<name>/decisions.md`（intent: explanation）— 设计决策
@@ -102,7 +102,7 @@ pipeline:
 **模块数**：<N> 个
 **设计锚点覆盖**：<全部 / 列出未覆盖项>
 **阻塞**：<阻塞项>
-**下一步**：/spice-best-ratio
+**下一步**：/season-the-dish
 ```
 
 ## 文档规范
@@ -115,5 +115,5 @@ pipeline:
 
 - **DO NOT** 在 design.md 中写设计理由 — 那属于 decisions.md
 - **DO NOT** 跳过验证门直接批量生成 — 先验证模板再展开
-- **DO NOT** 自行设计接口 — 委托 `/design-an-interface` 进行多方案对比
+- **DO NOT** 自行设计接口 — 委托 `/plate-the-dish` 进行多方案对比
 - 依赖方向必须单向，检测到循环依赖时暂停并报告

@@ -103,7 +103,7 @@ plans/<feature-name>/
 │   └── <module-name>/
 │       ├── design.md       ← 模块设计（intent: reference）
 │       └── decisions.md    ← 模块决策（intent: decision）
-├── _check.md               ← spice-best-ratio 产出
+├── _check.md               ← season-the-dish 产出
 └── _plan.md                ← write-a-recipe 产出
 ```
 

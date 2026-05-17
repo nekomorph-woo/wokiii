@@ -2,7 +2,7 @@
 name: write-a-recipe
 description: 将模块设计翻译为编码执行计划，定义文件顺序、集成点和每步验证标准。Use when 用户要求制定开发计划、编写执行步骤、拆分编码任务，或提到 "devplan" / "开发计划" / "执行计划" / "write-a-recipe"。
 pipeline:
-  upstream: [spice-best-ratio]
+  upstream: [season-the-dish]
   downstream: []
   gate: true
   output: document

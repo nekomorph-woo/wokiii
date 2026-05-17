@@ -132,7 +132,10 @@ changed: 初始版本
 
 ## 精选 Feature
 
-<用户选择的 feature，标注优先级和依赖>
+### [DECISION] <feature 名称>
+
+优先级：<P0/P1/P2>
+依赖：<无 / 依赖的其他 feature>
 
 ## 路线图
 

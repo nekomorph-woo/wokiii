@@ -8,7 +8,7 @@ set -e
 FEATURE_NAME="$1"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ASSETS_DIR="$SCRIPT_DIR/../assets"
-WOK_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+WOK_ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
 
 if [ -z "$FEATURE_NAME" ]; then
     echo "错误: 缺少 feature 名称"

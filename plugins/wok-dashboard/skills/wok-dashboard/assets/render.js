@@ -11,6 +11,7 @@
     activeTab: 'overview',
     notes: [],
     activeModule: null,
+    dirHandle: null,       // File System Access API handle for refresh
   };
 
   // ── DOM refs ──
@@ -57,6 +58,7 @@
     if ('showDirectoryPicker' in window) {
       try {
         const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
+        state.dirHandle = dirHandle;
         await readDirectoryHandle(dirHandle);
       } catch (e) {
         if (e.name !== 'AbortError') {
@@ -356,7 +358,87 @@
       el.innerHTML = '<p style="color:#737373;">未找到执行计划（_plan.md）</p>';
       return;
     }
-    el.innerHTML = renderMd(plan.body, '_plan.md');
+
+    const steps = extractSteps(plan.body);
+    const doneCount = steps.filter(s => s.done).length;
+    const blockedCount = steps.filter(s => s.blocked).length;
+    const totalCount = steps.length;
+    const pct = totalCount ? Math.round((doneCount / totalCount) * 100) : 0;
+
+    let html = '';
+
+    // Progress bar
+    html += '<div class="exec-progress-section">';
+    html += '<div class="exec-progress-bar"><div class="exec-progress-fill" style="width:' + pct + '%"></div></div>';
+    html += '<div class="exec-progress-meta">';
+    html += `<span class="exec-stat done">${doneCount} 完成</span>`;
+    if (blockedCount) html += `<span class="exec-stat blocked">${blockedCount} 阻塞</span>`;
+    html += `<span class="exec-stat pending">${totalCount - doneCount - blockedCount} 待执行</span>`;
+    html += `<span class="exec-stat pct">${pct}%</span>`;
+    html += '</div>';
+
+    // Step status chips
+    html += '<div class="exec-step-chips">';
+    for (const step of steps) {
+      const cls = step.done ? 'done' : step.blocked ? 'blocked' : 'pending';
+      const icon = step.done ? '✓' : step.blocked ? '!' : '';
+      html += `<span class="exec-chip ${cls}" title="${esc(step.title)}">${icon} Step ${step.num}</span>`;
+    }
+    html += '</div></div>';
+
+    // Refresh button
+    html += '<button class="btn-sm refresh-btn" id="exec-refresh-btn">刷新</button>';
+
+    // Render markdown body
+    html += '<div class="plan-content">' + renderMd(plan.body, '_plan.md') + '</div>';
+
+    el.innerHTML = html;
+
+    // Color step headings based on status
+    el.querySelectorAll('.plan-content h3').forEach(h3 => {
+      const stepMatch = h3.textContent.match(/^Step (\d+):/);
+      if (!stepMatch) return;
+      const stepNum = parseInt(stepMatch[1]);
+      const step = steps.find(s => s.num === stepNum);
+      if (!step) return;
+      if (step.done) {
+        h3.style.color = '#525252';
+        h3.style.textDecoration = 'line-through';
+      } else if (step.blocked) {
+        h3.style.color = 'var(--accent)';
+      }
+    });
+
+    // Refresh button
+    el.querySelector('#exec-refresh-btn')?.addEventListener('click', async () => {
+      if (state.dirHandle) {
+        await readDirectoryHandle(state.dirHandle);
+      }
+    });
+  }
+
+  function extractSteps(body) {
+    const steps = [];
+    const lines = body.split('\n');
+    let currentStep = null;
+    for (const line of lines) {
+      const match = line.match(/^### Step (\d+):\s+\[([ x])\]\s+(.+)$/);
+      if (match) {
+        if (currentStep) steps.push(currentStep);
+        currentStep = {
+          num: parseInt(match[1]),
+          done: match[2] === 'x',
+          blocked: false,
+          title: match[3],
+        };
+        continue;
+      }
+      if (currentStep && line.match(/^>\s*⚠️/)) {
+        currentStep.blocked = true;
+      }
+    }
+    if (currentStep) steps.push(currentStep);
+    return steps;
   }
 
   // ── Markdown Rendering with semantic markers ──

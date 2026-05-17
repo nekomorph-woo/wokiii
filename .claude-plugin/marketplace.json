@@ -46,24 +46,6 @@
       "version": "0.1.0"
     },
     {
-      "name": "write-a-prd",
-      "source": "./plugins/write-a-prd",
-      "description": "通过用户访谈、代码库探索和模块设计创建 PRD，提交为 issue。Use when 用户要求编写 PRD、创建产品需求文档、规划新功能、或提到 \"PRD\" / \"产品需求\" / \"需求文档\"。",
-      "version": "0.1.0"
-    },
-    {
-      "name": "prd-to-issues",
-      "source": "./plugins/prd-to-issues",
-      "description": "使用垂直切片（tracer bullet）将 PRD 拆分为可独立认领的 issue。Use when 用户要求将 PRD 转为 issue、创建实现任务、或拆分 PRD 为工作项。",
-      "version": "0.1.0"
-    },
-    {
-      "name": "prd-to-plan",
-      "source": "./plugins/prd-to-plan",
-      "description": "使用垂直切片（tracer bullet）将 PRD 转化为多阶段实现计划，输出至当前项目根目录/plans/。Use when 用户要求拆分 PRD、创建实现计划、规划阶段、或提到 \"tracer bullets\" / \"垂直切片\"。",
-      "version": "0.1.0"
-    },
-    {
       "name": "request-refactor-plan",
       "source": "./plugins/request-refactor-plan",
       "description": "通过用户访谈创建详细重构计划，拆分为安全增量提交，提交为 issue。Use when 用户要求规划重构、创建重构 RFC、或将重构拆分为安全增量步骤。",
@@ -106,27 +88,39 @@
       "version": "0.1.0"
     },
     {
-      "name": "prd-to-modules",
-      "source": "./plugins/prd-to-modules",
-      "description": "将大 PRD 纵向拆分为自闭环的功能模块，设计模块间依赖关系和对内对外接口，最终为每个模块生成执行计划。Use when 用户要求拆分 PRD 为模块、设计模块接口、规划模块依赖、或提到 \"模块拆分\" / \"模块设计\" / \"prd-to-modules\"。",
-      "version": "0.2.0"
-    },
-    {
-      "name": "resolve-finding",
-      "source": "./plugins/resolve-finding",
-      "description": "通过 /grill-me 拷问逼出决策，反向修补设计文档歧义/冲突，生成代码修改计划。Use when 用户要求解决审阅报告待处理项、修复代码与设计文档不一致、处理待决策项、提到\"resolve finding\"。",
-      "version": "0.1.0"
-    },
-    {
-      "name": "audit-design-docs",
-      "source": "./plugins/audit-design-docs",
-      "description": "系统性审阅多份设计文档，执行实体级索引构建、多维交叉审阅（追溯/一致性/完整性/依赖/假设）、歧义点深拷问，输出结构化审阅报告。Use when 用户要求审阅设计文档、审查架构方案、审计文档一致性、或提到\"设计审阅\"/\"文档审计\"/\"审阅报告\"/\"设计文档对齐\"。",
-      "version": "0.1.0"
-    },
-    {
       "name": "deny-access",
       "source": "./plugins/deny-access",
       "description": "管理 Claude Code 文件排除规则，同步维护所有工具层的 deny 配置。Use when 用户要求保护敏感文件、添加/移除 deny 规则、排除 .env/secrets 等文件、或提到 \"deny access\" / \"文件保护\" / \"排除文件\"。",
+      "version": "0.1.0"
+    },
+    {
+      "name": "define-a-delicacy",
+      "source": "./plugins/define-a-delicacy",
+      "description": "定义要构建什么（What），输出问题定义、目标、设计锚点和验收标准，严格不包含实现设计。Use when 用户要求定义需求、编写 PRD、描述功能目标，或提到 \"define\" / \"需求定义\" / \"PRD\" / \"define-a-delicacy\"。",
+      "version": "0.1.0"
+    },
+    {
+      "name": "prepare-the-ingredient",
+      "source": "./plugins/prepare-the-ingredient",
+      "description": "将需求拆分为模块并迭代设计，输出模块接口契约和设计决策。Use when 用户要求拆分模块、设计架构、模块化需求，或提到 \"modularize\" / \"模块拆分\" / \"模块设计\" / \"prepare-the-ingredient\"。",
+      "version": "0.1.0"
+    },
+    {
+      "name": "spice-best-ratio",
+      "source": "./plugins/spice-best-ratio",
+      "description": "交叉验证模块设计的一致性和完整性，检查接口对齐、依赖方向和跨模块遗漏。Use when 用户要求交叉验证、检查设计一致性、审查模块设计，或提到 \"crosscheck\" / \"交叉验证\" / \"设计审查\" / \"spice-best-ratio\"。",
+      "version": "0.1.0"
+    },
+    {
+      "name": "write-a-recipe",
+      "source": "./plugins/write-a-recipe",
+      "description": "将模块设计翻译为编码执行计划，定义文件顺序、集成点和每步验证标准。Use when 用户要求制定开发计划、编写执行步骤、拆分编码任务，或提到 \"devplan\" / \"开发计划\" / \"执行计划\" / \"write-a-recipe\"。",
+      "version": "0.1.0"
+    },
+    {
+      "name": "nitpick-the-finding",
+      "source": "./plugins/nitpick-the-finding",
+      "description": "探索现有代码的设计约束、架构模式和潜在问题，为后续设计提供现状基线。Use when 用户要求探索代码库、理解现有架构、分析设计约束，或提到 \"nitpick\" / \"探索代码\" / \"代码分析\" / \"nitpick-the-finding\"。",
       "version": "0.1.0"
     }
   ]

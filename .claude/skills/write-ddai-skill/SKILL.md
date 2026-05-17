@@ -58,10 +58,11 @@ description: 创建 DDAi 项目技能或 marketplace 插件，区分内部维护
 - 需要处理的具体场景
 - 是否需要可执行脚本或仅指令
 - 是否需要包含参考材料
+- **是否有上下游技能依赖**（管道技能，见下方说明）
 
 ### 2. 判断模式
 
-根据上述分类标准，使用 AskUserQuestion 询问：
+根据分类标准，使用 AskUserQuestion 询问：
 
 ```json
 {
@@ -107,7 +108,6 @@ plugins/<name>/
     └── <name>/
         ├── SKILL.md
         ├── reference/
-        ├── examples/
         └── scripts/
 ```
 
@@ -125,14 +125,20 @@ plugins/<name>/
 | `skills/<name>/SKILL.md` | 精简指令（必需） |
 | `commands/<name>.md` | 斜杠命令入口，更新 description（必需） |
 | `skills/<name>/reference/` | 详细文档（SKILL.md 超 100 行时） |
-| `skills/<name>/examples/` | 使用示例（按需） |
 | `skills/<name>/scripts/` | 确定性操作脚本（按需） |
+
+**管道技能** — 如果技能属于管道（有上下游依赖、需验证门、生成文档产出物）：
+
+- 读取 [reference/document-format.md](reference/document-format.md) — 文档输出格式规范
+- 读取 [reference/pipeline-skill.md](reference/pipeline-skill.md) — 管道技能规范
+- 在 SKILL.md frontmatter 中声明 `pipeline` 字段
+- 在流程中实现验证门行为
 
 ### 5. 处理资源文件
 
 用户提供资源文件（模板、参考文档等）时：
 
-- 参考文档 → `reference/`，示例 → `examples/`，脚本 → `scripts/`
+- 参考文档 → `reference/`，脚本 → `scripts/`
 - 在 SKILL.md 中使用相对路径引用
 - 确保技能自包含，不依赖外部文件路径
 
@@ -214,6 +220,12 @@ description: 能力简述。Use when [具体触发条件]。
 ---
 name: <name>
 description: 能力简述。Use when [具体触发条件]。
+pipeline:
+  upstream: []
+  downstream: []
+  gate: false
+  output: none
+  adaptive: false
 ---
 
 # 技能名称
@@ -240,6 +252,17 @@ description: 能力简述。Use when [具体触发条件]。
 }
 ```
 
+## 管道技能
+
+技能属于管道时，需要额外的声明和行为规范。详见 [reference/pipeline-skill.md](reference/pipeline-skill.md)。
+
+核心要求：
+
+- **frontmatter 声明**：`pipeline.upstream`、`pipeline.downstream`、`pipeline.gate`、`pipeline.output`、`pipeline.adaptive`
+- **验证门**：`pipeline.gate: true` 时，完成后暂停展示验证内容，用户确认后才能进入下游技能
+- **文档格式**：`pipeline.output: document` 时，产出物遵循 [reference/document-format.md](reference/document-format.md)
+- **深度自适应**：`pipeline.adaptive: true` 时，根据设计存量调整产出深度（全量 / 增量 / 仅变更）
+
 ## 描述规范
 
 描述决定 Agent 技能选择。Agent 读取技能描述匹配用户请求。
@@ -264,10 +287,6 @@ description: 能力简述。Use when [具体触发条件]。
 ```
 
 错误示例不区分技能差异。
-
-## 语气措辞规范
-
-遵循 `CLAUDE.md` 中的规范。详见 [reference/tone-guide.md](reference/tone-guide.md)。
 
 ## 添加脚本条件
 
@@ -319,7 +338,10 @@ description: 能力简述。Use when [具体触发条件]。
 - [ ] 版本号设置为 0.1.0
 - [ ] 已在 marketplace.json 中注册
 
-## 示例
+**仅管道技能**：
 
-- [项目技能示例](examples/basic-skill.md)
-- [Marketplace 插件示例](examples/basic-plugin.md)
+- [ ] frontmatter 中 `pipeline` 字段已声明
+- [ ] `pipeline.upstream` / `downstream` 与实际管道一致
+- [ ] `pipeline.gate: true` 时，SKILL.md 中包含验证门流程
+- [ ] `pipeline.output: document` 时，产出物遵循 document-format.md
+- [ ] `pipeline.adaptive: true` 时，SKILL.md 中包含设计存量判断逻辑

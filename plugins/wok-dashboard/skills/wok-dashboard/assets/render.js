@@ -40,16 +40,17 @@
     });
 
     // Source line tracking: inject data-source-file and data-source-line
-    const defaultRender = md.renderer.rules.paragraph_open || function (tokens, idx, options) {
-      return options.renderer.openTag(tokens, idx);
-    };
-    md.renderer.rules.paragraph_open = function (tokens, idx, options, env) {
+    const renderer = md.renderer;
+    const origRule = renderer.rules.paragraph_open;
+    renderer.rules.paragraph_open = function (tokens, idx, options, env) {
       const line = tokens[idx].map && tokens[idx].map[0];
       if (line != null && env && env.sourceFile) {
         tokens[idx].attrSet('data-source-file', env.sourceFile);
         tokens[idx].attrSet('data-source-line', line);
       }
-      return defaultRender(tokens, idx, options, env);
+      return origRule
+        ? origRule(tokens, idx, options, env, renderer)
+        : renderer.renderToken(tokens, idx, options);
     };
   }
 

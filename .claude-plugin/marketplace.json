@@ -116,6 +116,12 @@
       "source": "./plugins/wok-cr-insight",
       "description": "分析审查报告中的 🟡 Advisory 问题，追加根因追溯和修改方案。Use when 用户要求分析 advisory 问题、深度分析审查报告、提到 \"wok-cr-insight\" / \"cr-insight\"。",
       "version": "0.1.0"
+    },
+    {
+      "name": "wok-apply-remarks",
+      "source": "./plugins/wok-apply-remarks",
+      "description": "处理 pipeline 备注，修改文档并传播影响，输出影响报告。Use when 用户要求处理备注、应用备注、或提到 \"wok-apply-remarks\"。",
+      "version": "0.1.0"
     }
   ]
 }

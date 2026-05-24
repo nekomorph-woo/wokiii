@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const SYSTEM_NAME = '{{SYSTEM_NAME}}';
+  const SYSTEM_NAME = 'wok-code-review';
   const SERVER_PORT = 18730;
   const FEATURE_BASE = window.location.protocol === 'file:'
     ? `http://127.0.0.1:${SERVER_PORT}/${SYSTEM_NAME}`

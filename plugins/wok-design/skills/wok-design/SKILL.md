@@ -13,6 +13,16 @@ pipeline:
 
 将需求拆分为模块，迭代设计接口和决策。产出模块注册表 + 各模块设计文档。
 
+## 命令接口
+
+`/wok-design [--affected-only]`
+
+| 参数 | 格式 | 说明 |
+|------|------|------|
+| `--affected-only` | flag | 仅重新生成 freshness 为 stale 或 impacted 的模块，跳过 fresh 模块 |
+
+当用户消息中包含 "affected-only" 或 "仅受影响的模块" 时，按此模式执行。
+
 ## 快速开始
 
 1. 读取上游 `_define.md` 的 frontmatter（可选）
@@ -31,6 +41,16 @@ pipeline:
 - **不存在**：从当前对话上下文和代码库探索中获取必要信息，正常执行
 
 根据设计存量判断产出深度（全量 / 增量）。
+
+**`--affected-only` 模式**：
+
+1. 读取 `<phase-dir>/modules/_registry.md` 获取模块列表
+2. 检查每个模块 `design.md` 的 frontmatter `freshness` 字段
+3. 分为两组：
+   - **受影响**：`freshness` 为 `stale` / `impacted`，或文件不存在（新模块）
+   - **新鲜**：`freshness` 为 `fresh` 且文件存在
+4. 仅对受影响模块执行后续设计流程
+5. 跳过新鲜模块，保留现有设计文档不变
 
 **跨 phase 设计感知**：检查 `plans/<system-name>/_roadmap.md` 是否存在，读取同批次兄弟 phase 的模块设计：
 
@@ -83,6 +103,8 @@ pipeline:
 
 以模板为标杆，批量设计其余模块。使用 Agent 并行生成各模块的 design.md 和 decisions.md。
 
+**`--affected-only` 模式**：跳过新鲜模块。交叉分析仅检查受影响模块与新鲜模块之间的接口变更。
+
 ### 7. 交叉分析与公共产物提取
 
 扫描全部模块设计文档，识别跨模块重复定义的数据模型、工具方法、共享类型：
@@ -112,6 +134,16 @@ pipeline:
 **设计锚点覆盖**：<全部 / 列出未覆盖项>
 **阻塞**：<阻塞项>
 **下一步**：/wok-design-review
+```
+
+**`--affected-only` 模式输出**：
+
+```
+## ✅ 部分设计更新
+
+**重新设计模块**：<N> 个
+**跳过（fresh）**：<M> 个
+**下一步**：wok-design-review → wok-plan --refresh
 ```
 
 ## 文档规范

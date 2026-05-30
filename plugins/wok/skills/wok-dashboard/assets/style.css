@@ -1461,7 +1461,7 @@ main {
 .notes-toggle {
   position: fixed;
   right: 16px;
-  top: 180px;
+  top: 180px; /* fallback, overridden by JS */
   height: 32px;
   padding: 0 12px;
   background: var(--fg);
@@ -1482,7 +1482,7 @@ main {
 .scroll-top-btn {
   position: fixed;
   right: 16px;
-  top: 133px;
+  top: 133px; /* fallback, overridden by JS */
   height: 32px;
   padding: 0 12px;
   background: var(--bg);
@@ -2357,6 +2357,15 @@ main {
   font-size: 11px;
   font-weight: 600;
   font-family: var(--font-display);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+.ledger-tag.active {
+  opacity: 1;
+}
+.ledger-tag:hover {
+  opacity: 0.85;
 }
 
 .ledger-tag.decision {

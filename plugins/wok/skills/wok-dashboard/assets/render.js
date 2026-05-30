@@ -1074,9 +1074,9 @@
       const openCount = allMarkers.filter(m => m.type === 'OPEN').length;
       const actCount = allMarkers.filter(m => m.type === 'ACTION').length;
       html += '<div class="ledger-tags">';
-      if (decCount) html += `<span class="ledger-tag decision">决策 ${decCount}</span>`;
-      if (openCount) html += `<span class="ledger-tag open">待处理 ${openCount}</span>`;
-      if (actCount) html += `<span class="ledger-tag action">修复动作 ${actCount}</span>`;
+      if (decCount) html += `<span class="ledger-tag decision active" data-tab="decision">决策 ${decCount}</span>`;
+      if (openCount) html += `<span class="ledger-tag open" data-tab="open">待处理 ${openCount}</span>`;
+      if (actCount) html += `<span class="ledger-tag action" data-tab="action">修复动作 ${actCount}</span>`;
       html += '</div>';
       html += '<div class="ledger-tabs">';
       for (const tab of markerTabs) {
@@ -1212,14 +1212,26 @@
         }, 300);
       });
     });
+    // Ledger tag click -> switch tab + highlight tag
+    el.querySelectorAll('.ledger-tag').forEach(tag => {
+      tag.addEventListener('click', () => {
+        const tabKey = tag.dataset.tab;
+        // Sync ledger-tab-btn
+        el.querySelectorAll('.ledger-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabKey));
+        el.querySelectorAll('.ledger-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === tabKey));
+        // Sync tag highlight
+        el.querySelectorAll('.ledger-tag').forEach(t => t.classList.toggle('active', t.dataset.tab === tabKey));
+        const search = el.querySelector('#ledger-search');
+        if (search) { search.value = ''; search.dispatchEvent(new Event('input')); }
+      });
+    });
     // Ledger tab switching
     el.querySelectorAll('.ledger-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        el.querySelectorAll('.ledger-tab-btn').forEach(b => b.classList.remove('active'));
-        el.querySelectorAll('.ledger-panel').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        const panel = el.querySelector(`.ledger-panel[data-panel="${btn.dataset.tab}"]`);
-        if (panel) panel.classList.add('active');
+        const tabKey = btn.dataset.tab;
+        el.querySelectorAll('.ledger-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabKey));
+        el.querySelectorAll('.ledger-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === tabKey));
+        el.querySelectorAll('.ledger-tag').forEach(t => t.classList.toggle('active', t.dataset.tab === tabKey));
         const search = el.querySelector('#ledger-search');
         if (search) { search.value = ''; search.dispatchEvent(new Event('input')); }
       });
@@ -3088,6 +3100,24 @@
 
     // Auto-load files from server
     fetchAndLoadFiles();
+
+    // Position scroll-top & HITL buttons below tab-bar + 10px
+    function positionFixedBtns() {
+      const tabBar = document.querySelector('.tab-bar');
+      if (!tabBar) return;
+      const bottom = tabBar.getBoundingClientRect().bottom + 10;
+      const scrollTopBtn = $('#scroll-top-btn');
+      const notesBtn = $('#notes-toggle-btn');
+      if (scrollTopBtn) scrollTopBtn.style.top = bottom + 'px';
+      if (notesBtn) {
+        notesBtn.style.top = (bottom + 36 + 6) + 'px'; // 32px height + 6px gap
+      }
+    }
+    // Defer until after first layout + re-position when global-status-card appears/disappears
+    requestAnimationFrame(() => requestAnimationFrame(positionFixedBtns));
+    window.addEventListener('resize', positionFixedBtns);
+    const gsc = document.getElementById('global-status-card');
+    if (gsc) new MutationObserver(() => requestAnimationFrame(positionFixedBtns)).observe(gsc, { attributes: true, attributeFilter: ['style'] });
 
     // Notes panel toggle
     const scrollTopBtn = $('#scroll-top-btn');

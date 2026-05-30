@@ -45,8 +45,8 @@
   };
 
   const PIPELINE_TABS = {
-    feat: ['overview', 'requirements', 'design', 'check', 'execution', 'review'],
-    'feat-s': ['overview', 'requirements', 'review'],
+    feat: ['overview', 'findings', 'requirements', 'design', 'check', 'execution', 'review'],
+    'feat-s': ['overview', 'findings', 'requirements', 'review'],
     fix: ['overview', 'issue', 'review'],
     exp: ['overview', 'findings', 'execution', 'review'],
     cr: ['overview', 'review'],
@@ -54,14 +54,16 @@
 
   const PIPELINE_DOC_GROUPS = {
     feat: [
-      { title: '需求文档', test: (n) => /^_define|^_roadmap|^_findings/.test(n) },
+      { title: '探索文档', test: (n) => /^_findings/.test(n) },
+      { title: '需求文档', test: (n) => n === '_define.md' || n.endsWith('/_define.md') || n === '_roadmap.md' || n.endsWith('/_roadmap.md') },
       { title: '模块设计', test: (n) => n.includes('modules/') },
       { title: '校验文档', test: (n) => n === '_check.md' || n.endsWith('/_check.md') },
       { title: '执行文档', test: (n) => n === '_plan.md' || n.endsWith('/_plan.md') },
       { title: '审查文档', test: (n) => n === '_review.md' || n.endsWith('/_review.md') },
     ],
     'feat-s': [
-      { title: '需求文档', test: (n) => /^_define/.test(n) },
+      { title: '探索文档', test: (n) => /^_findings/.test(n) },
+      { title: '需求文档', test: (n) => n === '_define.md' || n.endsWith('/_define.md') },
       { title: '审查文档', test: (n) => n === '_review.md' || n.endsWith('/_review.md') },
     ],
     fix: [
@@ -102,6 +104,8 @@
     return warnings;
   }
 
+  const LEDGER_PAGE_SIZE = 20;
+
   // ── State ──
   const state = {
     files: new Map(),      // fileName -> raw text
@@ -109,6 +113,10 @@
     activeTab: 'overview',
     notes: [],
     activeModule: null,
+    sidebarActive: { overview: null, requirements: null, check: null, execution: null, review: null },
+    scrollTops: {},
+    ledgerPages: { decision: 1, open: 1, action: 1 },
+    ledgerActiveTab: 'decision',
   };
 
   // ── DOM refs ──
@@ -132,6 +140,7 @@
       html: true,
       linkify: true,
       typographer: false,
+      breaks: true,
     });
 
     // Recursively inject source attrs on ALL block-level tokens
@@ -302,10 +311,19 @@
 
   // ── Tab Switching ──
   function switchTab(tabName) {
+    // Save scroll position of current tab before leaving
+    const mainEl = document.querySelector('main');
+    if (mainEl && state.activeTab) {
+      state.scrollTops[state.activeTab] = mainEl.scrollTop;
+    }
     state.activeTab = tabName;
     $$('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabName));
     $$('.tab-content').forEach(el => el.classList.toggle('active', el.id === 'tab-' + tabName));
     renderTab(tabName);
+    // Restore scroll position of new tab
+    if (mainEl && state.scrollTops[tabName] != null) {
+      requestAnimationFrame(() => { mainEl.scrollTop = state.scrollTops[tabName]; });
+    }
   }
 
   // Find file by suffix (e.g. '_define.md' matches 'p1-xxx/_define.md')
@@ -336,6 +354,25 @@
   function extractPhase(key) {
     const parts = key.split('/');
     return parts.length > 1 ? parts[0] : null;
+  }
+
+  function isMultiPhase() {
+    return !!findFile('_roadmap.md');
+  }
+
+  function getAllPhases() {
+    const phases = new Set();
+    for (const key of state.parsed.keys()) {
+      const phase = extractPhase(key);
+      if (phase) phases.add(phase);
+    }
+    return [...phases].sort();
+  }
+
+  function renderPhaseHeader(key) {
+    const phase = extractPhase(key);
+    if (!phase) return '';
+    return `<div class="phase-header">${esc(phase)}</div>`;
   }
 
   function onFilesLoaded() {
@@ -490,9 +527,9 @@
   function computeFeatureStatus() {
     let hasStale = false, hasBlocking = false, hasDraft = false, allApproved = true, totalCount = 0;
     let blockingCount = 0;
-    // feat pipeline: blocking from _check.md
-    const checkKey = findFile('_check.md');
-    if (checkKey) {
+    // feat pipeline: blocking from _check.md (all phases)
+    const checkKeys = findAllFiles('_check.md');
+    for (const checkKey of checkKeys) {
       const check = state.parsed.get(checkKey);
       if (check) {
         const blocks = parseCheckBlocks(check.body);
@@ -500,9 +537,9 @@
         for (const item of redItems) {
           if (!item.text.includes('✅') && !item.text.includes('→✅')) blockingCount++;
         }
-        if (blockingCount > 0) hasBlocking = true;
       }
     }
+    if (blockingCount > 0) hasBlocking = true;
     // fix pipeline: blocking from _issue.md scope assessment
     if (PIPELINE_TYPE === 'fix') {
       const issueKey = findFile('_issue.md');
@@ -522,9 +559,9 @@
     if (hasBlocking) return { status: 'BLOCKED', label: '阻塞', color: '#CC0000', blockingCount };
     if (hasStale) return { status: 'STALE', label: '过期', color: '#7B1FA2' };
     if (hasDraft) return { status: 'IN_PROGRESS', label: '进行中', color: '#E5A100' };
-    // All approved + fresh — check if review converged
-    const reviewKey = findFile('_review.md');
-    if (reviewKey) {
+    // All approved + fresh — check if all reviews converged
+    const reviewKeys = findAllFiles('_review.md');
+    for (const reviewKey of reviewKeys) {
       const review = state.parsed.get(reviewKey);
       if (review) {
         const rounds = parseReviewReport(review.body);
@@ -623,9 +660,14 @@
     }
 
     // Acceptance criteria checks
-    const acKey = findFile('_issue.md') || findFile('_define.md');
-    if (acKey) {
-      const ac = parseAcceptanceCriteria(state.parsed.get(acKey).raw);
+    const acKeys = [];
+    const issueKey = findFile('_issue.md');
+    if (issueKey) acKeys.push(issueKey);
+    acKeys.push(...findAllFiles('_define.md'));
+    for (const acKey of acKeys) {
+      const acParsed = state.parsed.get(acKey);
+      if (!acParsed) continue;
+      const ac = parseAcceptanceCriteria(acParsed.raw);
       if (ac && ac.pendingAuto.length) {
         actions.push({ action: `${ac.pendingAuto.length} 条自动验收标准未通过`, detail: '需 wok-implement 修复', priority: 'normal' });
       }
@@ -870,10 +912,49 @@
     if (backToLedgerPanel) { backToLedgerPanel.remove(); backToLedgerPanel = null; }
   }
 
+  // ── Sidebar Navigation Helper ──
+  function bindSidebarNav(el, tabKey) {
+    const sidebarItems = el.querySelectorAll('.tab-sidebar-item');
+    if (!sidebarItems.length) return;
+    sidebarItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const targetId = item.dataset.target;
+        const target = el.querySelector('#' + targetId);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        sidebarItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        state.sidebarActive[tabKey] = targetId;
+      });
+    });
+    // IntersectionObserver for auto-highlight
+    const contentPanel = el.querySelector('.tab-sidebar-content');
+    if (contentPanel) {
+      const anchorSections = contentPanel.querySelectorAll('[id]');
+      if (anchorSections.length) {
+        const observer = new IntersectionObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              const id = entry.target.id;
+              sidebarItems.forEach(i => i.classList.toggle('active', i.dataset.target === id));
+              state.sidebarActive[tabKey] = id;
+            }
+          }
+        }, { rootMargin: '-80px 0px -60% 0px', threshold: 0 });
+        anchorSections.forEach(s => observer.observe(s));
+      }
+    }
+  }
+
   // ── Overview Tab ──
   function renderOverview() {
     const el = $('#tab-overview');
     let html = '';
+    const sections = [];
+    function startSection(id, label) {
+      sections.push({ id, label });
+      html += `<div id="${id}" class="overview-anchor-section">`;
+    }
+    function endSection() { html += '</div>'; }
 
     // Pipeline type validation warnings
     const pipelineWarnings = validatePipelineType();
@@ -894,6 +975,7 @@
 
     const pipelinePhases = getPipelinePhases();
 
+    startSection('overview-pipeline', 'Pipeline 状态');
     html += '<div class="overview-section"><h2>Pipeline 状态</h2><div class="pipeline-progress">';
     for (const phase of pipelinePhases) {
       let total, approved, pct, maxFreshness = 'fresh', staleReasons = [];
@@ -924,6 +1006,30 @@
       html += `</div>`;
     }
     html += '</div></div>';
+    endSection();
+
+    // Multi-phase sub-progress
+    if (isMultiPhase()) {
+      startSection('overview-phases', '阶段进度');
+      const phases = getAllPhases();
+      html += '<div class="phase-progress-group">';
+      for (const ph of phases) {
+        let phTotal = 0, phApproved = 0;
+        for (const [name, parsed] of state.parsed) {
+          if (!name.startsWith(ph + '/') || !parsed.frontmatter) continue;
+          phTotal++;
+          if (parsed.frontmatter.status === 'approved') phApproved++;
+        }
+        const pct = phTotal ? Math.round((phApproved / phTotal) * 100) : 0;
+        html += '<div class="phase-progress-item">';
+        html += `<span class="phase-progress-label">${esc(ph)}</span>`;
+        html += `<div class="pipeline-step"><div class="pipeline-step-fill" style="width:${pct}%"></div></div>`;
+        html += `<span class="phase-progress-pct">${phApproved}/${phTotal}</span>`;
+        html += '</div>';
+      }
+      html += '</div>';
+      endSection();
+    }
 
     // Stale warnings banner
     const staleDocs = [];
@@ -933,6 +1039,7 @@
       }
     }
     if (staleDocs.length) {
+      startSection('overview-stale', '过期文档');
       html += '<div class="stale-banner">';
       html += '<div class="stale-banner-title">⚠ 过期文档</div>';
       html += '<div class="stale-banner-body">';
@@ -942,34 +1049,173 @@
       html += '</div>';
       html += '<div class="stale-banner-action">建议：' + esc(computeNextAction()[0]?.detail || '') + '</div>';
       html += '</div>';
+      endSection();
     }
 
     // Findings baseline (if _findings.md exists at system level)
     const findingsKey = findFile('_findings.md');
     if (findingsKey) {
+      startSection('overview-findings', '代码探索');
       const findings = state.parsed.get(findingsKey);
       html += '<div class="overview-section"><h2>代码探索基线</h2>';
       html += '<details class="findings-details"><summary class="findings-summary">wok-findings 探索结果</summary>';
       html += '<div class="findings-body">' + buildFindingsSummaryCard(findings.raw) + '</div>';
       html += '</details></div>';
+      endSection();
     }
 
     // Issue baseline (if _issue.md exists)
     const issueKey = findFile('_issue.md');
     if (issueKey) {
+      startSection('overview-issue', '问题分析');
       const issue = state.parsed.get(issueKey);
       html += '<div class="overview-section"><h2>问题分析基线</h2>';
       html += '<details class="findings-details"><summary class="findings-summary">wok-issue 调查结果</summary>';
       html += '<div class="findings-body">' + buildIssueSummaryCard(issue.raw) + '</div>';
       html += '</details></div>';
+      endSection();
+    }
+
+    // Brief list — grouped by category (per pipeline type)
+    const docGroups = getPipelineDocGroups();
+    const uncategorized = { title: '其他', items: [] };
+    const groups = docGroups.map(g => ({ ...g, items: [] }));
+    function renderItem(item) {
+      let s = `<li class="brief-item" data-file="${item.name}"><div class="brief-item-header"><span class="file-name">${esc(item.name)}</span>`;
+      s += item.status ? renderStatusToggle(item.name, item.status, item.freshness) : '';
+      let briefHtml = item.brief;
+      if (item.name === '_review.md' || item.name.endsWith('/_review.md')) {
+        const statsHtml = buildReviewBrief(item.name);
+        if (briefHtml && statsHtml) briefHtml = briefHtml + '<br>' + statsHtml;
+        else briefHtml = briefHtml || statsHtml;
+      }
+      s += `</div>${briefHtml ? md.render(briefHtml) : '<span style="color:#737373">—</span>'}</li>`;
+      return s;
+    }
+    for (const [name, parsed] of state.parsed) {
+      const brief = extractBrief(parsed.raw);
+      const status = parsed.frontmatter ? parsed.frontmatter.status : '';
+      const item = { name, brief, status, freshness: parsed.frontmatter?.freshness };
+      const group = groups.find(g => g.test(name));
+      (group ? group.items : uncategorized.items).push(item);
+    }
+    for (const group of [...groups, uncategorized]) {
+      if (!group.items.length) continue;
+      const gId = 'overview-group-' + group.title.replace(/[^a-zA-Z0-9一-鿿]/g, '-');
+      startSection(gId, group.title);
+      html += `<div class="overview-section"><h2>${group.title}</h2>`;
+      if (group.title === '模块设计') {
+        if (isMultiPhase()) {
+          const phaseGroups = new Map();
+          phaseGroups.set(null, []);
+          for (const item of group.items) {
+            const ph = extractPhase(item.name);
+            if (!phaseGroups.has(ph)) phaseGroups.set(ph, []);
+            phaseGroups.get(ph).push(item);
+          }
+          for (const [ph, items] of phaseGroups) {
+            if (!items.length) continue;
+            if (ph) html += `<div class="phase-section-header">${esc(ph)}</div>`;
+            html += '<div class="module-cards">';
+            const modMap = new Map();
+            for (const item of items) {
+              const m = item.name.match(/modules\/([^/]+)\/(.+)$/);
+              if (!m) continue;
+              const modName = m[1];
+              const fileName = m[2];
+              if (!modMap.has(modName)) modMap.set(modName, []);
+              modMap.get(modName).push({ ...item, fileName });
+            }
+            for (const [modName, files] of modMap) {
+              const mainFile = files.find(f => f.fileName === 'design.md') || files[0];
+              const status = mainFile.status;
+              const freshness = mainFile.freshness;
+              const brief = mainFile.brief;
+              html += `<div class="module-card" data-module="${modName}">`;
+              html += `<div class="module-card-header">`;
+              html += `<span class="module-card-name">${esc(modName)}</span>`;
+              html += status ? renderStatusToggle(mainFile.name, status, freshness) : '';
+              html += `</div>`;
+              if (brief) html += `<div class="module-card-brief">${md.render(brief)}</div>`;
+              const fileTags = files.map(f => f.fileName.replace('.md', '')).join(' · ');
+              html += `<div class="module-card-files">${esc(fileTags)}</div>`;
+              html += '</div>';
+            }
+            html += '</div>';
+          }
+        } else {
+          html += '<div class="module-cards">';
+          const modMap = new Map();
+          for (const item of group.items) {
+            const m = item.name.match(/modules\/([^/]+)\/(.+)$/);
+            if (!m) continue;
+            const modName = m[1];
+            const fileName = m[2];
+            if (!modMap.has(modName)) modMap.set(modName, []);
+            modMap.get(modName).push({ ...item, fileName });
+          }
+          for (const [modName, files] of modMap) {
+            const mainFile = files.find(f => f.fileName === 'design.md') || files[0];
+            const status = mainFile.status;
+            const freshness = mainFile.freshness;
+            const brief = mainFile.brief;
+            html += `<div class="module-card" data-module="${modName}">`;
+            html += `<div class="module-card-header">`;
+            html += `<span class="module-card-name">${esc(modName)}</span>`;
+            html += status ? renderStatusToggle(mainFile.name, status, freshness) : '';
+            html += `</div>`;
+            if (brief) html += `<div class="module-card-brief">${md.render(brief)}</div>`;
+            const fileTags = files.map(f => f.fileName.replace('.md', '')).join(' · ');
+            html += `<div class="module-card-files">${esc(fileTags)}</div>`;
+            html += '</div>';
+          }
+          html += '</div>';
+        }
+      } else if (isMultiPhase()) {
+        const rootItems = group.items.filter(i => !extractPhase(i.name));
+        const phaseItems = group.items.filter(i => extractPhase(i.name));
+        if (rootItems.length) {
+          html += '<ul class="brief-list">';
+          for (const item of rootItems) {
+            html += renderItem(item);
+          }
+          html += '</ul>';
+        }
+        const pg = new Map();
+        for (const item of phaseItems) {
+          const ph = extractPhase(item.name);
+          if (!pg.has(ph)) pg.set(ph, []);
+          pg.get(ph).push(item);
+        }
+        for (const [ph, items] of pg) {
+          html += `<div class="phase-section"><div class="phase-section-header">${esc(ph)}</div>`;
+          html += '<ul class="brief-list">';
+          for (const item of items) {
+            html += renderItem(item);
+          }
+          html += '</ul></div>';
+        }
+      } else {
+        html += '<ul class="brief-list">';
+        for (const item of group.items) {
+          html += renderItem(item);
+        }
+        html += '</ul>';
+      }
+      html += '</div>';
+      endSection();
     }
 
     // Acceptance criteria summary (per document)
     const acSources = [];
     if (issueKey) acSources.push({ key: issueKey, label: '问题验收标准' });
-    const defineKeyForAc = findFile('_define.md');
-    if (defineKeyForAc) acSources.push({ key: defineKeyForAc, label: '需求验收标准' });
+    const defineKeysForAc = findAllFiles('_define.md');
+    for (const dk of defineKeysForAc) {
+      const label = extractPhase(dk) ? `${extractPhase(dk)} 需求验收标准` : '需求验收标准';
+      acSources.push({ key: dk, label });
+    }
 
+    let acIdx = 0;
     for (const src of acSources) {
       const parsed = state.parsed.get(src.key);
       if (!parsed) continue;
@@ -982,75 +1228,18 @@
       if (ac.autoTotal) parts.push(`${ac.autoDone}/${ac.autoTotal} 🤖`);
       if (ac.humanTotal) parts.push(`${ac.humanDone}/${ac.humanTotal} 👤`);
 
+      const acId = `overview-ac-${acIdx++}`;
+      startSection(acId, src.label);
       html += '<div class="overview-section"><h2>' + esc(src.label) + '</h2>';
       html += '<details class="findings-details"><summary class="findings-summary">';
       html += esc(parts.join('，')) + ' — ' + esc(src.key.split('/').pop());
       html += '</summary>';
       html += '<div class="findings-body">' + buildAcceptanceSummaryCard(parsed.raw) + '</div>';
       html += '</details></div>';
+      endSection();
     }
 
-    // Brief list — grouped by category (per pipeline type)
-    const docGroups = getPipelineDocGroups();
-    const uncategorized = { title: '其他', items: [] };
-    const groups = docGroups.map(g => ({ ...g, items: [] }));
-    for (const [name, parsed] of state.parsed) {
-      const brief = extractBrief(parsed.raw);
-      const status = parsed.frontmatter ? parsed.frontmatter.status : '';
-      const item = { name, brief, status, freshness: parsed.frontmatter?.freshness };
-      const group = groups.find(g => g.test(name));
-      (group ? group.items : uncategorized.items).push(item);
-    }
-    for (const group of [...groups, uncategorized]) {
-      if (!group.items.length) continue;
-      html += `<div class="overview-section"><h2>${group.title}</h2>`;
-      if (group.title === '模块设计') {
-        html += '<div class="module-cards">';
-        const modMap = new Map();
-        for (const item of group.items) {
-          const m = item.name.match(/modules\/([^/]+)\/(.+)$/);
-          if (!m) continue;
-          const modName = m[1];
-          const fileName = m[2];
-          if (!modMap.has(modName)) modMap.set(modName, []);
-          modMap.get(modName).push({ ...item, fileName });
-        }
-        for (const [modName, files] of modMap) {
-          const mainFile = files.find(f => f.fileName === 'design.md') || files[0];
-          const status = mainFile.status;
-          const freshness = mainFile.freshness;
-          const brief = mainFile.brief;
-          html += `<div class="module-card" data-module="${modName}">`;
-          html += `<div class="module-card-header">`;
-          html += `<span class="module-card-name">${esc(modName)}</span>`;
-          html += status ? renderStatusToggle(mainFile.name, status, freshness) : '';
-          html += `</div>`;
-          if (brief) html += `<div class="module-card-brief">${md.render(brief)}</div>`;
-          const fileTags = files.map(f => f.fileName.replace('.md', '')).join(' · ');
-          html += `<div class="module-card-files">${esc(fileTags)}</div>`;
-          html += '</div>';
-        }
-        html += '</div>';
-      } else {
-        html += '<ul class="brief-list">';
-        for (const item of group.items) {
-          html += `<li class="brief-item" data-file="${item.name}"><div class="brief-item-header"><span class="file-name">${esc(item.name)}</span>`;
-          html += item.status ? renderStatusToggle(item.name, item.status, item.freshness) : '';
-          let briefHtml = item.brief;
-          // For review files, append stats line below the metadata brief
-          if (item.name === '_review.md' || item.name.endsWith('/_review.md')) {
-            const statsHtml = buildReviewBrief(item.name);
-            if (briefHtml && statsHtml) briefHtml = briefHtml + '<br>' + statsHtml;
-            else briefHtml = briefHtml || statsHtml;
-          }
-          html += `</div>${briefHtml ? md.render(briefHtml) : '<span style="color:#737373">—</span>'}</li>`;
-        }
-        html += '</ul>';
-      }
-      html += '</div>';
-    }
-
-    // Marker aggregation
+    startSection('overview-ledger', '标记账本');
     const allMarkers = [];
     for (const [, parsed] of state.parsed) {
       allMarkers.push(...parsed.markers.map(m => ({ ...m })));
@@ -1073,15 +1262,16 @@
       const decCount = allMarkers.filter(m => m.type === 'DECISION').length;
       const openCount = allMarkers.filter(m => m.type === 'OPEN').length;
       const actCount = allMarkers.filter(m => m.type === 'ACTION').length;
+      const activeTab = state.ledgerActiveTab;
       html += '<div class="ledger-tags">';
-      if (decCount) html += `<span class="ledger-tag decision active" data-tab="decision">决策 ${decCount}</span>`;
-      if (openCount) html += `<span class="ledger-tag open" data-tab="open">待处理 ${openCount}</span>`;
-      if (actCount) html += `<span class="ledger-tag action" data-tab="action">修复动作 ${actCount}</span>`;
+      if (decCount) html += `<span class="ledger-tag decision${activeTab === 'decision' ? ' active' : ''}" data-tab="decision">决策 ${decCount}</span>`;
+      if (openCount) html += `<span class="ledger-tag open${activeTab === 'open' ? ' active' : ''}" data-tab="open">待处理 ${openCount}</span>`;
+      if (actCount) html += `<span class="ledger-tag action${activeTab === 'action' ? ' active' : ''}" data-tab="action">修复动作 ${actCount}</span>`;
       html += '</div>';
       html += '<div class="ledger-tabs">';
       for (const tab of markerTabs) {
         const count = allMarkers.filter(tab.test).length;
-        html += `<button class="ledger-tab-btn${tab.key === 'decision' ? ' active' : ''}" data-tab="${tab.key}">${tab.label} <span class="ledger-tab-count">${count}</span></button>`;
+        html += `<button class="ledger-tab-btn${tab.key === activeTab ? ' active' : ''}" data-tab="${tab.key}">${tab.label} <span class="ledger-tab-count">${count}</span></button>`;
       }
       html += '</div>';
       html += '<div class="ledger-search-wrap"><input type="text" class="ledger-search" placeholder="搜索标记..." id="ledger-search"></div>';
@@ -1089,17 +1279,24 @@
 
       for (const tab of markerTabs) {
         const items = allMarkers.filter(tab.test);
-        html += `<div class="ledger-panel${tab.key === 'decision' ? ' active' : ''}" data-panel="${tab.key}">`;
-        if (items.length) {
+        const totalPages = Math.max(1, Math.ceil(items.length / LEDGER_PAGE_SIZE));
+        const currentPage = Math.min(state.ledgerPages[tab.key] || 1, totalPages);
+        state.ledgerPages[tab.key] = currentPage;
+        const startIdx = (currentPage - 1) * LEDGER_PAGE_SIZE;
+        const pageItems = items.slice(startIdx, startIdx + LEDGER_PAGE_SIZE);
+        html += `<div class="ledger-panel${tab.key === activeTab ? ' active' : ''}" data-panel="${tab.key}">`;
+        html += '<div class="ledger-panel-body">';
+        if (pageItems.length) {
           html += '<table class="ledger-table"><thead><tr>';
           html += '<th>#</th><th>内容</th><th>来源</th><th>行</th>';
           html += '</tr></thead><tbody>';
-          for (let di = 0; di < items.length; di++) {
-            const d = items[di];
+          for (let di = 0; di < pageItems.length; di++) {
+            const d = pageItems[di];
+            const globalIdx = startIdx + di + 1;
             const sourceParts = d.file.split('/');
             const sourceLabel = sourceParts.length > 1 ? sourceParts.slice(-2).join('/') : d.file;
             html += `<tr class="ledger-row" data-source-file="${esc(d.file)}" data-source-line="${d.line}">`;
-            html += `<td class="ledger-idx">${di + 1}</td>`;
+            html += `<td class="ledger-idx">${globalIdx}</td>`;
             html += `<td class="ledger-content">${esc(d.title)}</td>`;
             html += `<td class="ledger-source">${esc(sourceLabel)}</td>`;
             html += `<td class="ledger-line">L${d.line}</td>`;
@@ -1110,8 +1307,28 @@
           html += '<div class="ledger-empty">无</div>';
         }
         html += '</div>';
+        if (totalPages > 1) {
+          html += '<div class="ledger-pagination">';
+          html += `<span class="ledger-page-info">${currentPage} / ${totalPages}</span>`;
+          html += `<button class="ledger-page-btn" data-tab="${tab.key}" data-dir="prev" ${currentPage <= 1 ? 'disabled' : ''}>‹</button>`;
+          html += `<button class="ledger-page-btn" data-tab="${tab.key}" data-dir="next" ${currentPage >= totalPages ? 'disabled' : ''}>›</button>`;
+          html += '</div>';
+        }
+        html += '</div>';
       }
       html += '</div></div>';
+    }
+    endSection();
+
+    // Build sidebar + layout wrapper
+    if (sections.length > 0) {
+      let sidebarHtml = '<div class="tab-sidebar-layout"><div class="tab-sidebar"><div class="tab-sidebar-title">导航</div>';
+      for (const s of sections) {
+        const cls = state.sidebarActive.overview === s.id ? ' active' : '';
+        sidebarHtml += `<div class="tab-sidebar-item${cls}" data-target="${s.id}">${esc(s.label)}</div>`;
+      }
+      sidebarHtml += '</div>';
+      html = sidebarHtml + '<div class="tab-sidebar-content">' + html + '</div></div>';
     }
 
     el.innerHTML = html;
@@ -1216,10 +1433,9 @@
     el.querySelectorAll('.ledger-tag').forEach(tag => {
       tag.addEventListener('click', () => {
         const tabKey = tag.dataset.tab;
-        // Sync ledger-tab-btn
+        state.ledgerActiveTab = tabKey;
         el.querySelectorAll('.ledger-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabKey));
         el.querySelectorAll('.ledger-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === tabKey));
-        // Sync tag highlight
         el.querySelectorAll('.ledger-tag').forEach(t => t.classList.toggle('active', t.dataset.tab === tabKey));
         const search = el.querySelector('#ledger-search');
         if (search) { search.value = ''; search.dispatchEvent(new Event('input')); }
@@ -1229,11 +1445,26 @@
     el.querySelectorAll('.ledger-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const tabKey = btn.dataset.tab;
+        state.ledgerActiveTab = tabKey;
         el.querySelectorAll('.ledger-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabKey));
         el.querySelectorAll('.ledger-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === tabKey));
         el.querySelectorAll('.ledger-tag').forEach(t => t.classList.toggle('active', t.dataset.tab === tabKey));
         const search = el.querySelector('#ledger-search');
         if (search) { search.value = ''; search.dispatchEvent(new Event('input')); }
+      });
+    });
+    // Ledger pagination
+    el.querySelectorAll('.ledger-page-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        const dir = btn.dataset.dir;
+        const current = state.ledgerPages[tab] || 1;
+        if (dir === 'prev' && current > 1) {
+          state.ledgerPages[tab] = current - 1;
+        } else if (dir === 'next') {
+          state.ledgerPages[tab] = current + 1;
+        }
+        renderOverview();
       });
     });
     // Ledger search (within active panel)
@@ -1249,13 +1480,15 @@
         });
       });
     }
+    // Sidebar navigation
+    bindSidebarNav(el, 'overview');
   }
 
   function extractBrief(raw) {
     const match = raw.match(/^---\n[\s\S]*?\n---\s*\n([\s\S]*?)(?=\n## )/);
     if (!match) return '';
     const blockquotes = match[1].match(/^>\s*(.+)$/gm);
-    return blockquotes ? blockquotes.map(b => b.replace(/^>\s*/, '')).join(' ') : '';
+    return blockquotes ? blockquotes.map(b => b.replace(/^>\s*/, '')).join('  \n') : '';
   }
 
   // Parse _findings.md into structured sections for overview summary card.
@@ -1433,20 +1666,58 @@
     const el = $('#tab-requirements');
     let html = '';
     const roadmapKey = findFile('_roadmap.md');
-    const defineKey = findFile('_define.md');
-    if (!defineKey && !roadmapKey) {
+    const defineKeys = findAllFiles('_define.md');
+    if (!defineKeys.length && !roadmapKey) {
       el.innerHTML = '<p style="color:#737373;">未找到需求文档（_define.md / _roadmap.md）</p>';
       return;
     }
-    html += renderFileStatusBar(defineKey);
-    if (defineKey) html += renderMd(state.parsed.get(defineKey).body, defineKey, state.parsed.get(defineKey).bodyOffset);
-    if (roadmapKey) {
-      html += renderFileStatusBar(roadmapKey);
-      html += renderMd(state.parsed.get(roadmapKey).body, roadmapKey, state.parsed.get(roadmapKey).bodyOffset);
+
+    const reqDocs = [];
+    if (roadmapKey) reqDocs.push({ key: roadmapKey, label: 'Roadmap', phase: null, id: 'req-roadmap' });
+    const rootDefine = defineKeys.find(k => !extractPhase(k));
+    if (rootDefine) reqDocs.push({ key: rootDefine, label: '需求定义', phase: null, id: 'req-define-root' });
+    const phaseDefines = defineKeys.filter(k => extractPhase(k));
+    phaseDefines.forEach((dk, i) => {
+      const phase = extractPhase(dk);
+      reqDocs.push({ key: dk, label: dk.split('/').pop(), phase, id: `req-define-${i}` });
+    });
+
+    let contentHtml = '';
+    for (const doc of reqDocs) {
+      if (doc.phase && doc === reqDocs.find(d => d.phase === doc.phase)) {
+        contentHtml += `<div class="phase-section-header">${esc(doc.phase)}</div>`;
+      }
+      contentHtml += `<div id="${doc.id}">`;
+      if (doc.phase) contentHtml += renderPhaseHeader(doc.key);
+      contentHtml += renderFileStatusBar(doc.key);
+      const parsed = state.parsed.get(doc.key);
+      contentHtml += renderMd(parsed.body, doc.key, parsed.bodyOffset);
+      contentHtml += '</div>';
     }
+
+    if (reqDocs.length > 1) {
+      let sidebarHtml = '<div class="tab-sidebar-layout"><div class="tab-sidebar"><div class="tab-sidebar-title">文档</div>';
+      let lastPhase = '__none__';
+      for (const doc of reqDocs) {
+        if (doc.phase && doc.phase !== lastPhase) {
+          sidebarHtml += `<div class="tab-sidebar-label">${esc(doc.phase)}</div>`;
+          lastPhase = doc.phase;
+        } else if (!doc.phase && lastPhase !== '__none__') {
+          lastPhase = '__none__';
+        }
+        const cls = state.sidebarActive.requirements === doc.id ? ' active' : '';
+        sidebarHtml += `<div class="tab-sidebar-item${cls}" data-target="${doc.id}">${esc(doc.label)}</div>`;
+      }
+      sidebarHtml += '</div>';
+      html = sidebarHtml + '<div class="tab-sidebar-content">' + contentHtml + '</div></div>';
+    } else {
+      html = contentHtml;
+    }
+
     el.innerHTML = html;
     bindStatusToggles(el);
     bindAcceptanceCheckboxes(el);
+    if (reqDocs.length > 1) bindSidebarNav(el, 'requirements');
   }
 
   // Parse _issue.md into structured sections for overview summary card.
@@ -1794,18 +2065,17 @@
   // ── Design Tab ──
   function renderDesign() {
     const el = $('#tab-design');
-    const registryKey = findFile('modules/_registry.md');
-    if (!registryKey) {
+    const registryKeys = findAllFiles('modules/_registry.md');
+    if (!registryKeys.length) {
       el.innerHTML = '<p style="color:#737373;">未找到模块注册表（modules/_registry.md）</p>';
       return;
     }
-    const registry = state.parsed.get(registryKey);
 
-    // Extract module names from parsed files
+    // Extract module names from parsed files, tracking phase
     const modules = [];
     for (const name of state.files.keys()) {
       const m = name.match(/modules\/([^/]+)\/design\.md$/);
-      if (m && m[1] !== '_shared') modules.push(m[1]);
+      if (m && m[1] !== '_shared') modules.push({ name: m[1], phase: extractPhase(name), key: name });
     }
 
     // Collect _shared files
@@ -1814,16 +2084,40 @@
       if (name.match(/modules\/_shared\//)) sharedFiles.push(name);
     }
 
-    if (state.activeModule && !modules.includes(state.activeModule) && state.activeModule !== '_shared') {
-      state.activeModule = null;
+    // Qualify activeModule for multi-phase (e.g. "p1-core-device::device-core")
+    if (state.activeModule && state.activeModule !== '_shared') {
+      const found = modules.find(m => {
+        const qn = m.phase ? `${m.phase}::${m.name}` : m.name;
+        return qn === state.activeModule;
+      });
+      if (!found) state.activeModule = null;
     }
 
     let html = '<div class="design-layout">';
     html += '<div class="module-tree"><h3>模块</h3>';
     html += `<div class="module-item${!state.activeModule ? ' active' : ''}" data-module="">注册表</div>`;
-    for (const mod of modules) {
-      html += `<div class="module-item${state.activeModule === mod ? ' active' : ''}" data-module="${mod}">${mod}</div>`;
+
+    if (isMultiPhase()) {
+      const phaseGroups = new Map();
+      phaseGroups.set(null, []);
+      for (const mod of modules) {
+        const key = mod.phase || null;
+        if (!phaseGroups.has(key)) phaseGroups.set(key, []);
+        phaseGroups.get(key).push(mod);
+      }
+      for (const [ph, mods] of phaseGroups) {
+        if (ph) html += `<div class="phase-tree-label">${esc(ph)}</div>`;
+        for (const mod of mods) {
+          const qn = mod.phase ? `${mod.phase}::${mod.name}` : mod.name;
+          html += `<div class="module-item${state.activeModule === qn ? ' active' : ''}" data-module="${esc(qn)}">${esc(mod.name)}</div>`;
+        }
+      }
+    } else {
+      for (const mod of modules) {
+        html += `<div class="module-item${state.activeModule === mod.name ? ' active' : ''}" data-module="${mod.name}">${mod.name}</div>`;
+      }
     }
+
     if (sharedFiles.length) {
       html += '<div class="module-tree-divider"></div>';
       html += `<div class="module-item${state.activeModule === '_shared' ? ' active' : ''}" data-module="_shared">共享</div>`;
@@ -1832,8 +2126,12 @@
 
     html += '<div class="module-detail">';
     if (!state.activeModule) {
-      html += renderFileStatusBar(registryKey);
-      html += renderMd(registry.body, registryKey, registry.bodyOffset);
+      for (const rk of registryKeys) {
+        html += renderPhaseHeader(rk);
+        html += renderFileStatusBar(rk);
+        const rp = state.parsed.get(rk);
+        html += renderMd(rp.body, rk, rp.bodyOffset);
+      }
     } else if (state.activeModule === '_shared') {
       for (const f of sharedFiles) {
         const p = state.parsed.get(f);
@@ -1841,8 +2139,15 @@
         html += renderMd(p.body, f, p.bodyOffset);
       }
     } else {
-      const designKey = findFile(`modules/${state.activeModule}/design.md`);
-      const decisionsKey = findFile(`modules/${state.activeModule}/decisions.md`);
+      let modPhase = null, modName = state.activeModule;
+      if (isMultiPhase() && state.activeModule.includes('::')) {
+        const parts = state.activeModule.split('::');
+        modPhase = parts[0];
+        modName = parts[1];
+      }
+      const prefix = modPhase ? `${modPhase}/` : '';
+      const designKey = findFile(`${prefix}modules/${modName}/design.md`);
+      const decisionsKey = findFile(`${prefix}modules/${modName}/decisions.md`);
       if (designKey) {
         html += '<div class="module-doc-section">';
         html += renderFileStatusBar(designKey);
@@ -1855,7 +2160,7 @@
         html += renderMd(state.parsed.get(decisionsKey).body, decisionsKey, state.parsed.get(decisionsKey).bodyOffset);
         html += '</div>';
       }
-      if (!designKey && !decisionsKey) html = '<p style="color:#737373;">未找到该模块的设计文档</p>';
+      if (!designKey && !decisionsKey) html += '<p style="color:#737373;">未找到该模块的设计文档</p>';
     }
     html += '</div></div>';
 
@@ -1919,138 +2224,198 @@
 
   function renderCheck() {
     const el = $('#tab-check');
-    const checkKey = findFile('_check.md');
-    if (!checkKey) {
+    const checkKeys = findAllFiles('_check.md');
+    if (!checkKeys.length) {
       el.innerHTML = '<p style="color:#737373;">未找到校验文档（_check.md）</p>';
       return;
     }
-    const check = state.parsed.get(checkKey);
-    const blocks = parseCheckBlocks(check.body);
 
-    let html = renderFileStatusBar(checkKey);
-    html += '<div class="severity-filters">';
-    html += '<button class="severity-btn active" data-severity="all">全部</button>';
-    html += '<button class="severity-btn" data-severity="red">🔴 阻塞</button>';
-    html += '<button class="severity-btn" data-severity="yellow">🟡 建议</button>';
-    html += '<button class="severity-btn" data-severity="green">🟢 通过</button>';
-    html += '</div>';
-    html += '<div class="check-content">';
-    for (const block of blocks) {
-      const checkParsed = state.parsed.get(checkKey);
-      const rendered = renderMd(block.text, checkKey, checkParsed ? checkParsed.bodyOffset : 0);
-      if (block.type === 'severity') {
-        html += `<div class="severity-item" data-severity="${block.severity}">${rendered}</div>`;
-      } else {
-        html += rendered;
+    // Build check docs with IDs for sidebar
+    const checkDocs = checkKeys.map((ck, i) => {
+      const phase = extractPhase(ck);
+      return { key: ck, label: ck.split('/').pop(), phase, id: `check-doc-${i}` };
+    });
+
+    let contentHtml = '';
+    for (const doc of checkDocs) {
+      contentHtml += `<div id="${doc.id}">`;
+      contentHtml += renderPhaseHeader(doc.key);
+      const check = state.parsed.get(doc.key);
+      const blocks = parseCheckBlocks(check.body);
+
+      contentHtml += renderFileStatusBar(doc.key);
+      contentHtml += '<div class="severity-filters" data-check-scope="' + esc(doc.key) + '">';
+      contentHtml += '<button class="severity-btn active" data-severity="all">全部</button>';
+      contentHtml += '<button class="severity-btn" data-severity="red">🔴 阻塞</button>';
+      contentHtml += '<button class="severity-btn" data-severity="yellow">🟡 建议</button>';
+      contentHtml += '<button class="severity-btn" data-severity="green">🟢 通过</button>';
+      contentHtml += '</div>';
+      contentHtml += '<div class="check-content" data-check-scope="' + esc(doc.key) + '">';
+      for (const block of blocks) {
+        const checkParsed = state.parsed.get(doc.key);
+        const rendered = renderMd(block.text, doc.key, checkParsed ? checkParsed.bodyOffset : 0);
+        if (block.type === 'severity') {
+          contentHtml += `<div class="severity-item" data-severity="${block.severity}">${rendered}</div>`;
+        } else {
+          contentHtml += rendered;
+        }
       }
+      contentHtml += '</div></div>';
     }
-    html += '</div>';
+
+    let html = '';
+    if (checkDocs.length > 1) {
+      let sidebarHtml = '<div class="tab-sidebar-layout"><div class="tab-sidebar"><div class="tab-sidebar-title">文档</div>';
+      let lastPhase = '__none__';
+      for (const doc of checkDocs) {
+        if (doc.phase && doc.phase !== lastPhase) {
+          sidebarHtml += `<div class="tab-sidebar-label">${esc(doc.phase)}</div>`;
+          lastPhase = doc.phase;
+        } else if (!doc.phase && lastPhase !== '__none__') {
+          lastPhase = '__none__';
+        }
+        const cls = state.sidebarActive.check === doc.id ? ' active' : '';
+        sidebarHtml += `<div class="tab-sidebar-item${cls}" data-target="${doc.id}">${esc(doc.label)}</div>`;
+      }
+      sidebarHtml += '</div>';
+      html = sidebarHtml + '<div class="tab-sidebar-content">' + contentHtml + '</div></div>';
+    } else {
+      html = contentHtml;
+    }
 
     el.innerHTML = html;
     bindStatusToggles(el);
 
-    el.querySelectorAll('.severity-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        el.querySelectorAll('.severity-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const severity = btn.dataset.severity;
-        filterSeverity(severity);
+    el.querySelectorAll('.severity-filters').forEach(filters => {
+      filters.querySelectorAll('.severity-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          filters.querySelectorAll('.severity-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const severity = btn.dataset.severity;
+          const scope = filters.dataset.checkScope;
+          const content = el.querySelector(`.check-content[data-check-scope="${scope}"]`);
+          if (!content) return;
+          content.querySelectorAll('.severity-item').forEach(item => {
+            item.style.display = severity === 'all' ? '' : (item.dataset.severity === severity ? '' : 'none');
+          });
+        });
       });
     });
+    if (checkDocs.length > 1) bindSidebarNav(el, 'check');
   }
 
   function filterSeverity(severity) {
-    const content = document.querySelector('.check-content');
-    if (!content) return;
-    const items = content.querySelectorAll('.severity-item');
-    items.forEach(item => {
-      if (severity === 'all') {
-        item.style.display = '';
-      } else {
-        item.style.display = item.dataset.severity === severity ? '' : 'none';
-      }
+    document.querySelectorAll('.check-content').forEach(content => {
+      content.querySelectorAll('.severity-item').forEach(item => {
+        item.style.display = severity === 'all' ? '' : (item.dataset.severity === severity ? '' : 'none');
+      });
     });
   }
 
   // ── Execution Tab ──
   function renderExecution() {
     const el = $('#tab-execution');
-    const planKey = findFile('_plan.md');
-    if (!planKey) {
+    const planKeys = findAllFiles('_plan.md');
+    if (!planKeys.length) {
       el.innerHTML = '<p style="color:#737373;">未找到执行计划（_plan.md）</p>';
       return;
     }
-    const plan = state.parsed.get(planKey);
 
-    const steps = extractSteps(plan.body);
-    const doneCount = steps.filter(s => s.done).length;
-    const totalCount = steps.length;
-    const pct = totalCount ? Math.round((doneCount / totalCount) * 100) : 0;
+    const execPhases = planKeys.map((pk, i) => ({
+      key: pk, label: extractPhase(pk) || '执行计划', id: `exec-phase-${i}`
+    }));
+
+    let contentHtml = '';
+    for (const phase of execPhases) {
+      const plan = state.parsed.get(phase.key);
+      const steps = extractSteps(plan.body);
+      const doneCount = steps.filter(s => s.done).length;
+      const totalCount = steps.length;
+      const pct = totalCount ? Math.round((doneCount / totalCount) * 100) : 0;
+
+      contentHtml += `<div id="${phase.id}">`;
+      contentHtml += renderPhaseHeader(phase.key);
+      contentHtml += renderFileStatusBar(phase.key);
+
+      contentHtml += '<div class="exec-progress-section" data-plan-scope="' + esc(phase.key) + '">';
+      contentHtml += '<div class="exec-progress-bar"><div class="exec-progress-fill" style="width:' + pct + '%"></div></div>';
+      contentHtml += '<div class="exec-progress-meta">';
+      contentHtml += `<span class="exec-stat done">${doneCount} 完成</span>`;
+      contentHtml += `<span class="exec-stat pending">${totalCount - doneCount} 待执行</span>`;
+      contentHtml += `<span class="exec-stat pct">${pct}%</span>`;
+      contentHtml += '</div>';
+      contentHtml += '<button class="btn-sm exec-refresh-btn" data-plan-scope="' + esc(phase.key) + '">进度刷新</button>';
+      contentHtml += '<div class="exec-step-chips">';
+      for (const step of steps) {
+        const cls = step.done ? 'done' : 'pending';
+        contentHtml += `<span class="exec-chip ${cls}" data-step="${step.num}" data-plan-scope="${esc(phase.key)}" title="${esc(step.title)}">${step.done ? '✓ ' : ''}Step ${step.num}</span>`;
+      }
+      contentHtml += '</div>';
+      contentHtml += '</div>';
+
+      contentHtml += '<div class="plan-content" data-plan-scope="' + esc(phase.key) + '">' + renderMd(plan.body, phase.key, plan.bodyOffset) + '</div>';
+      contentHtml += '</div>';
+    }
 
     let html = '';
-
-    // Status bar
-    html += renderFileStatusBar(planKey);
-
-    // Progress section: vertical stack
-    html += '<div class="exec-progress-section">';
-    html += '<div class="exec-progress-bar"><div class="exec-progress-fill" style="width:' + pct + '%"></div></div>';
-    html += '<div class="exec-progress-meta">';
-    html += `<span class="exec-stat done">${doneCount} 完成</span>`;
-    html += `<span class="exec-stat pending">${totalCount - doneCount} 待执行</span>`;
-    html += `<span class="exec-stat pct">${pct}%</span>`;
-    html += '</div>';
-    html += '<button class="btn-sm" id="exec-refresh-btn">进度刷新</button>';
-    html += '<div class="exec-step-chips">';
-    for (const step of steps) {
-      const cls = step.done ? 'done' : 'pending';
-      html += `<span class="exec-chip ${cls}" data-step="${step.num}" title="${esc(step.title)}">${step.done ? '✓ ' : ''}Step ${step.num}</span>`;
+    if (execPhases.length > 1) {
+      let sidebarHtml = '<div class="tab-sidebar-layout"><div class="tab-sidebar"><div class="tab-sidebar-title">阶段</div>';
+      for (const phase of execPhases) {
+        const cls = state.sidebarActive.execution === phase.id ? ' active' : '';
+        sidebarHtml += `<div class="tab-sidebar-item${cls}" data-target="${phase.id}">${esc(phase.label)}</div>`;
+      }
+      sidebarHtml += '</div>';
+      html = sidebarHtml + '<div class="tab-sidebar-content">' + contentHtml + '</div></div>';
+    } else {
+      html = contentHtml;
     }
-    html += '</div>';
-    html += '</div>';
-
-    // Render markdown body
-    html += '<div class="plan-content">' + renderMd(plan.body, planKey, plan.bodyOffset) + '</div>';
 
     el.innerHTML = html;
     bindStatusToggles(el);
 
-    // Color step headings based on status
-    el.querySelectorAll('.plan-content h3').forEach(h3 => {
-      const stepMatch = h3.textContent.match(/^Step (\d+):/);
-      if (!stepMatch) return;
-      const stepNum = parseInt(stepMatch[1]);
-      const step = steps.find(s => s.num === stepNum);
-      if (!step) return;
-      // Wrap step content in a step-block div for visual separation
-      const wrapper = document.createElement('div');
-      wrapper.className = 'step-block' + (step.done ? ' step-done' : '');
-      wrapper.id = 'step-' + stepNum;
-      while (h3.nextSibling && !(h3.nextSibling.nodeName === 'H3' && h3.nextSibling.textContent.match(/^Step \d+:/))) {
-        wrapper.appendChild(h3.nextSibling);
-      }
-      h3.parentNode.insertBefore(wrapper, h3.nextSibling);
-      wrapper.insertBefore(h3, wrapper.firstChild);
-
-      if (step.done) {
-        h3.style.color = '#525252';
-        h3.style.textDecoration = 'line-through';
-      }
+    // Color step headings + wrap per plan block
+    el.querySelectorAll('.plan-content').forEach(planEl => {
+      const scope = planEl.dataset.planScope;
+      const planKey = scope;
+      const plan = state.parsed.get(planKey);
+      if (!plan) return;
+      const steps = extractSteps(plan.body);
+      planEl.querySelectorAll('h3').forEach(h3 => {
+        const stepMatch = h3.textContent.match(/^Step (\d+):/);
+        if (!stepMatch) return;
+        const stepNum = parseInt(stepMatch[1]);
+        const step = steps.find(s => s.num === stepNum);
+        if (!step) return;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'step-block' + (step.done ? ' step-done' : '');
+        wrapper.id = 'step-' + stepNum + '-' + scope.replace(/[^a-z0-9]/gi, '');
+        while (h3.nextSibling && !(h3.nextSibling.nodeName === 'H3' && h3.nextSibling.textContent.match(/^Step \d+:/))) {
+          wrapper.appendChild(h3.nextSibling);
+        }
+        h3.parentNode.insertBefore(wrapper, h3.nextSibling);
+        wrapper.insertBefore(h3, wrapper.firstChild);
+        if (step.done) {
+          h3.style.color = '#525252';
+          h3.style.textDecoration = 'line-through';
+        }
+      });
     });
 
-    // Chip click -> scroll to step
+    // Chip click -> scroll
     el.querySelectorAll('.exec-chip[data-step]').forEach(chip => {
       chip.style.cursor = 'pointer';
       chip.addEventListener('click', () => {
-        const target = el.querySelector('#step-' + chip.dataset.step);
+        const scope = chip.dataset.planScope;
+        const target = el.querySelector('#step-' + chip.dataset.step + '-' + scope.replace(/[^a-z0-9]/gi, ''));
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
 
-    // Refresh button
-    el.querySelector('#exec-refresh-btn')?.addEventListener('click', () => {
-      fetchAndLoadFiles();
+    // Refresh buttons
+    el.querySelectorAll('.exec-refresh-btn').forEach(btn => {
+      btn.addEventListener('click', () => fetchAndLoadFiles());
     });
+    if (execPhases.length > 1) bindSidebarNav(el, 'execution');
   }
 
   function extractSteps(body) {
@@ -2276,115 +2641,134 @@
 
   function renderReview() {
     const el = $('#tab-review');
-    const reviewKey = findFile('_review.md');
-    if (!reviewKey) {
+    const reviewKeys = findAllFiles('_review.md');
+    if (!reviewKeys.length) {
       el.innerHTML = '<p style="color:#737373;">未找到审查报告（_review.md）</p>';
       return;
     }
-    const review = state.parsed.get(reviewKey);
-    const rounds = parseReviewReport(review.body);
 
-    let html = renderFileStatusBar(reviewKey);
+    const reviewPhases = reviewKeys.map((rk, i) => ({
+      key: rk, label: extractPhase(rk) || '审查报告', id: `review-phase-${i}`
+    }));
 
-    // Sticky nav: stats + round groups with finding tags
-    const sortedRounds = [...rounds].sort((a, b) => a.num - b.num);
-    let totalFindings = 0;
-    let totalResolved = 0;
-    let totalAccepted = 0;
-    for (const r of sortedRounds) {
-      const all = [...(r.sections.Open || []), ...(r.sections.Resolved || []), ...(r.sections.Accepted || [])];
-      totalFindings += all.length;
-      totalResolved += all.filter(f => f.isResolved).length;
-      totalAccepted += all.filter(f => f.state === 'accepted').length;
+    let contentHtml = '';
+    for (const phase of reviewPhases) {
+      const review = state.parsed.get(phase.key);
+      const rounds = parseReviewReport(review.body);
+      const scope = phase.key.replace(/[^a-z0-9]/gi, '');
+
+      contentHtml += `<div id="${phase.id}">`;
+      contentHtml += renderPhaseHeader(phase.key);
+      contentHtml += renderFileStatusBar(phase.key);
+
+      // Sticky nav: stats + round groups with finding tags
+      const sortedRounds = [...rounds].sort((a, b) => a.num - b.num);
+      let totalFindings = 0, totalResolved = 0, totalAccepted = 0;
+      for (const r of sortedRounds) {
+        const all = [...(r.sections.Open || []), ...(r.sections.Resolved || []), ...(r.sections.Accepted || [])];
+        totalFindings += all.length;
+        totalResolved += all.filter(f => f.isResolved).length;
+        totalAccepted += all.filter(f => f.state === 'accepted').length;
+      }
+
+      contentHtml += '<div class="review-nav" data-review-scope="' + esc(phase.key) + '">';
+      const statsParts = [];
+      statsParts.push(`${totalResolved} resolved`);
+      if (totalAccepted) statsParts.push(`${totalAccepted} accepted`);
+      statsParts.push(`${totalFindings - totalResolved - totalAccepted} open`);
+      contentHtml += `<div class="review-nav-stats">${statsParts.join(' · ')}</div>`;
+      contentHtml += '<div class="review-nav-rounds">';
+      for (const round of sortedRounds) {
+        const allFindings = [...(round.sections.Open || []), ...(round.sections.Resolved || []), ...(round.sections.Accepted || [])];
+        if (!allFindings.length) continue;
+        contentHtml += '<div class="review-nav-round">';
+        contentHtml += `<span class="review-nav-round-label">Round ${round.num}</span>`;
+        contentHtml += '<div class="review-nav-tags">';
+        for (let i = 0; i < allFindings.length; i++) {
+          const f = allFindings[i];
+          const fId = `r${round.num}-f${i}-${scope}`;
+          const sevCls = f.severity === '🔴' ? 'red' : f.severity === '🟠' ? 'orange' : 'yellow';
+          const shortTitle = f.title.length > 20 ? f.title.slice(0, 20) + '…' : f.title;
+          const fState = f.state || (f.isResolved ? 'resolved' : 'open');
+          const stateTag = fState !== 'open' ? ` ${fState}` : '';
+          contentHtml += `<span class="review-nav-tag ${sevCls}${stateTag}" data-target="${fId}" title="${esc(f.file)}:${esc(f.line)} — ${esc(f.title)}">${esc(f.severity)} ${esc(shortTitle)}</span>`;
+        }
+        contentHtml += '</div></div>';
+      }
+      contentHtml += '</div></div>';
+
+      // Render round content (newest first)
+      const reverseRounds = [...sortedRounds].reverse();
+      for (const round of reverseRounds) {
+        contentHtml += `<div class="review-round">`;
+        contentHtml += '<div class="review-round-header">';
+        contentHtml += `<span class="review-round-title">Round ${round.num}</span>`;
+        if (round.badgeClass) {
+          contentHtml += `<span class="review-round-badge ${round.badgeClass}">${esc(round.status === 'converged' ? 'Converged' : round.status === 'analyzed' ? 'Analyzed' : 'Max rounds')}</span>`;
+        }
+        contentHtml += '</div>';
+
+        if (round.meta.findings || round.meta.files) {
+          contentHtml += '<div class="review-round-meta">';
+          if (round.meta.reviewed_at) contentHtml += `<span>${esc(round.meta.reviewed_at)}</span>`;
+          if (round.meta.files) contentHtml += `<span>${esc(round.meta.files)}</span>`;
+          if (round.meta.findings) contentHtml += `<span>${esc(round.meta.findings)}</span>`;
+          if (round.meta.simplify) contentHtml += `<span>simplify: ${esc(round.meta.simplify)}</span>`;
+          contentHtml += '</div>';
+        }
+
+        const openFindings = round.sections.Open || [];
+        if (openFindings.length) {
+          contentHtml += '<div class="review-section">';
+          contentHtml += '<div class="review-section-title">Open</div>';
+          for (let i = 0; i < openFindings.length; i++) {
+            contentHtml += renderFinding(openFindings[i], `r${round.num}-f${i}-${scope}`);
+          }
+          contentHtml += '</div>';
+        }
+
+        const resolvedFindings = round.sections.Resolved || [];
+        const openLen = openFindings.length;
+        if (resolvedFindings.length) {
+          contentHtml += '<div class="review-section">';
+          contentHtml += '<div class="review-section-title">Resolved</div>';
+          for (let i = 0; i < resolvedFindings.length; i++) {
+            contentHtml += renderFinding(resolvedFindings[i], `r${round.num}-f${openLen + i}-${scope}`);
+          }
+          contentHtml += '</div>';
+        }
+
+        const acceptedFindings = round.sections.Accepted || [];
+        const accOffset = openLen + resolvedFindings.length;
+        if (acceptedFindings.length) {
+          contentHtml += '<div class="review-section">';
+          contentHtml += '<div class="review-section-title">Accepted</div>';
+          for (let i = 0; i < acceptedFindings.length; i++) {
+            contentHtml += renderFinding(acceptedFindings[i], `r${round.num}-f${accOffset + i}-${scope}`);
+          }
+          contentHtml += '</div>';
+        }
+
+        contentHtml += '</div>';
+      }
+
+      if (!rounds.length) {
+        contentHtml += '<p style="color:#737373;">报告内容为空</p>';
+      }
+      contentHtml += '</div>';
     }
 
-    html += '<div class="review-nav">';
-    const statsParts = [];
-    statsParts.push(`${totalResolved} resolved`);
-    if (totalAccepted) statsParts.push(`${totalAccepted} accepted`);
-    statsParts.push(`${totalFindings - totalResolved - totalAccepted} open`);
-    html += `<div class="review-nav-stats">${statsParts.join(' · ')}</div>`;
-    html += '<div class="review-nav-rounds">';
-    for (const round of sortedRounds) {
-      const allFindings = [...(round.sections.Open || []), ...(round.sections.Resolved || []), ...(round.sections.Accepted || [])];
-      if (!allFindings.length) continue;
-      html += '<div class="review-nav-round">';
-      html += `<span class="review-nav-round-label">Round ${round.num}</span>`;
-      html += '<div class="review-nav-tags">';
-      for (let i = 0; i < allFindings.length; i++) {
-        const f = allFindings[i];
-        const fId = `r${round.num}-f${i}`;
-        const sevCls = f.severity === '🔴' ? 'red' : f.severity === '🟠' ? 'orange' : 'yellow';
-        const shortTitle = f.title.length > 20 ? f.title.slice(0, 20) + '…' : f.title;
-        const fState = f.state || (f.isResolved ? 'resolved' : 'open');
-        const stateTag = fState !== 'open' ? ` ${fState}` : '';
-        html += `<span class="review-nav-tag ${sevCls}${stateTag}" data-target="${fId}" title="${esc(f.file)}:${esc(f.line)} — ${esc(f.title)}">${esc(f.severity)} ${esc(shortTitle)}</span>`;
+    let html = '';
+    if (reviewPhases.length > 1) {
+      let sidebarHtml = '<div class="tab-sidebar-layout"><div class="tab-sidebar"><div class="tab-sidebar-title">阶段</div>';
+      for (const phase of reviewPhases) {
+        const cls = state.sidebarActive.review === phase.id ? ' active' : '';
+        sidebarHtml += `<div class="tab-sidebar-item${cls}" data-target="${phase.id}">${esc(phase.label)}</div>`;
       }
-      html += '</div></div>';
-    }
-    html += '</div></div>';
-
-    // Render round content (newest first)
-    const reverseRounds = [...sortedRounds].reverse();
-    for (const round of reverseRounds) {
-      html += `<div class="review-round" id="review-round-${round.num}">`;
-      html += '<div class="review-round-header">';
-      html += `<span class="review-round-title">Round ${round.num}</span>`;
-      if (round.badgeClass) {
-        html += `<span class="review-round-badge ${round.badgeClass}">${esc(round.status === 'converged' ? 'Converged' : round.status === 'analyzed' ? 'Analyzed' : 'Max rounds')}</span>`;
-      }
-      html += '</div>';
-
-      // Round meta
-      if (round.meta.findings || round.meta.files) {
-        html += '<div class="review-round-meta">';
-        if (round.meta.reviewed_at) html += `<span>${esc(round.meta.reviewed_at)}</span>`;
-        if (round.meta.files) html += `<span>${esc(round.meta.files)}</span>`;
-        if (round.meta.findings) html += `<span>${esc(round.meta.findings)}</span>`;
-        if (round.meta.simplify) html += `<span>simplify: ${esc(round.meta.simplify)}</span>`;
-        html += '</div>';
-      }
-
-      // Open section
-      const openFindings = round.sections.Open || [];
-      if (openFindings.length) {
-        html += '<div class="review-section">';
-        html += '<div class="review-section-title">Open</div>';
-        for (let i = 0; i < openFindings.length; i++) {
-          html += renderFinding(openFindings[i], `r${round.num}-f${i}`);
-        }
-        html += '</div>';
-      }
-
-      // Resolved section
-      const resolvedFindings = round.sections.Resolved || [];
-      const openLen = openFindings.length;
-      if (resolvedFindings.length) {
-        html += '<div class="review-section">';
-        html += '<div class="review-section-title">Resolved</div>';
-        for (let i = 0; i < resolvedFindings.length; i++) {
-          html += renderFinding(resolvedFindings[i], `r${round.num}-f${openLen + i}`);
-        }
-        html += '</div>';
-      }
-
-      // Accepted section
-      const acceptedFindings = round.sections.Accepted || [];
-      const accOffset = openLen + resolvedFindings.length;
-      if (acceptedFindings.length) {
-        html += '<div class="review-section">';
-        html += '<div class="review-section-title">Accepted</div>';
-        for (let i = 0; i < acceptedFindings.length; i++) {
-          html += renderFinding(acceptedFindings[i], `r${round.num}-f${accOffset + i}`);
-        }
-        html += '</div>';
-      }
-
-      html += '</div>';
-    }
-
-    if (!rounds.length) {
-      html += '<p style="color:#737373;">报告内容为空</p>';
+      sidebarHtml += '</div>';
+      html = sidebarHtml + '<div class="tab-sidebar-content">' + contentHtml + '</div></div>';
+    } else {
+      html = contentHtml;
     }
 
     el.innerHTML = html;
@@ -2396,12 +2780,12 @@
       tag.addEventListener('click', () => {
         const target = el.querySelector(`#${CSS.escape(tag.dataset.target)}`);
         if (!target) return;
-        // Open parent <details> if collapsed
         const parentDetails = target.closest('details');
         if (parentDetails && !parentDetails.open) parentDetails.open = true;
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
+    if (reviewPhases.length > 1) bindSidebarNav(el, 'review');
   }
 
   function renderFinding(f, fId) {

@@ -777,11 +777,13 @@ main {
   margin-bottom: 4px;
   font-size: 13px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all 0.15s;
 }
 
 .brief-item:hover {
   background: #F5F5F5;
+  box-shadow: 3px 3px 0 0 var(--fg);
+  transform: translate(-1px, -1px);
 }
 
 .brief-item-header {
@@ -944,6 +946,10 @@ main {
   padding: 12px;
   flex-shrink: 0;
   background: #F5F5F5;
+  position: sticky;
+  top: 0;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
 }
 
 .module-tree h3 {
@@ -991,6 +997,127 @@ main {
   height: 1px;
   background: var(--muted);
   margin: 8px 0;
+}
+
+/* ── Generic Tab Sidebar Layout ── */
+
+.tab-sidebar-layout {
+  display: flex;
+  gap: 0;
+  min-height: calc(100vh - 120px);
+}
+
+.tab-sidebar {
+  width: 200px;
+  border-right: 2px solid var(--border);
+  padding: 12px;
+  flex-shrink: 0;
+  background: #F5F5F5;
+  position: sticky;
+  top: 0;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+.tab-sidebar-title {
+  font-family: var(--font-body);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #737373;
+  margin-bottom: 8px;
+}
+
+.tab-sidebar-item {
+  padding: 6px 8px;
+  font-size: 13px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  margin-bottom: 2px;
+  transition: all 0.15s;
+  color: #555;
+  line-height: 1.4;
+}
+
+.tab-sidebar-item:hover {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.tab-sidebar-item.active {
+  border-left-color: var(--accent);
+  background: var(--bg);
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.tab-sidebar-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #737373;
+  padding: 6px 8px 2px 8px;
+  letter-spacing: 0.05em;
+  border-top: 1px solid var(--muted);
+  margin-top: 4px;
+}
+
+.tab-sidebar-divider {
+  height: 1px;
+  background: var(--muted);
+  margin: 8px 0;
+}
+
+.tab-sidebar-content {
+  flex: 1;
+  padding: 16px 24px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.tab-content:has(.tab-sidebar-layout) {
+  max-width: 95vw;
+}
+
+/* ── Ledger Pagination ── */
+
+.ledger-panel-body {
+  min-height: 420px;
+}
+
+.ledger-pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--muted);
+}
+
+.ledger-page-info {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #737373;
+  margin-right: auto;
+}
+
+.ledger-page-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ledger-page-btn:hover:not(:disabled) {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.ledger-page-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
 /* ── Check Tab: Severity Filters ── */
@@ -2696,5 +2823,70 @@ main {
 .ledger-row-blink,
 .ledger-row-blink td {
   animation: ledger-row-blink 5s step-end forwards;
+}
+
+/* ── Multi-phase ── */
+
+.phase-header {
+  margin: 24px 0 8px 0;
+  padding: 6px 12px;
+  background: var(--fg);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.phase-section {
+  margin: 4px 0;
+}
+
+.phase-section-header {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #737373;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--muted);
+  margin-bottom: 4px;
+  letter-spacing: 0.05em;
+}
+
+.phase-progress-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0;
+  padding-left: 16px;
+}
+
+.phase-progress-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.phase-progress-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #737373;
+  min-width: 120px;
+  letter-spacing: 0.05em;
+}
+
+.phase-progress-pct {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #737373;
+}
+
+.phase-tree-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #737373;
+  padding: 6px 8px 2px 8px;
+  letter-spacing: 0.05em;
+  border-top: 1px solid var(--muted);
+  margin-top: 4px;
 }
 

@@ -1131,7 +1131,8 @@
               const status = mainFile.status;
               const freshness = mainFile.freshness;
               const brief = mainFile.brief;
-              html += `<div class="module-card" data-module="${modName}">`;
+              const qn = ph ? `${ph}::${modName}` : modName;
+              html += `<div class="module-card" data-module="${esc(qn)}">`;
               html += `<div class="module-card-header">`;
               html += `<span class="module-card-name">${esc(modName)}</span>`;
               html += status ? renderStatusToggle(mainFile.name, status, freshness) : '';
@@ -1341,7 +1342,8 @@
         const modMatch = file.match(/(?:^|\/)modules\/([^/]+)/);
         const modName = modMatch ? modMatch[1] : null;
         if (tab === 'design' && modName && modName !== '_shared') {
-          state.activeModule = modName;
+          const phase = extractPhase(file);
+          state.activeModule = phase ? `${phase}::${modName}` : modName;
         }
         switchTab(tab);
       });
@@ -1395,27 +1397,29 @@
         const modMatch = file.match(/modules\/([^/]+)/);
         const targetTab = fileToTab(file);
         if (targetTab === 'design' && modMatch && modMatch[1] !== '_shared') {
-          state.activeModule = modMatch[1];
+          const phase = extractPhase(file);
+          state.activeModule = phase ? `${phase}::${modMatch[1]}` : modMatch[1];
         } else if (targetTab === 'design') {
           state.activeModule = null;
         }
         switchTab(targetTab);
         setTimeout(() => {
+          // Scope queries to target tab content to avoid matching hidden ledger rows
+          const tabContent = document.getElementById('tab-' + targetTab);
           // Try exact source-file + source-line match first
-          let target = document.querySelector(`[data-source-file="${file}"][data-source-line="${line}"]`);
+          let target = tabContent?.querySelector(`[data-source-file="${file}"][data-source-line="${line}"]`);
           if (!target) {
             // Fallback: search nearby lines (±2) for source-file match
             for (let offset = 1; offset <= 3; offset++) {
-              target = document.querySelector(`[data-source-file="${file}"][data-source-line="${line - offset}"]`)
-                    || document.querySelector(`[data-source-file="${file}"][data-source-line="${line + offset}"]`);
+              target = tabContent?.querySelector(`[data-source-file="${file}"][data-source-line="${line - offset}"]`)
+                    || tabContent?.querySelector(`[data-source-file="${file}"][data-source-line="${line + offset}"]`);
               if (target) break;
             }
           }
           if (!target) {
             // Fallback: match by title text content in headings or list items
-            const mainEl = document.querySelector('main');
-            if (mainEl) {
-              const allElements = mainEl.querySelectorAll('h2, h3, h4, li, td');
+            if (tabContent) {
+              const allElements = tabContent.querySelectorAll('h2, h3, h4, li, td');
               for (const el of allElements) {
                 if (el.textContent.trim().includes(title.trim())) {
                   target = el;
@@ -1424,7 +1428,33 @@
               }
             }
           }
-          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (!target) {
+            // Fallback: match review finding cards by title text
+            if (tabContent) {
+              const cards = tabContent.querySelectorAll('.review-finding');
+              for (const card of cards) {
+                if (card.textContent.includes(title.trim())) {
+                  target = card;
+                  break;
+                }
+              }
+            }
+          }
+          if (!target) {
+            // Fallback: match by source-file only (for structured tabs like review)
+            target = tabContent?.querySelector(`[data-source-file="${file}"]`);
+          }
+          if (target) {
+            // scrollIntoView smooth may not work on all element types/containers
+            // Use instant + manual scrollTo for reliable positioning
+            const mainEl = document.querySelector('main');
+            if (mainEl) {
+              const mainRect = mainEl.getBoundingClientRect();
+              const targetRect = target.getBoundingClientRect();
+              const targetTop = mainEl.scrollTop + targetRect.top - mainRect.top - mainEl.clientHeight / 2 + targetRect.height / 2;
+              mainEl.scrollTo({ top: Math.max(0, targetTop), behavior: 'instant' });
+            }
+          }
           showBackToLedgerBtn(state.ledgerJumpFrom.title, state.ledgerJumpFrom.source, line);
         }, 300);
       });
@@ -2180,20 +2210,21 @@
   function parseCheckBlocks(body) {
     const lines = body.split('\n');
     const blocks = [];
-    let cur = { type: 'static', lines: [] };
+    let cur = { type: 'static', lines: [], startLine: 0 };
 
     function flush() {
       const text = cur.lines.join('\n').trim();
-      if (text) blocks.push({ type: cur.type, severity: cur.severity, text });
-      cur = { type: 'static', lines: [] };
+      if (text) blocks.push({ type: cur.type, severity: cur.severity, text, startLine: cur.startLine });
+      cur = { type: 'static', lines: [], startLine: 0 };
     }
 
-    for (const line of lines) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
       // Finding: line starts with severity emoji
       if (/^[🔴🟡🟢]/.test(line)) {
         const severity = line.includes('🔴') ? 'red' : line.includes('🟡') ? 'yellow' : 'green';
         flush();
-        cur = { type: 'severity', severity, lines: [line] };
+        cur = { type: 'severity', severity, lines: [line], startLine: i };
         continue;
       }
       // [OPEN] action item header — #### level stays in current block, ### level starts new block
@@ -2206,14 +2237,14 @@
         } else {
           // ### [OPEN] (standalone section) — new block
           flush();
-          cur = { type: 'severity', severity, lines: [line] };
+          cur = { type: 'severity', severity, lines: [line], startLine: i };
         }
         continue;
       }
       // ## or ### section header ends current severity block
       if (/^#{1,3}\s+(?!\[)/.test(line) && cur.type === 'severity') {
         flush();
-        cur = { type: 'static', lines: [line] };
+        cur = { type: 'static', lines: [line], startLine: i };
         continue;
       }
       cur.lines.push(line);
@@ -2253,7 +2284,8 @@
       contentHtml += '<div class="check-content" data-check-scope="' + esc(doc.key) + '">';
       for (const block of blocks) {
         const checkParsed = state.parsed.get(doc.key);
-        const rendered = renderMd(block.text, doc.key, checkParsed ? checkParsed.bodyOffset : 0);
+        const blockOffset = (checkParsed ? checkParsed.bodyOffset : 0) + block.startLine;
+        const rendered = renderMd(block.text, doc.key, blockOffset);
         if (block.type === 'severity') {
           contentHtml += `<div class="severity-item" data-severity="${block.severity}">${rendered}</div>`;
         } else {
@@ -2722,7 +2754,7 @@
           contentHtml += '<div class="review-section">';
           contentHtml += '<div class="review-section-title">Open</div>';
           for (let i = 0; i < openFindings.length; i++) {
-            contentHtml += renderFinding(openFindings[i], `r${round.num}-f${i}-${scope}`);
+            contentHtml += renderFinding(openFindings[i], `r${round.num}-f${i}-${scope}`, phase.key);
           }
           contentHtml += '</div>';
         }
@@ -2733,7 +2765,7 @@
           contentHtml += '<div class="review-section">';
           contentHtml += '<div class="review-section-title">Resolved</div>';
           for (let i = 0; i < resolvedFindings.length; i++) {
-            contentHtml += renderFinding(resolvedFindings[i], `r${round.num}-f${openLen + i}-${scope}`);
+            contentHtml += renderFinding(resolvedFindings[i], `r${round.num}-f${openLen + i}-${scope}`, phase.key);
           }
           contentHtml += '</div>';
         }
@@ -2744,7 +2776,7 @@
           contentHtml += '<div class="review-section">';
           contentHtml += '<div class="review-section-title">Accepted</div>';
           for (let i = 0; i < acceptedFindings.length; i++) {
-            contentHtml += renderFinding(acceptedFindings[i], `r${round.num}-f${accOffset + i}-${scope}`);
+            contentHtml += renderFinding(acceptedFindings[i], `r${round.num}-f${accOffset + i}-${scope}`, phase.key);
           }
           contentHtml += '</div>';
         }
@@ -2788,7 +2820,7 @@
     if (reviewPhases.length > 1) bindSidebarNav(el, 'review');
   }
 
-  function renderFinding(f, fId) {
+  function renderFinding(f, fId, reviewKey) {
     const severityClass = f.severity === '🔴' ? 'red' : f.severity === '🟠' ? 'orange' : 'yellow';
     const state = f.state || (f.isResolved ? 'resolved' : 'open');
     const stateClass = state === 'resolved' ? ' review-finding-resolved' : state === 'accepted' ? ' review-finding-accepted' : '';
@@ -2809,7 +2841,7 @@
       html += `<summary class="review-resolved-summary">${headerHtml}</summary>`;
     }
 
-    html += `<div class="review-finding${stateClass}" id="${fId}" data-severity="${severityClass}" data-state="${state}" style="scroll-margin-top:120px">`;
+    html += `<div class="review-finding${stateClass}" id="${fId}" data-severity="${severityClass}" data-state="${state}" data-source-file="${esc(reviewKey || '')}" style="scroll-margin-top:120px">`;
 
     // Show header inside card only when not collapsible (open findings)
     if (!isCollapsible) {
@@ -2818,7 +2850,7 @@
 
     if (f.details.length) {
       html += '<div class="review-finding-body">';
-      html += renderMd(f.details.join('\n\n'), f.file || '');
+      html += renderMd(f.details.join('\n\n'), reviewKey || f.file || '');
       html += '</div>';
     }
 
@@ -2829,13 +2861,13 @@
         html += `<details class="review-insight-details"><summary class="review-insight-summary">【审查证据】${esc(f.file)}:${esc(f.line)} — ${esc(f.title)}</summary>`;
       }
       if (f.insight.analysis) {
-        html += `<div class="review-insight analysis"><div class="review-insight-header">🔍 原因分析</div>${renderMd(f.insight.analysis, f.file || '')}</div>`;
+        html += `<div class="review-insight analysis"><div class="review-insight-header">🔍 原因分析</div>${renderMd(f.insight.analysis, reviewKey || f.file || '')}</div>`;
       }
       if (f.insight.fix) {
-        html += `<div class="review-insight fix"><div class="review-insight-header">🔧 修改方案</div>${renderMd(f.insight.fix, f.file || '')}</div>`;
+        html += `<div class="review-insight fix"><div class="review-insight-header">🔧 修改方案</div>${renderMd(f.insight.fix, reviewKey || f.file || '')}</div>`;
       }
       if (f.insight.consistency) {
-        html += `<div class="review-insight consistency"><div class="review-insight-header">📐 一致性评估</div>${renderMd(f.insight.consistency, f.file || '')}</div>`;
+        html += `<div class="review-insight consistency"><div class="review-insight-header">📐 一致性评估</div>${renderMd(f.insight.consistency, reviewKey || f.file || '')}</div>`;
       }
       if (hasAny) {
         html += `</details>`;
@@ -2864,7 +2896,7 @@
       /^(#{2,3})\s+\[DECISION\]\s+(.+)$/gm,
       (match, hashes, title) => {
         const level = hashes.length;
-        return `</div><div class="marker decision">\n${'#'.repeat(level)} ${esc(title)}\n`;
+        return `</div><div class="marker decision">\n<h${level}>${esc(title)}</h${level}>\n`;
       }
     );
 
@@ -2873,7 +2905,7 @@
       /^(#{2,3})\s+\[OPEN\]\s+(.+)$/gm,
       (match, hashes, title) => {
         const level = hashes.length;
-        return `</div><div class="marker open">\n${'#'.repeat(level)} ${esc(title)}\n`;
+        return `</div><div class="marker open">\n<h${level}>${esc(title)}</h${level}>\n`;
       }
     );
 

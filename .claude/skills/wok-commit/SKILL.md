@@ -114,6 +114,7 @@ Closes #42, closes #13
 关联 issue: #123, #122（可选）
 
 <git stat 输出>
+📤 待推送: <N> commits ahead of origin
 ```
 
 无插件变更时不显示"版本升级"区域。
@@ -135,6 +136,7 @@ Closes #42, closes #13
 关联 issue: #123, #124
 
 5 files changed, 120 insertions(+), 30 deletions(-)
+📤 待推送: 3 commits ahead of origin
 ```
 
 ## Scope 推断规则

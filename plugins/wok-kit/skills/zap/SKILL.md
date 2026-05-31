@@ -96,6 +96,7 @@ Closes #42, closes #13
 关联 issue: #123, #122（可选）
 
 <git stat 输出>
+📤 待推送: <N> commits ahead of origin
 ```
 
 ### 示例
@@ -111,6 +112,7 @@ Closes #42, closes #13
 关联 issue: #123, #124
 
 5 files changed, 120 insertions(+), 30 deletions(-)
+📤 待推送: 3 commits ahead of origin
 ```
 
 ## Scope 推断规则

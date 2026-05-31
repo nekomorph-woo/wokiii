@@ -30,3 +30,6 @@ __pycache__/
 
 # Pipeline artifacts
 wok-plans/
+
+# Grill decisions
+wok-grill/

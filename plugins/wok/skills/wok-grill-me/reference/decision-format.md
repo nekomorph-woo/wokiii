@@ -3,10 +3,10 @@
 ## 文件命名
 
 ```
-grill-decisions/<YYYYMMDD>-<HHMM>-DECISIONS.md
+wok-grill/<YYYYMMDD>-<HHMM>-DECISIONS.md
 ```
 
-示例：`grill-decisions/20260321-1430-DECISIONS.md`
+示例：`wok-grill/20260321-1430-DECISIONS.md`
 
 ## 文件结构
 

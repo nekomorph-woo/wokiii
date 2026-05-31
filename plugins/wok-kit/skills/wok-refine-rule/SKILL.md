@@ -46,6 +46,7 @@ pipeline:
 | `dialogue-style.md` | 输出规范与交互行为 |
 | `security.md` | 敏感信息检测与安全响应 |
 | `coding-conventions.md` | 编码原则与任务管理 |
+| `compact-guide.md` | 上下文压缩时机引导与手动压缩指令 |
 | `pipeline-guide.md` | wok 管道场景速查与灵活入口指南 |
 
 ### 1.2 执行步骤
@@ -241,4 +242,5 @@ pipeline:
 - [dialogue-style.md](reference/dialogue-style.md) — 输出规范、交互行为
 - [security.md](reference/security.md) — 敏感信息检测、安全响应
 - [coding-conventions.md](reference/coding-conventions.md) — 编码原则、任务管理
+- [compact-guide.md](reference/compact-guide.md) — 上下文压缩时机引导与手动压缩指令
 - [pipeline-guide.md](reference/pipeline-guide.md) — wok 管道场景速查与灵活入口指南

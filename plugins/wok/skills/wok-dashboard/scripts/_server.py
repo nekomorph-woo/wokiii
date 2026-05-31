@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """wok-dashboard local HTTP server.
 
-Multi-feature architecture: serves from plans/ parent directory.
+Multi-feature architecture: serves from wok-plans/ parent directory.
 Each feature is accessed via /<feature-name>/... URL prefix.
 API routes: /<feature>/api/files, /<feature>/api/notes, etc.
 Static files: /<feature>/_dashboard.html, /<feature>/_define.md, etc.
@@ -20,7 +20,7 @@ import time
 from pathlib import Path
 
 ALLOWED_EXTENSIONS = {'.md', '.html', '.css', '.js', '.json'}
-BASE_DIR = None  # Points to plans/ parent directory
+BASE_DIR = None  # Points to wok-plans/ parent directory
 
 
 class SecureHandler(http.server.SimpleHTTPRequestHandler):
@@ -657,7 +657,7 @@ def main():
     parser = argparse.ArgumentParser(description='wok-dashboard server (multi-feature)')
     parser.add_argument('--port', type=int, required=True)
     parser.add_argument('--directory', type=str, required=True,
-                        help='Parent directory containing feature folders (e.g., plans/)')
+                        help='Parent directory containing feature folders (e.g., wok-plans/)')
     args = parser.parse_args()
 
     BASE_DIR = args.directory

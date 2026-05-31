@@ -29,4 +29,4 @@ __pycache__/
 .claude/worktrees/
 
 # Pipeline artifacts
-plans/
+wok-plans/

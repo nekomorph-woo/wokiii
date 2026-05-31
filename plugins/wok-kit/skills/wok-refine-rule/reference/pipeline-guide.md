@@ -1,6 +1,6 @@
 # wok 管道指南
 
-根据任务规模选择合适的管道类型。每种管道有固定的入口 SKILL 和 `plans/` 目录前缀。
+根据任务规模选择合适的管道类型。每种管道有固定的入口 SKILL 和 `wok-plans/` 目录前缀。
 
 ## 管道类型速查
 
@@ -31,10 +31,10 @@
 
 ## system-name 前缀约定
 
-所有管道产物存放于 `plans/<system-name>/`，通过前缀区分管道类型：
+所有管道产物存放于 `wok-plans/<system-name>/`，通过前缀区分管道类型：
 
 ```
-plans/
+wok-plans/
 ├── feat-user-system/        # 大功能管道
 ├── feat-s-login-modal/      # 小功能管道
 ├── fix-auth-401/            # 问题修复管道
@@ -48,9 +48,9 @@ plans/
 
 `/wok-findings` 是唯一有歧义的入口。探索完成后不立即创建目录，而是询问意图：
 
-- **探索管道（exp-）**：创建 `plans/exp-<name>/_findings.md`
-- **定义功能（feat-s-）**：转交 `/wok-define`，产物存入 `plans/feat-s-<name>/`
-- **修复问题（fix-）**：转交 `/wok-issue`，产物存入 `plans/fix-<name>/`
+- **探索管道（exp-）**：创建 `wok-plans/exp-<name>/_findings.md`
+- **定义功能（feat-s-）**：转交 `/wok-define`，产物存入 `wok-plans/feat-s-<name>/`
+- **修复问题（fix-）**：转交 `/wok-issue`，产物存入 `wok-plans/fix-<name>/`
 
 ## 各 Skill 快速定位
 

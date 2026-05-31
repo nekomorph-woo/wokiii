@@ -4,7 +4,7 @@ dashboard 需要识别 `_review.md` 并渲染为审查报告视图。
 
 ## 文件识别
 
-- 搜索 `plans/` 目录下的 `_review.md`
+- 搜索 `wok-plans/` 目录下的 `_review.md`
 - 归入"审查文档"分组
 - 新增"审查" tab (`data-tab="review"`)
 

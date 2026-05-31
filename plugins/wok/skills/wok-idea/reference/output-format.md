@@ -3,7 +3,7 @@
 ## 目录结构
 
 ```
-plans/<system-name>/
+wok-plans/<system-name>/
 ├── _roadmap.md                    ← 本文件
 ├── p1-<phase-name>/              ← 后续各 phase 管道循环在此创建
 └── p2-<phase-name>/
@@ -62,5 +62,5 @@ changed: 初始版本
 **产出**：<项目> 功能路线图，<N> 个 phase，<M> 个精选 feature
 **决策**：<关键分组决策>
 **阻塞**：无
-**下一步**：确认后创建 `plans/<system-name>/p1-<phase-name>/` 目录，对 Phase 1 执行 /wok-define
+**下一步**：确认后创建 `wok-plans/<system-name>/p1-<phase-name>/` 目录，对 Phase 1 执行 /wok-define
 ```

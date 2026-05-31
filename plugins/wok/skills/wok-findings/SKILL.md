@@ -61,7 +61,7 @@ pipeline:
 
 | 代码区域 | 对应设计文档 | 状态 |
 |----------|-------------|------|
-| src/auth/ | plans/auth/modules/auth-core/design.md | ✅ 已有 |
+| src/auth/ | wok-plans/auth/modules/auth-core/design.md | ✅ 已有 |
 | src/payment/ | 无 | ⚠️ 无设计文档 |
 
 ### 潜在问题
@@ -91,23 +91,23 @@ wok-findings 是唯一有歧义的入口（既可独立探索，也可作为 `fe
 
 ```
 探索完成。接下来：
-- 📂 保存为探索管道（exp-） → 创建 plans/exp-<name>/_findings.md
-- 🛠️ 定义功能（feat-s-） → 转交 wok-define，_findings.md 存入 plans/feat-s-<name>/
-- 🐛 修复问题（fix-） → 转交 wok-issue，产物存入 plans/fix-<name>/
+- 📂 保存为探索管道（exp-） → 创建 wok-plans/exp-<name>/_findings.md
+- 🛠️ 定义功能（feat-s-） → 转交 wok-define，_findings.md 存入 wok-plans/feat-s-<name>/
+- 🐛 修复问题（fix-） → 转交 wok-issue，产物存入 wok-plans/fix-<name>/
 ```
 
 **选"探索管道"**：
 - 生成 `exp-` 前缀的 system-name（如 `exp-payment-module`）
-- 创建 `plans/exp-<name>/` 目录并保存 `_findings.md`
+- 创建 `wok-plans/exp-<name>/` 目录并保存 `_findings.md`
 
 **选"定义功能"**：
 - 探索结果保留在对话上下文中
-- 调用 `wok-define`，由 wok-define 创建 `plans/feat-s-<name>/` 目录
+- 调用 `wok-define`，由 wok-define 创建 `wok-plans/feat-s-<name>/` 目录
 - `_findings.md` 和 `_define.md` 一并存入该目录
 
 **选"修复问题"**：
 - 探索结果保留在对话上下文中
-- 调用 `wok-issue`，由 wok-issue 创建 `plans/fix-<name>/` 目录
+- 调用 `wok-issue`，由 wok-issue 创建 `wok-plans/fix-<name>/` 目录
 
 评估探索规模（用于决定是否自动推荐持久化）：
 

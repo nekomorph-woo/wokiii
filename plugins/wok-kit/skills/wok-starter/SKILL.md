@@ -24,6 +24,7 @@ description: 初始化项目的 wok 环境：部署 rules 规则文件、配置 
 ```
 .wok-plans/
 .wok-grill/
+.wok-handoff/
 ```
 
 追加后按原格式保持 `.gitignore` 结构（若文件存在 `\n` 结尾则保持，无则不加多余空行）。
@@ -44,9 +45,10 @@ Rules:
 .gitignore:
 - ✅ 已添加 .wok-plans/
 - ✅ 已添加 .wok-grill/
+- ✅ 已添加 .wok-handoff/
 ```
 
 ## 检查清单
 
 - [ ] `.claude/rules/` 下至少创建了 1 个规则文件
-- [ ] `.gitignore` 已包含 `.wok-plans/` 和 `.wok-grill/`（git 仓库时）
+- [ ] `.gitignore` 已包含 `.wok-plans/`、`.wok-grill/`、`.wok-handoff/`（git 仓库时）

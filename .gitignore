@@ -33,3 +33,6 @@ __pycache__/
 
 # Grill decisions
 .wok-grill/
+
+# Handoff documents
+.wok-handoff/

@@ -29,7 +29,7 @@ __pycache__/
 .claude/worktrees/
 
 # Pipeline artifacts
-wok-plans/
+.wok-plans/
 
 # Grill decisions
-wok-grill/
+.wok-grill/

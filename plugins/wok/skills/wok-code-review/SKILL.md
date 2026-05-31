@@ -55,9 +55,9 @@ pipeline:
 
 > 读取 `~/.claude/wok/resolve-system-name.md` 执行 system-name 解析。
 
-1. **检测管道上下文**：搜索 `wok-plans/` 目录下的 `_define.md`
-   - 存在 → 管道模式：提取设计锚点和验收标准作为审查基准，`phase_dir` 设为 `wok-plans/<system-name>/`
-   - 不存在 → 独立模式（`cr-` 管道）：生成 `cr-` 前缀的 system-name（如 `cr-refactor-auth`），创建 `wok-plans/cr-<name>/` 目录，`phase_dir` 设为该目录
+1. **检测管道上下文**：搜索 `.wok-plans/` 目录下的 `_define.md`
+   - 存在 → 管道模式：提取设计锚点和验收标准作为审查基准，`phase_dir` 设为 `.wok-plans/<system-name>/`
+   - 不存在 → 独立模式（`cr-` 管道）：生成 `cr-` 前缀的 system-name（如 `cr-refactor-auth`），创建 `.wok-plans/cr-<name>/` 目录，`phase_dir` 设为该目录
 2. **解析已有报告**：若 `<phase_dir>/_review.md` 存在，提取所有已报告 🟡 的 `file:line + title` 作为去重集合
 3. **解析 `--scope`**：
    - `diff` → `git diff --name-only` 获取未提交变更

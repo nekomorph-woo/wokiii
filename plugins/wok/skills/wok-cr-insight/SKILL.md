@@ -44,9 +44,9 @@ pipeline:
 
 > 读取 `~/.claude/wok/resolve-system-name.md` 执行 system-name 解析。
 
-1. 搜索 `wok-plans/` 目录下的 `_review.md`（与 code-review Stage 0 检测逻辑一致）
+1. 搜索 `.wok-plans/` 目录下的 `_review.md`（与 code-review Stage 0 检测逻辑一致）
 2. 验证文件存在
-3. **检测管道上下文**：搜索 `wok-plans/` 目录下的 `_define.md`
+3. **检测管道上下文**：搜索 `.wok-plans/` 目录下的 `_define.md`
    - 存在 → 管道模式：一致性评估对照设计锚点
    - 不存在 → 独立模式（cr- 管道）：一致性评估标注"无管道上下文"
 4. 解析 `--finding` 或 `--types` 参数

@@ -35,7 +35,7 @@ pipeline:
 
 > 读取 `~/.claude/wok/resolve-system-name.md` 执行 system-name 解析。
 
-> `<phase-dir>` 指 `_define.md` 所在目录。无 roadmap 时为 `wok-plans/<system-name>/`，有 roadmap 时为 `wok-plans/<system-name>/p<n>-<phase>/`。
+> `<phase-dir>` 指 `_define.md` 所在目录。无 roadmap 时为 `.wok-plans/<system-name>/`，有 roadmap 时为 `.wok-plans/<system-name>/p<n>-<phase>/`。
 
 - 读取 `<phase-dir>/_check.md` — 如有 🔴 阻塞项，提示先解决；文件不存在则跳过
 - 读取 `<phase-dir>/modules/_registry.md` — 获取模块列表和依赖顺序；文件不存在则从代码库识别

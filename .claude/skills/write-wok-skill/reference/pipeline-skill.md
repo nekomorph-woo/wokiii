@@ -110,14 +110,14 @@ mkdir -p ~/.claude/wok && cp "$(find ~/.claude/plugins/cache/wok/wok -name resol
 
 ### 目录约定
 
-管道产出物统一放在 `wok-plans/<system-name>/` 下。布局取决于是否有 roadmap（多阶段规划）。
+管道产出物统一放在 `.wok-plans/<system-name>/` 下。布局取决于是否有 roadmap（多阶段规划）。
 
 #### 无 roadmap（单阶段）
 
 直接在系统目录下生成产出物。系统目录即为阶段目录，**不要创建额外的子目录**：
 
 ```
-wok-plans/<system-name>/
+.wok-plans/<system-name>/
 ├── _define.md              ← wok-define 产出
 ├── modules/
 │   ├── _registry.md        ← wok-design 产出
@@ -133,7 +133,7 @@ wok-plans/<system-name>/
 wok-idea 产出 `_roadmap.md`，每个 phase 在独立子目录中完成完整管道循环：
 
 ```
-wok-plans/<system-name>/
+.wok-plans/<system-name>/
 ├── _roadmap.md                 ← wok-idea 产出
 ├── p1-<phase-name>/            ← Phase 1
 │   ├── _define.md
@@ -152,10 +152,10 @@ wok-plans/<system-name>/
 
 | 条件 | 布局 | 产出物路径 |
 |------|------|-----------|
-| `_roadmap.md` 不存在 | 单阶段 | `wok-plans/<system-name>/_define.md` |
-| `_roadmap.md` 存在 | 多阶段 | `wok-plans/<system-name>/p<n>-<phase-name>/_define.md` |
+| `_roadmap.md` 不存在 | 单阶段 | `.wok-plans/<system-name>/_define.md` |
+| `_roadmap.md` 存在 | 多阶段 | `.wok-plans/<system-name>/p<n>-<phase-name>/_define.md` |
 
-下游技能中统一使用 `<phase-dir>` 指代 `_define.md` 所在目录（单阶段时为 `wok-plans/<system-name>/`，多阶段时为 `wok-plans/<system-name>/p<n>-<phase-name>/`）。
+下游技能中统一使用 `<phase-dir>` 指代 `_define.md` 所在目录（单阶段时为 `.wok-plans/<system-name>/`，多阶段时为 `.wok-plans/<system-name>/p<n>-<phase-name>/`）。
 
 ### 读取协议
 

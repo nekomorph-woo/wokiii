@@ -37,7 +37,7 @@ pipeline:
 
 > 读取 `~/.claude/wok/resolve-system-name.md` 执行 system-name 解析。
 
-检查 `<phase-dir>/_define.md` 是否存在（`<phase-dir>` 指 `_define.md` 所在目录，无 roadmap 时为 `wok-plans/<system-name>/`，有 roadmap 时为 `wok-plans/<system-name>/p<n>-<phase>/`）：
+检查 `<phase-dir>/_define.md` 是否存在（`<phase-dir>` 指 `_define.md` 所在目录，无 roadmap 时为 `.wok-plans/<system-name>/`，有 roadmap 时为 `.wok-plans/<system-name>/p<n>-<phase>/`）：
 
 - **存在**：读取 frontmatter，提取设计锚点、用户故事、验收标准作为设计输入
 - **不存在**：从当前对话上下文和代码库探索中获取必要信息，正常执行
@@ -54,7 +54,7 @@ pipeline:
 4. 仅对受影响模块执行后续设计流程
 5. 跳过新鲜模块，保留现有设计文档不变
 
-**跨 phase 设计感知**：检查 `wok-plans/<system-name>/_roadmap.md` 是否存在，读取同批次兄弟 phase 的模块设计：
+**跨 phase 设计感知**：检查 `.wok-plans/<system-name>/_roadmap.md` 是否存在，读取同批次兄弟 phase 的模块设计：
 
 1. 从 `_roadmap.md` 提取当前 phase 之前的兄弟 phase 目录列表
 2. 读取兄弟 phase 的 `modules/_registry.md` 和关键模块的 `design.md`

@@ -3,7 +3,7 @@
 # deploy.sh - 部署 wok dashboard + 启动本地 HTTP server
 # 用法: deploy.sh <system-name> [--restart]
 #
-# 多 feature 架构：server 绑定 wok-plans/ 父目录，通过 URL 路径 /<feature>/ 访问不同 feature。
+# 多 feature 架构：server 绑定 .wok-plans/ 父目录，通过 URL 路径 /<feature>/ 访问不同 feature。
 # 切换 feature 无需重启 server，只需部署 assets 到对应 feature 目录。
 
 set -e
@@ -26,7 +26,7 @@ if [ -z "$SYSTEM_NAME" ]; then
     exit 1
 fi
 
-SYSTEM_DIR="$WOK_ROOT/wok-plans/$SYSTEM_NAME"
+SYSTEM_DIR="$WOK_ROOT/.wok-plans/$SYSTEM_NAME"
 
 if [ ! -d "$SYSTEM_DIR" ]; then
     echo "错误: 系统目录不存在: $SYSTEM_DIR"
@@ -66,10 +66,10 @@ if [ -f "$RESOLVE_SRC" ]; then
 fi
 
 # ── 2. Server 生命周期管理 ──
-# Server 绑定 wok-plans/ 父目录，所有 feature 共享同一个 server 进程。
+# Server 绑定 .wok-plans/ 父目录，所有 feature 共享同一个 server 进程。
 # 只有 server 脚本更新或 --restart 时才重启。
 
-PLANS_DIR="$WOK_ROOT/wok-plans"
+PLANS_DIR="$WOK_ROOT/.wok-plans"
 
 ensure_server() {
     local force_restart="$1"
@@ -92,7 +92,7 @@ ensure_server() {
         rm -f "$SERVER_STATE"
     fi
 
-    # 启动 server（绑定 wok-plans/ 父目录）
+    # 启动 server（绑定 .wok-plans/ 父目录）
     local port=$SERVER_PORT
 
     nohup python3 "$SERVER_SCRIPT" --port "$port" --directory "$PLANS_DIR" > /dev/null 2>&1 &

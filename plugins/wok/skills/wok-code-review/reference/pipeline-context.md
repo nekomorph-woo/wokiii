@@ -12,7 +12,7 @@ language: <string>          # 主语言标识
 # 仅管道模式
 design_anchors: <string>    # 从 _define.md 提取的设计锚点文本
 prd_summary: <string>       # 从 _define.md 提取的目标和验收标准摘要
-phase_dir: <string>          # wok-plans/<system-name>/ 的绝对路径
+phase_dir: <string>          # .wok-plans/<system-name>/ 的绝对路径
 
 # 仅独立模式
 # 以上管道字段为 null/空
@@ -30,6 +30,6 @@ phase_dir: <string>          # wok-plans/<system-name>/ 的绝对路径
 
 ## 检测逻辑
 
-1. 查找 `wok-plans/` 目录下的 `_define.md`
+1. 查找 `.wok-plans/` 目录下的 `_define.md`
 2. 存在 → 管道模式，提取设计锚点
 3. 不存在 → 独立模式，所有管道专属字段置空

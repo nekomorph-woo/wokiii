@@ -1,6 +1,6 @@
 # system-name 解析流程
 
-将用户输入的 system-name（缩写、部分名称、全称）解析为 `wok-plans/` 下的完整目录名。
+将用户输入的 system-name（缩写、部分名称、全称）解析为 `.wok-plans/` 下的完整目录名。
 
 ## 命令
 
@@ -30,7 +30,7 @@ mkdir -p ~/.claude/wok && cp "$(find ~/.claude/plugins/cache/wok/wok -name resol
 
 ## 解析优先级
 
-1. **精确匹配** — 输入恰好是 `wok-plans/` 下的目录名
+1. **精确匹配** — 输入恰好是 `.wok-plans/` 下的目录名
 2. **缩写匹配** — 按上表规则展开后匹配
 3. **模糊匹配** — 输入是目录名的子串
 

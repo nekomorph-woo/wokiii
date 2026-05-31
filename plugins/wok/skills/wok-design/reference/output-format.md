@@ -3,8 +3,8 @@
 ## 目录结构
 
 ```
-wok-plans/<system-name>/                ← 无 roadmap 时（下文以 <phase-dir> 统称）
-wok-plans/<system-name>/p<n>-<phase>/  ← 有 roadmap 时
+.wok-plans/<system-name>/                ← 无 roadmap 时（下文以 <phase-dir> 统称）
+.wok-plans/<system-name>/p<n>-<phase>/  ← 有 roadmap 时
 <phase-dir>/
 ├── _define.md                    ← 上游产出（wok-define）
 └── modules/

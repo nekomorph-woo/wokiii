@@ -8,7 +8,7 @@
 #   Single match   → full system-name (exit 0)
 #   Multiple match → AMBIGUOUS:\n<name1>\n<name2>  (exit 0)
 #   No match       → NOT_FOUND: <input>             (exit 1)
-#   No input       → list all wok-plans/ directories (exit 0)
+#   No input       → list all .wok-plans/ directories (exit 0)
 #
 # Shorthand rules:
 #   ft-abc   → feat-<a>...-<b>...-<c>...   (first letter of each word)
@@ -20,7 +20,7 @@
 set -e
 
 WOK_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-PLANS_DIR="$WOK_ROOT/wok-plans"
+PLANS_DIR="$WOK_ROOT/.wok-plans"
 
 # ── Helper: generate shorthand for a full directory name ──
 generate_shorthand() {
@@ -72,7 +72,7 @@ fi
 INPUT="$1"
 
 if [ ! -d "$PLANS_DIR" ]; then
-    echo "NOT_FOUND: wok-plans/ directory not found"
+    echo "NOT_FOUND: .wok-plans/ directory not found"
     exit 1
 fi
 

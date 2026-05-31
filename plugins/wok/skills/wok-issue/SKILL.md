@@ -24,7 +24,7 @@ pipeline:
 - 从问题描述提取关键词（模块名、错误类型、组件名）
 - 格式：`fix-<关键词>`（如 `fix-auth-401`、`fix-payment-timeout`）
 - 使用 AskUserQuestion 让用户确认生成的 system-name，或提供自定义名称
-- 创建目录 `wok-plans/fix-<system-name>/`
+- 创建目录 `.wok-plans/fix-<system-name>/`
 
 ### 1. 捕获问题
 
@@ -88,7 +88,7 @@ pipeline:
 
 当 §3 判定问题类型为"设计缺陷"时：
 
-1. 从受影响模块名称搜索 `wok-plans/` 下对应的 `design.md`（Glob `wok-plans/**/modules/*/design.md`，匹配模块名关键词）
+1. 从受影响模块名称搜索 `.wok-plans/` 下对应的 `design.md`（Glob `.wok-plans/**/modules/*/design.md`，匹配模块名关键词）
 2. **找到相关 design.md**：使用 AskUserQuestion 询问用户：
    - "触发设计审查" → 对找到的 design.md 执行 `wok-design-review` 的 3 项检查（接口一致性、依赖方向、跨模块覆盖）
    - "跳过审查，直接创建 Issue"
@@ -126,7 +126,7 @@ pipeline:
 
 ### 6. 生成本地 `_issue.md`
 
-产出 `wok-plans/fix-<system-name>/_issue.md`：
+产出 `.wok-plans/fix-<system-name>/_issue.md`：
 
 ```markdown
 ---

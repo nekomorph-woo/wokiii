@@ -1,6 +1,6 @@
 # wok 管道指南
 
-根据任务规模选择合适的管道类型。每种管道有固定的入口 SKILL 和 `wok-plans/` 目录前缀。
+根据任务规模选择合适的管道类型。每种管道有固定的入口 SKILL 和 `.wok-plans/` 目录前缀。
 
 ## 管道类型速查
 
@@ -31,10 +31,10 @@
 
 ## system-name 前缀约定
 
-所有管道产物存放于 `wok-plans/<system-name>/`，通过前缀区分管道类型：
+所有管道产物存放于 `.wok-plans/<system-name>/`，通过前缀区分管道类型：
 
 ```
-wok-plans/
+.wok-plans/
 ├── feat-user-system/        # 大功能管道
 ├── feat-s-login-modal/      # 小功能管道
 ├── fix-auth-401/            # 问题修复管道
@@ -67,7 +67,7 @@ mkdir -p ~/.claude/wok && cp "$(find ~/.claude/plugins/cache/wok/wok -name resol
 
 ### 解析优先级
 
-1. **精确匹配** — 输入恰好是 `wok-plans/` 下的目录名
+1. **精确匹配** — 输入恰好是 `.wok-plans/` 下的目录名
 2. **缩写匹配** — 按上表规则展开后匹配
 3. **模糊匹配** — 输入是目录名的子串（如 `smart` 匹配 `feat-smart-home-system`）
 
@@ -76,15 +76,15 @@ mkdir -p ~/.claude/wok && cp "$(find ~/.claude/plugins/cache/wok/wok -name resol
 - 单行 → 唯一匹配，直接使用
 - `AMBIGUOUS:` + 多行 → 多个匹配，用 AskUserQuestion 让用户选择
 - `NOT_FOUND` → 无匹配，询问用户提供完整名称
-- 无参数调用 → 列出所有 `wok-plans/` 目录
+- 无参数调用 → 列出所有 `.wok-plans/` 目录
 
 ## wok-findings 延迟定型
 
 `/wok-findings` 是唯一有歧义的入口。探索完成后不立即创建目录，而是询问意图：
 
-- **探索管道（exp-）**：创建 `wok-plans/exp-<name>/_findings.md`
-- **定义功能（feat-s-）**：转交 `/wok-define`，产物存入 `wok-plans/feat-s-<name>/`
-- **修复问题（fix-）**：转交 `/wok-issue`，产物存入 `wok-plans/fix-<name>/`
+- **探索管道（exp-）**：创建 `.wok-plans/exp-<name>/_findings.md`
+- **定义功能（feat-s-）**：转交 `/wok-define`，产物存入 `.wok-plans/feat-s-<name>/`
+- **修复问题（fix-）**：转交 `/wok-issue`，产物存入 `.wok-plans/fix-<name>/`
 
 ## 各 Skill 快速定位
 

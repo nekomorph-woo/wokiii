@@ -15,6 +15,8 @@ pipeline:
 
 ## 快速开始
 
+> 读取 `~/.claude/wok/resolve-system-name.md` 执行 system-name 解析。
+
 1. 询问用户要探索的代码区域
 2. 多维度探索代码库
 3. 输出发现和设计约束

@@ -23,6 +23,8 @@ pipeline:
 
 ### 1. 读取上游（可选）
 
+> 读取 `~/.claude/wok/resolve-system-name.md` 执行 system-name 解析。
+
 检查 `<phase-dir>/modules/_registry.md` 是否存在（`<phase-dir>` 与 `_define.md` 同级）：
 
 - **存在**：读取 frontmatter，提取模块列表和依赖图，加载各模块 `design.md` 的 frontmatter 和接口契约

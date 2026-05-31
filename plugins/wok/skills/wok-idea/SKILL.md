@@ -15,6 +15,8 @@ pipeline:
 
 ## 快速开始
 
+> 读取 `~/.claude/wok/resolve-system-name.md` 执行 system-name 解析。
+
 ### system-name 约定
 
 wok-idea 是 `feat-`（大功能）管道的入口。生成的 system-name 使用 `feat-` 前缀：

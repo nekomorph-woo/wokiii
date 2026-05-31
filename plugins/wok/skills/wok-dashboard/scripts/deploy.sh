@@ -16,6 +16,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ASSETS_DIR="$SCRIPT_DIR/../assets"
 WOK_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 DASHBOARD_DIR="$HOME/.claude/wok-dashboard"
+WOK_DIR="$HOME/.claude/wok"
 SERVER_STATE="$DASHBOARD_DIR/server.json"
 SERVER_SCRIPT="$DASHBOARD_DIR/_server.py"
 
@@ -52,11 +53,23 @@ fi
 
 echo "✓ 三件套已部署到: $SYSTEM_DIR"
 
+# ── 1.5 部署共享工具到 ~/.claude/wok/ ──
+
+RESOLVE_SRC="$SCRIPT_DIR/../../scripts/resolve-system-name.sh"
+RESOLVE_DOC="$SCRIPT_DIR/../../scripts/resolve-system-name.md"
+if [ -f "$RESOLVE_SRC" ]; then
+    mkdir -p "$WOK_DIR"
+    cp -f "$RESOLVE_SRC" "$WOK_DIR/resolve-system-name.sh"
+    chmod +x "$WOK_DIR/resolve-system-name.sh"
+    cp -f "$RESOLVE_DOC" "$WOK_DIR/resolve-system-name.md"
+    echo "✓ resolve-system-name 已部署到: $WOK_DIR"
+fi
+
 # ── 2. Server 生命周期管理 ──
 # Server 绑定 wok-plans/ 父目录，所有 feature 共享同一个 server 进程。
 # 只有 server 脚本更新或 --restart 时才重启。
 
-PLANS_DIR="$WOK_ROOT/plans"
+PLANS_DIR="$WOK_ROOT/wok-plans"
 
 ensure_server() {
     local force_restart="$1"

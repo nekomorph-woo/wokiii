@@ -42,6 +42,8 @@ pipeline:
 
 ### Step 1: 定位输入
 
+> 读取 `~/.claude/wok/resolve-system-name.md` 执行 system-name 解析。
+
 1. 搜索 `wok-plans/` 目录下的 `_review.md`（与 code-review Stage 0 检测逻辑一致）
 2. 验证文件存在
 3. **检测管道上下文**：搜索 `wok-plans/` 目录下的 `_define.md`

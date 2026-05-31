@@ -91,6 +91,23 @@ pipeline:
 
 上下游技能通过文件系统传递产出物。
 
+### system-name 解析
+
+当技能需要从用户输入定位已有管道目录时，使用共享解析脚本：
+
+```bash
+bash ~/.claude/wok/resolve-system-name.sh <input>
+```
+
+脚本由 `wok-dashboard deploy.sh` 部署到 `~/.claude/wok/`。若不存在，从插件缓存拷贝：
+```bash
+mkdir -p ~/.claude/wok && cp "$(find ~/.claude/plugins/cache/wok/wok -name resolve-system-name.sh -path '*/scripts/*' | sort -rV | head -1)" ~/.claude/wok/resolve-system-name.sh
+```
+
+解析优先级：精确匹配 → 缩写匹配（`ft-shs` = `feat-smart-home-system`）→ 模糊匹配（子串）。
+
+输出：单行 = 唯一匹配，`AMBIGUOUS:` = 多匹配需用户选择，`NOT_FOUND` = 无匹配。
+
 ### 目录约定
 
 管道产出物统一放在 `wok-plans/<system-name>/` 下。布局取决于是否有 roadmap（多阶段规划）。

@@ -17,6 +17,8 @@ pipeline:
 
 ### 0. 确定 system-name
 
+> 读取 `~/.claude/wok/resolve-system-name.md` 执行 system-name 解析。
+
 生成 `fix-` 前缀的 system-name：
 
 - 从问题描述提取关键词（模块名、错误类型、组件名）

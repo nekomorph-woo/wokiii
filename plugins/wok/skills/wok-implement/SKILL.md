@@ -83,6 +83,8 @@ pipeline:
 
 ### 1. 规划
 
+> 读取 `~/.claude/wok/resolve-system-name.md` 执行 system-name 解析。
+
 编写代码前，检查上游是否有执行计划：
 
 **读取上游**（可选）：检查 `<phase-dir>/_plan.md` 是否存在（`<phase-dir>` 与 `_define.md` 同级）：

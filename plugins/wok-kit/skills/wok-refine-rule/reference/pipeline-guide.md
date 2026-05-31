@@ -44,6 +44,40 @@ wok-plans/
 
 前缀由入口 SKILL 自动生成，Dashboard 据此适配阶段视图和 next-action 提示。
 
+## system-name 快捷输入
+
+支持缩写快速引用已有管道目录。解析脚本：`bash ~/.claude/wok/resolve-system-name.sh <input>`
+
+脚本由 `wok-dashboard deploy.sh` 部署到 `~/.claude/wok/`。若不存在，从插件缓存拷贝：
+```bash
+mkdir -p ~/.claude/wok && cp "$(find ~/.claude/plugins/cache/wok/wok -name resolve-system-name.sh -path '*/scripts/*' | sort -rV | head -1)" ~/.claude/wok/resolve-system-name.sh
+```
+
+### 缩写规则
+
+管道前缀缩写（首尾字母） + 功能词首字母：
+
+| 全称 | 缩写 | 示例 |
+|------|------|------|
+| `feat-smart-home-system` | `ft-shs` | ft + s·h·s |
+| `feat-s-dark-mode` | `fts-dm` | fts + d·m |
+| `fix-auth-token-expire` | `fx-ate` | fx + a·t·e |
+| `exp-payment-module` | `ex-pm` | ex + p·m |
+| `cr-api-refactor` | `cr-ar` | cr + a·r |
+
+### 解析优先级
+
+1. **精确匹配** — 输入恰好是 `wok-plans/` 下的目录名
+2. **缩写匹配** — 按上表规则展开后匹配
+3. **模糊匹配** — 输入是目录名的子串（如 `smart` 匹配 `feat-smart-home-system`）
+
+### 输出格式
+
+- 单行 → 唯一匹配，直接使用
+- `AMBIGUOUS:` + 多行 → 多个匹配，用 AskUserQuestion 让用户选择
+- `NOT_FOUND` → 无匹配，询问用户提供完整名称
+- 无参数调用 → 列出所有 `wok-plans/` 目录
+
 ## wok-findings 延迟定型
 
 `/wok-findings` 是唯一有歧义的入口。探索完成后不立即创建目录，而是询问意图：

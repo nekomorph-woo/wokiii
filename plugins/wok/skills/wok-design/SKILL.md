@@ -35,6 +35,8 @@ pipeline:
 
 ### 1. 读取上游（可选）
 
+> 读取 `~/.claude/wok/resolve-system-name.md` 执行 system-name 解析。
+
 检查 `<phase-dir>/_define.md` 是否存在（`<phase-dir>` 指 `_define.md` 所在目录，无 roadmap 时为 `wok-plans/<system-name>/`，有 roadmap 时为 `wok-plans/<system-name>/p<n>-<phase>/`）：
 
 - **存在**：读取 frontmatter，提取设计锚点、用户故事、验收标准作为设计输入

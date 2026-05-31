@@ -15,6 +15,8 @@ pipeline:
 
 ## 快速开始
 
+> 读取 `~/.claude/wok/resolve-system-name.md` 执行 system-name 解析。
+
 1. 询问用户要构建什么
 2. 通过访谈明确问题、目标、范围
 3. 生成 `_define.md`（路径见下方约定）

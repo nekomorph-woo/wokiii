@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "wok 插件市场，为 Claude Code 用户提供需求、编程、设计、方案、审视等能力扩展",
-    "version": "2.3.0"
+    "version": "2.4.0"
   },
   "plugins": [
     {
       "name": "wok",
       "source": "./plugins/wok",
       "description": "需求到代码的完整管道：定义、设计、校验、计划、实现、审查、部署",
-      "version": "1.3.3"
+      "version": "1.4.0"
     },
     {
       "name": "wok-kit",

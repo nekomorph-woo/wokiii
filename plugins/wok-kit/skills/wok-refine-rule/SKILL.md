@@ -48,6 +48,7 @@ pipeline:
 | `coding-conventions.md` | 编码原则与任务管理 |
 | `compact-guide.md` | 上下文压缩时机引导与手动压缩指令 |
 | `pipeline-guide.md` | wok 管道场景速查与灵活入口指南 |
+| `language-and-communication.md` | 语言背景、意图推断与追问策略 |
 
 ### 1.2 执行步骤
 
@@ -244,3 +245,4 @@ pipeline:
 - [coding-conventions.md](reference/coding-conventions.md) — 编码原则、任务管理
 - [compact-guide.md](reference/compact-guide.md) — 上下文压缩时机引导与手动压缩指令
 - [pipeline-guide.md](reference/pipeline-guide.md) — wok 管道场景速查与灵活入口指南
+- [language-and-communication.md](reference/language-and-communication.md) — 语言背景、意图推断与追问策略

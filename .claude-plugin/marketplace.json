@@ -19,7 +19,7 @@
       "name": "wok-kit",
       "source": "./plugins/wok-kit",
       "description": "辅助工具集：文件保护、规则管理、技能创建、规范化提交",
-      "version": "1.4.2"
+      "version": "1.4.3"
     }
   ]
 }

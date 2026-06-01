@@ -25,10 +25,10 @@ model: opus
 
 ## 参考文档
 
-执行前读取以下共享参考文档：
+执行前读取以下参考文档：
 
-- `reference/finding-format.md` — finding 输出格式规范
-- `reference/agent-constraints.md` — 排除约束
+- [reference/finding-format.md](reference/finding-format.md) — finding 输出格式规范
+- [reference/agent-constraints.md](reference/agent-constraints.md) — 排除约束
 
 ## 简化维度
 

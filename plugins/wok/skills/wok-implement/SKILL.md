@@ -3,7 +3,7 @@ name: wok-implement
 description: 测试驱动开发，采用垂直切片的 RED-GREEN-REFACTOR 循环。Use when 用户要求使用 TDD 开发功能或修复 bug、提到 "wok-implement" / "red-green-refactor" / "测试先行" / "TDD"。
 pipeline:
   upstream: [wok-issue, wok-plan, wok-define]
-  downstream: []
+  downstream: [wok-code-review]
   gate: false
   output: none
   adaptive: false

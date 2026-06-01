@@ -23,7 +23,7 @@ plugins/<name>/.claude-plugin/plugin.json
 | 插件 | 路径 | 内容 |
 |------|------|------|
 | **wok** | `plugins/wok/` | 管道核心（16 skills + agents + scripts） |
-| **wok-kit** | `plugins/wok-kit/` | 辅助工具集（4 skills） |
+| **wok-kit** | `plugins/wok-kit/` | 辅助工具集（7 skills） |
 
 ## 工作流程
 

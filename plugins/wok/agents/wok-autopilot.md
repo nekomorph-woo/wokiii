@@ -4,7 +4,7 @@ description: >
   Goal-Driven 管道自动执行引擎。驱动 implement → code-review → cr-insight 循环直到收敛。
   无状态设计，每次迭代从磁盘产物重建上下文，天然抗压缩。遇到 🔴 无法自动修复时中断 handoff。
   Use when plan 已审批后要求自动执行，或提到 "autopilot" / "自动执行" / "自动驾驶"。
-model: sonnet
+model: inherit
 skills:
   - wok-implement
   - wok-code-review

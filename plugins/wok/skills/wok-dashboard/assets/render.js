@@ -594,41 +594,47 @@
     return latest.status === 'converged' || latest.status === 'analyzed';
   }
 
+  function buildStaleAction() {
+    const staleDocs = Object.entries(freshnessMap).filter(([, info]) => info.freshness === 'stale');
+    if (!staleDocs.length) return null;
+    const stageOrder = ['_define.md', '_issue.md', '_findings.md', '_registry.md', '/design.md', '_check.md', '_plan.md'];
+    const skillMap = [
+      { action: '需求已变更，重新设计下游文档', detail: '运行 wok-design --affected-only' },
+      { action: '问题分析已变更，重新设计下游文档', detail: '运行 wok-design --affected-only' },
+      { action: '探索结果已变更，更新相关文档', detail: '运行 wok-plan --refresh' },
+      { action: '模块注册已变更，重新设计受影响模块', detail: '运行 wok-design --affected-only' },
+      { action: '模块设计已变更，重新校验', detail: '运行 wok-design-review → wok-plan --refresh' },
+      { action: '校验结果已变更，刷新计划', detail: '运行 wok-plan --refresh' },
+      { action: '执行计划已变更，重新审查', detail: '运行 wok-code-review' },
+    ];
+    const allReasons = new Set();
+    for (const [, info] of staleDocs) {
+      for (const r of (info.staleReasons || [])) allReasons.add(r);
+    }
+    let earliestIdx = stageOrder.length;
+    for (const reason of allReasons) {
+      for (let i = 0; i < stageOrder.length; i++) {
+        if (reason.endsWith(stageOrder[i]) ||
+            (stageOrder[i] === '/design.md' && reason.includes('/design.md'))) {
+          earliestIdx = Math.min(earliestIdx, i);
+          break;
+        }
+      }
+    }
+    const rec = skillMap[Math.min(earliestIdx, skillMap.length - 1)];
+    return [{ action: rec.action, detail: `${rec.detail} · ${staleDocs.length} 个文档过期`, priority: 'high' }];
+  }
+
   function computeNextAction_feat() {
+    const stale = buildStaleAction();
+    if (stale) return stale;
+
     const actions = [];
     const defineKey = findFile('_define.md');
     const registryKey = findFile('modules/_registry.md');
     const checkKey = findFile('_check.md');
     const planKey = findFile('_plan.md');
     const reviewKey = findFile('_review.md');
-
-    const staleDocs = Object.entries(freshnessMap).filter(([, info]) => info.freshness === 'stale');
-    if (staleDocs.length) {
-      const stageOrder = ['_define.md', '_registry.md', '/design.md', '_check.md', '_plan.md'];
-      const skillMap = [
-        { action: '需求已变更，重新设计下游文档', detail: '运行 wok-design --affected-only' },
-        { action: '模块注册已变更，重新设计受影响模块', detail: '运行 wok-design --affected-only' },
-        { action: '模块设计已变更，重新校验', detail: '运行 wok-design-review → wok-plan --refresh' },
-        { action: '校验结果已变更，刷新计划', detail: '运行 wok-plan --refresh' },
-        { action: '执行计划已变更，重新审查', detail: '运行 wok-code-review' },
-      ];
-      const allReasons = new Set();
-      for (const [, info] of staleDocs) {
-        for (const r of (info.staleReasons || [])) allReasons.add(r);
-      }
-      let earliestIdx = stageOrder.length;
-      for (const reason of allReasons) {
-        for (let i = 0; i < stageOrder.length; i++) {
-          if (reason.endsWith(stageOrder[i]) ||
-              (stageOrder[i] === '/design.md' && reason.includes('/design.md'))) {
-            earliestIdx = Math.min(earliestIdx, i);
-            break;
-          }
-        }
-      }
-      const rec = skillMap[Math.min(earliestIdx, skillMap.length - 1)];
-      return [{ action: rec.action, detail: `${rec.detail} · ${staleDocs.length} 个文档过期`, priority: 'high' }];
-    }
 
     const fs = computeFeatureStatus();
     if (fs.blockingCount > 0) {
@@ -653,7 +659,7 @@
     const planP = state.parsed.get(planKey);
     if (planP?.frontmatter?.status !== 'approved') return [{ action: '审阅并审批执行计划', detail: '切换到执行 tab' }];
     if (planP?.frontmatter?.status === 'approved') {
-      actions.push({ action: '开始实现', detail: '运行 wok-implement', priority: 'high' });
+      actions.push({ action: '开始实现', detail: '运行 wok-implement / wok-autopilot', priority: 'high' });
     }
 
     if (isReviewConverged()) {
@@ -682,68 +688,60 @@
   }
 
   function computeNextAction_featS() {
-    const actions = [];
-    const staleDocs = Object.entries(freshnessMap).filter(([, info]) => info.freshness === 'stale');
-    if (staleDocs.length) return [{ action: `${staleDocs.length} 个文档过期`, detail: '重新运行相关 SKILL', priority: 'high' }];
-
-    const defineKey = findFile('_define.md');
-    if (!defineKey) return [{ action: '定义需求', detail: '运行 wok-define' }];
-    const dp = state.parsed.get(defineKey);
-    if (dp?.frontmatter?.status !== 'approved') return [{ action: '确认需求文档', detail: '审批 _define.md' }];
-    if (isReviewConverged()) {
-      actions.push({ action: '小功能完成', detail: 'Review 已收敛', priority: 'low' });
-    }
-
-    // Acceptance criteria checks
-    const acKey = findFile('_define.md');
-    if (acKey) {
-      const ac = parseAcceptanceCriteria(state.parsed.get(acKey).raw);
-      if (ac && ac.pendingAuto.length) {
-        actions.push({ action: `${ac.pendingAuto.length} 条自动验收标准未通过`, detail: '需 wok-implement 修复', priority: 'normal' });
-      }
-      if (ac && ac.pendingHuman.length) {
-        actions.push({ action: `${ac.pendingHuman.length} 条验收标准需人工确认`, detail: '在 Dashboard 中确认', priority: 'low' });
-      }
-    }
-
-    if (!actions.length) actions.push({ action: '开始实现', detail: '运行 wok-implement', priority: 'high' });
-    return actions;
+    return computeNextAction_feat();
   }
 
   function computeNextAction_fix() {
-    const actions = [];
-    const staleDocs = Object.entries(freshnessMap).filter(([, info]) => info.freshness === 'stale');
-    if (staleDocs.length) return [{ action: `${staleDocs.length} 个文档过期`, detail: '重新运行相关 SKILL', priority: 'high' }];
+    const stale = buildStaleAction();
+    if (stale) return stale;
 
+    const actions = [];
     const issueKey = findFile('_issue.md');
     if (!issueKey) return [{ action: '调查问题', detail: '运行 wok-issue' }];
     const ip = state.parsed.get(issueKey);
     if (ip?.frontmatter?.status !== 'approved') return [{ action: '确认问题分析', detail: '审批 _issue.md' }];
+
+    // Optional steps (low priority, don't block main flow)
+    const findingsKey = findFile('_findings.md');
+    const registryKey = findFile('modules/_registry.md');
+    const checkKey = findFile('_check.md');
+    if (!findingsKey) actions.push({ action: '深入探索（可选）', detail: '运行 wok-findings', priority: 'low' });
+    if (!registryKey) actions.push({ action: '生成设计（可选）', detail: '运行 wok-design', priority: 'low' });
+    if (registryKey && !checkKey) actions.push({ action: '校验设计（可选）', detail: '运行 wok-design-review', priority: 'low' });
+
+    // Plan (mandatory)
+    const planKey = findFile('_plan.md');
+    if (!planKey) {
+      actions.push({ action: '制定执行计划', detail: '运行 wok-plan', priority: 'high' });
+      return actions;
+    }
+    const planP = state.parsed.get(planKey);
+    if (planP?.frontmatter?.status !== 'approved') {
+      actions.push({ action: '审批执行计划', detail: '切换到执行 tab' });
+      return actions;
+    }
+
+    // Review + implement
     if (isReviewConverged()) {
       actions.push({ action: '修复完成', detail: 'Review 已收敛', priority: 'low' });
+    } else {
+      actions.push({ action: '开始修复', detail: '运行 wok-implement / wok-autopilot', priority: 'high' });
     }
 
-    // Acceptance criteria checks
-    const acKey = findFile('_issue.md');
-    if (acKey) {
-      const ac = parseAcceptanceCriteria(state.parsed.get(acKey).raw);
-      if (ac && ac.pendingAuto.length) {
-        actions.push({ action: `${ac.pendingAuto.length} 条自动验收标准未通过`, detail: '需 wok-implement 修复', priority: 'normal' });
-      }
-      if (ac && ac.pendingHuman.length) {
-        actions.push({ action: `${ac.pendingHuman.length} 条验收标准需人工确认`, detail: '在 Dashboard 中确认', priority: 'low' });
-      }
-    }
+    // Acceptance criteria
+    const ac = parseAcceptanceCriteria(state.parsed.get(issueKey).raw);
+    if (ac?.pendingAuto?.length) actions.push({ action: `${ac.pendingAuto.length} 条自动验收标准未通过`, detail: '需 wok-implement 修复', priority: 'normal' });
+    if (ac?.pendingHuman?.length) actions.push({ action: `${ac.pendingHuman.length} 条验收标准需人工确认`, detail: '在 Dashboard 中确认', priority: 'low' });
 
-    if (!actions.length) actions.push({ action: '开始修复', detail: '运行 wok-implement', priority: 'high' });
+    if (!actions.length) actions.push({ action: '检查管道状态', detail: '' });
     return actions;
   }
 
   function computeNextAction_exp() {
-    const actions = [];
-    const staleDocs = Object.entries(freshnessMap).filter(([, info]) => info.freshness === 'stale');
-    if (staleDocs.length) return [{ action: `${staleDocs.length} 个文档过期`, detail: '重新运行相关 SKILL', priority: 'high' }];
+    const stale = buildStaleAction();
+    if (stale) return stale;
 
+    const actions = [];
     const findingsKey = findFile('_findings.md');
     if (!findingsKey) return [{ action: '探索代码', detail: '运行 wok-findings' }];
 
@@ -754,7 +752,7 @@
       actions.push({ action: '优化完成', detail: 'Review 已收敛', priority: 'low' });
     }
 
-    if (!actions.length) actions.push({ action: '开始实现', detail: '运行 wok-implement', priority: 'high' });
+    if (!actions.length) actions.push({ action: '开始实现', detail: '运行 wok-implement / wok-autopilot', priority: 'high' });
     return actions;
   }
 

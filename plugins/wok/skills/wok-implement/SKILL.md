@@ -79,6 +79,17 @@ pipeline:
   ...
 ```
 
+## 命令接口
+
+```
+/wok-implement [--autopilot] [--step <N>]
+```
+
+| 参数 | 格式 | 默认值 | 说明 |
+|------|------|--------|------|
+| `--autopilot` | flag | false | 禁用用户交互，从 `_plan.md` 自动提取规划信息 |
+| `--step` | 正整数 | 无 | 执行指定 step（autopilot 模式下由调用方传入） |
+
 ## 工作流程
 
 ### 1. 规划
@@ -90,6 +101,21 @@ pipeline:
 **读取上游**（可选）：检查 `<phase-dir>/_plan.md` 是否存在（`<phase-dir>` 与 `_define.md` 同级）：
 - **存在**：读取 frontmatter 和执行步骤，作为 TDD 循环的输入。执行步骤中的验证标准直接映射为测试断言目标
 - **不存在**：从当前对话上下文和代码库中获取必要信息
+
+**autopilot 模式**（`--autopilot` 参数传入时）：
+
+跳过用户交互，自动从 `_plan.md` 提取规划信息：
+
+1. 读取 `<phase-dir>/_plan.md`
+2. 定位 `--step N` 指定的 step（无 `--step` 则取第一个 `[ ]`）
+3. 从 step 描述和验证标准推导：
+   - 接口变更：step 描述中的文件路径、函数签名、模块名
+   - 测试行为：验证标准直接映射为测试断言目标
+   - 优先级：按 step 内描述顺序
+4. 若 step 描述信息不足以推导接口 → 在 `_plan.md` 该 step 标记 `⚠️ 阻塞：step 描述信息不足，需人工补充接口设计`，停止后续 step
+5. 跳转到 ### 2. Tracer Bullet 开始执行
+
+**正常模式**（无 `--autopilot`）：
 
 然后确认：
 
@@ -142,6 +168,8 @@ GREEN: 使测试通过的最小代码 → 通过
 **RED 状态下不要重构。** 先回到 GREEN。
 
 ### 5. Step 完成与进度回填
+
+`--autopilot --step N` 模式下：仅执行指定 step 的 TDD 循环，完成后回填 `[x]` 并退出（不推进下一个 step）。调用方（autopilot）负责 step 调度。
 
 当上游 `_plan.md` 存在时，每个 step 的 RED-GREEN-REFACTOR 循环完成后，**必须**回填进度才能进入下一个 step：
 

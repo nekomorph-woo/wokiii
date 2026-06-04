@@ -63,11 +63,18 @@
     ],
     'feat-s': [
       { title: '探索文档', test: (n) => /^_findings/.test(n) },
-      { title: '需求文档', test: (n) => n === '_define.md' || n.endsWith('/_define.md') },
+      { title: '需求文档', test: (n) => n === '_define.md' || n.endsWith('/_define.md') || n === '_roadmap.md' || n.endsWith('/_roadmap.md') },
+      { title: '模块设计', test: (n) => n.includes('modules/') },
+      { title: '校验文档', test: (n) => n === '_check.md' || n.endsWith('/_check.md') },
+      { title: '执行文档', test: (n) => n === '_plan.md' || n.endsWith('/_plan.md') },
       { title: '审查文档', test: (n) => n === '_review.md' || n.endsWith('/_review.md') },
     ],
     fix: [
+      { title: '探索文档', test: (n) => /^_findings/.test(n) },
       { title: '问题文档', test: (n) => n === '_issue.md' || n.endsWith('/_issue.md') },
+      { title: '模块设计', test: (n) => n.includes('modules/') },
+      { title: '校验文档', test: (n) => n === '_check.md' || n.endsWith('/_check.md') },
+      { title: '执行文档', test: (n) => n === '_plan.md' || n.endsWith('/_plan.md') },
       { title: '审查文档', test: (n) => n === '_review.md' || n.endsWith('/_review.md') },
     ],
     exp: [

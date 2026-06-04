@@ -41,10 +41,16 @@ Server 状态存储在 `~/.claude/wok-dashboard/server.json`。
 
 ### 4. 访问
 
-输出 HTTP URL，用户在浏览器中打开即可查看管道文档。文档更新后刷新页面即可同步最新内容。
+输出 HTTP URL（端口固定为 18730），用户在浏览器中打开即可查看管道文档。文档更新后刷新页面即可同步最新内容。
+
+```
+Dashboard URL: http://127.0.0.1:18730/<system-name>/_dashboard.html
+```
 
 ## 约束
 
+- **固定端口 18730** — Server 始终使用端口 18730，不使用其他端口
+- **必须通过 deploy.sh 管理 server** — DO NOT 手动运行 `python3 _server.py` 或自行选择端口。Server 的启动、复用、重启全部由 `deploy.sh` 处理
 - `_server.py` 部署到 `~/.claude/wok-dashboard/`，不放入项目目录
 - Server 仅绑定 `127.0.0.1`，仅本机可访问
 - 每个 feature 的 dashboard 只能读取自己目录下的文件（路径隔离）

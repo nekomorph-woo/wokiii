@@ -77,8 +77,8 @@ changed: 初始版本
 ---
 
 > **模块数**：N 个
-> **执行步骤**：M 步
-> **集成点**：K 个
+> **执行步骤**：M 步（含 K 个审查点）
+> **集成点**：J 个
 > **阻塞**：<阻塞项>
 
 ## 执行顺序
@@ -93,14 +93,62 @@ changed: 初始版本
 
 - **验证**：如何验证这一步完成
 - **集成**：这一步是否是某个集成点的前置
-- **完成标记**：更新本 step 的 `[ ]` → `[x]`（wok-implement 自动回填）
 
 </details>
 
-### Step 2: ...
+### Step 2: [ ] [ACTION] <模块名> — <一句话描述>
+...
+
+### Step 3: [ ] 🔍 [CHECKPOINT] code-review — review steps 1-2
+
+- **审查范围**：steps 1-2 的所有变更
+- **通过后**：批量回填 steps 1-2 为 [x]
+
+<details>
+<summary>【实现约束】checkpoint 验证标准</summary>
+
+- **验证**：code-review 收敛且无 🔴 Open
+- **回填**：autopilot 将本 group 的所有 [ ] → [x]
+
+</details>
+
+### Step 4: [ ] [ACTION] <模块名> — <一句话描述>
+...
 ```
 
-**`--refresh` 模式**：frontmatter 添加 `changed: 增量刷新（受影响模块：<列表>）`。受影响步骤标记为 `[ ]`（未完成），未受影响步骤保留原文本和 `[x]` 状态。
+#### CHECKPOINT 插入策略
+
+step 生成后，评估是否需要插入 CR checkpoint：
+
+| 条件 | 插入时机 |
+|------|----------|
+| step 数 ≤ 3 | 仅末尾一个默认 checkpoint |
+| 存在跨模块集成点 | 集成点后插入 checkpoint |
+| 连续 ≥ 4 个同模块 step | 在第 4 个后插入 checkpoint |
+| step 涉及外部依赖变更 | 变更后插入 checkpoint |
+
+**判断原则**：当 n 个 step 的代码实现组合后比较完整时再 CR，不要频繁触发。
+
+**CHECKPOINT 格式**：
+
+```markdown
+### Step N: [ ] 🔍 [CHECKPOINT] code-review — review steps <M>-<N-1>
+
+- **审查范围**：steps <M>-<N-1> 的所有变更
+- **通过后**：批量回填 steps <M>-<N-1> 为 [x]
+
+<details>
+<summary>【实现约束】checkpoint 验证标准</summary>
+
+- **验证**：code-review 收敛且无 🔴 Open
+- **回填**：autopilot 将本 group 的所有 [ ] → [x]
+
+</details>
+```
+
+每个 CHECKPOINT 必须标注审查范围（step 区间）。默认至少一个末尾 CHECKPOINT。CHECKPOINT 不由 implement 执行，由 autopilot 在编排时处理。
+
+**`--refresh` 模式**：frontmatter 添加 `changed: 增量刷新（受影响模块：<列表>）`。受影响步骤标记为 `[ ]`（未完成），未受影响步骤保留原文本和 `[x]` 状态。CHECKPOINT 步骤保持不变。
 
 ### 4. 补充检查项
 
@@ -117,8 +165,8 @@ changed: 初始版本
 ```
 ## ✅ 执行计划完成
 
-**步骤数**：<M> 步
-**集成点**：<K> 个
+**步骤数**：<M> 步（含 <K> 个审查点）
+**集成点**：<J> 个
 **遗漏风险**：<列出有风险的步骤>
 **阻塞**：<阻塞项>
 **下一步**：开始 TDD 编码
@@ -130,3 +178,5 @@ changed: 初始版本
 - **DO NOT** 使用缩写标记（如 `A1`），必须使用完整 `### [ACTION]` 格式
 - 每个步骤必须有明确的验证标准
 - 集成点必须显式标注 — 隐藏的集成是开发遗漏的主要来源
+- 每个 CHECKPOINT 必须标注审查范围（step 区间）
+- CHECKPOINT 不由 implement 执行，由 autopilot 在编排时处理

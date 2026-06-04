@@ -70,13 +70,13 @@ simplify_count: <positive-int>
   <summary>【审查证据】src/auth.py:42 — JWT exp 字段未校验导致过期 token 被接受</summary>
 
   > **🔍 原因分析**
-  > （cr-insight 原因分析内容）
+  > （洞察分析内容）
   >
   > **🔧 修改方案**
-  > （cr-insight 修改方案内容）
+  > （修改方案内容）
   >
   > **📐 一致性评估**
-  > （cr-insight 一致性评估内容）
+  > （一致性评估内容）
 
   </details>
 
@@ -89,13 +89,13 @@ simplify_count: <positive-int>
   <summary>【审查证据】src/utils.py:108 — datetime.now() 无时区导致时间漂移</summary>
 
   > **🔍 原因分析**
-  > （cr-insight 原因分析内容）
+  > （洞察分析内容）
   >
   > **🔧 修改方案**
-  > （cr-insight 修改方案内容）
+  > （修改方案内容）
   >
   > **📐 一致性评估**
-  > （cr-insight 一致性评估内容）
+  > （一致性评估内容）
 
   </details>
 
@@ -134,8 +134,8 @@ simplify_count: <positive-int>
 
 | 标记 | 含义 | 触发条件 |
 |------|------|----------|
-| `✅ Converged` | 无 🔴🟠 问题 | 所有 Blocking/Severe 已修复 |
-| `Analyzed` | cr-insight 分析完成 | cr-insight 在 cr 管道独立模式下写入 |
+| `✅ Converged` | 无 findings | 所有 Blocking/Severe 已修复，无任何问题 |
+| `Analyzed` | 仅有 🟡 advisory，无 🔴🟠 | 所有 Blocking/Severe 已修复，仅有 advisory |
 | `⚠️ Max rounds` | 达到迭代上限 | `max_rounds_reached: true` |
 | 无标记 | 仍有问题待修复 | 有未解决的 🔴🟠 |
 
@@ -151,7 +151,7 @@ simplify_count: <positive-int>
 | 🟡 重复出现 | 不写入 Open，仅在元数据中计数 |
 | 🟡 不再出现 | 自然消失 |
 | 收敛 | 标题追加 `✅ Converged` |
-| cr-insight 分析完成 | 标题更新为 `Analyzed`（仅 cr 管道，由 cr-insight 写入） |
+| 仅有 🟡 无严重问题 | 标题追加 `Analyzed` |
 | 迭代上限 | 标题追加 `⚠️ Max rounds`，元数据追加 `⚠️ 达到迭代上限，剩余问题降级为 Advisory` |
 
 ## 🟡 去重机制
@@ -172,5 +172,5 @@ simplify_count: <positive-int>
 - 单文件操作，不创建辅助文件
 - GitHub-flavored Markdown 兼容
 - 轮次标题和问题条目格式为 dashboard 解析锚点
-- DO NOT 记录完整文件内容或大段 diff — cr-insight 块内仅允许针对特定行的 before/after 示例片段
+- DO NOT 记录完整文件内容或大段 diff — 洞察分析块内仅允许针对特定行的 before/after 示例片段
 - DO NOT 修改已写入的历史轮次内容

@@ -63,8 +63,9 @@ pipeline:
    * `files:<path>` → 直接使用指定路径
 4. 过滤非代码文件（图片、二进制、lock 文件等）
 5. 若无变更文件 → 输出"无变更可审查"并退出
+6. **提取验收标准**（仅管道模式）：读取 `_define.md` 或 `_issue.md` 的 `## 验收标准` section，提取所有 🤖 条目的编号和文字 → `acceptance_criteria` 列表。元素格式：`US-N 🤖M: <条件文字>`（M 为带圈数字，不含 checkbox 前缀）
 
-**产出**：上下文包（含 files 列表、language、design_anchors、prd_summary、phase_dir）
+**产出**：上下文包（含 files 列表、language、design_anchors、prd_summary、phase_dir、acceptance_criteria）
 
 ### Stage 1: 并行审查
 
@@ -78,7 +79,7 @@ pipeline:
 | comment-analyzer | 表格格式（files + diff + phase-context） |
 | silent-failure-hunter | 表格格式（files + context + language） |
 | type-design-analyzer | 表格格式（files + context） |
-| pr-test-analyzer | 表格格式（scope_files + test_dir + prd_context） |
+| pr-test-analyzer | 表格格式（scope_files + test_dir + prd_context + acceptance_criteria） |
 
 **构建规则**：
 

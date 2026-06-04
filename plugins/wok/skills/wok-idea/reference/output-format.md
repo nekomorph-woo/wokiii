@@ -64,3 +64,7 @@ changed: 初始版本
 **阻塞**：无
 **下一步**：确认后创建 `.wok-plans/<system-name>/p1-<phase-name>/` 目录，对 Phase 1 执行 /wok-define
 ```
+
+## 约束
+
+- **DO NOT** 使用缩写标记（如 `D1`、`D2`），必须使用完整 `### [DECISION]` 格式

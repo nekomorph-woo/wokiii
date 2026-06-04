@@ -136,3 +136,4 @@ changed: 初始版本
 
 **DO NOT** 在 design.md 中写"为什么选择了 X 而不是 Y"。那属于 decisions.md。
 **DO NOT** 在 decisions.md 中写接口签名。那属于 design.md。
+**DO NOT** 使用缩写标记（如 `D1`、`D2`、`O1`），必须使用完整 `### [DECISION]` / `### [OPEN]` / `- [ACTION]` 格式

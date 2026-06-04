@@ -46,8 +46,8 @@
 
   const PIPELINE_TABS = {
     feat: ['overview', 'findings', 'requirements', 'design', 'check', 'execution', 'review'],
-    'feat-s': ['overview', 'findings', 'requirements', 'review'],
-    fix: ['overview', 'issue', 'review'],
+    'feat-s': ['overview', 'findings', 'requirements', 'design', 'check', 'execution', 'review'],
+    fix: ['overview', 'findings', 'issue', 'design', 'check', 'execution', 'review'],
     exp: ['overview', 'findings', 'execution', 'review'],
     cr: ['overview', 'review'],
   };
@@ -352,6 +352,7 @@
 
   // Extract phase name from key (e.g. 'p1-xxx/_define.md' → 'p1-xxx')
   function extractPhase(key) {
+    if (!isMultiPhase()) return null;
     const parts = key.split('/');
     return parts.length > 1 ? parts[0] : null;
   }

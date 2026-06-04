@@ -197,7 +197,7 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
             def replace_status(m):
                 nonlocal old_status
                 old_status = m.group(1)
-                return f'status: {new_status}\n'
+                return f'status: {new_status}'
             content, count = re.subn(r'^status:\s*(\S+)', replace_status, content, count=1, flags=re.MULTILINE)
             if count == 0:
                 self.send_error(400, 'No status field found in frontmatter')
@@ -207,7 +207,7 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
             def replace_freshness(m):
                 nonlocal old_freshness
                 old_freshness = m.group(1)
-                return f'freshness: {new_freshness}\n'
+                return f'freshness: {new_freshness}'
             content, _ = re.subn(r'^freshness:\s*(\S+)', replace_freshness, content, count=1, flags=re.MULTILINE)
 
         target.write_text(content, encoding='utf-8')
@@ -312,7 +312,7 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
     def _serve_freshness(self, feature_root):
         base = feature_root.resolve()
         md_files = sorted(
-            str(f.relative_to(base))
+            str(f.relative_to(base)).replace('\\', '/')
             for f in base.rglob('*.md')
             if f.is_file() and not f.name.startswith('.')
         )
@@ -404,7 +404,7 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
         propagation = self.IMPACT_PROPAGATION.get(pattern_key, self.IMPACT_PROPAGATION.get('modules/*/design.md', {}))
         downstream_patterns = propagation.get(impact_level, [])
         base = feature_root.resolve()
-        md_files = {str(f.relative_to(base)): f for f in base.rglob('*.md') if f.is_file() and not f.name.startswith('.')}
+        md_files = {str(f.relative_to(base)).replace('\\', '/'): f for f in base.rglob('*.md') if f.is_file() and not f.name.startswith('.')}
         marked = []
         for pattern in downstream_patterns:
             for rel_path in md_files:
@@ -437,7 +437,7 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
     def _serve_file_list(self, feature_root):
         base = feature_root.resolve()
         md_files = sorted(
-            str(f.relative_to(base))
+            str(f.relative_to(base)).replace('\\', '/')
             for f in base.rglob('*.md')
             if f.is_file() and not f.name.startswith('.')
         )

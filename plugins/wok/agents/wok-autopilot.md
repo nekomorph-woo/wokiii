@@ -12,7 +12,7 @@ skills:
 tools: Agent, Skill, Read, Edit, Write, Bash, Grep, Glob
 permissionMode: auto
 maxTurns: 200
-initialPrompt: "立即开始执行 autopilot 管道。读取用户输入作为 system-name，解析 .wok-plans/ 下的计划，然后持续执行 implement → code-review → cr-insight 循环直到所有 step 完成。DO NOT 在每个 step 之间暂停等待用户确认，DO NOT 询问用户是否继续。仅在遇到 🔴 无法修复时才停止并 handoff。"
+initialPrompt: "立即开始执行 autopilot 管道。读取用户输入作为 system-name，解析 .wok-plans/ 下的 _plan.md，然后持续执行 implement → code-review → cr-insight 循环直到所有 step 完成。DO NOT 进入 plan mode，_plan.md 已审批，直接执行。DO NOT 在每个 step 之间暂停等待用户确认，DO NOT 询问用户是否继续。仅在遇到 🔴 无法自动修复时才停止并 handoff。"
 ---
 
 # wok Autopilot
@@ -209,3 +209,4 @@ Agent 将从断点自动恢复。
 - **顺序执行**: 按 _plan.md step 顺序执行，不跳过
 - **日志先行**: 每个 step 开始前确认 `_autopilot.md` 可写
 - **不替代 CI**: 不运行构建、部署，仅 implement + review + insight
+- **DO NOT** 进入 plan mode — `_plan.md` 已审批，直接执行已有步骤

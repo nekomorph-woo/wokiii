@@ -137,7 +137,7 @@ wok/
 添加 marketplace：
 
 ```
-/plugin marketplace add nekomorph-woo/wok
+/plugin marketplace add nekomorph-woo/wokiii
 ```
 
 安装插件：

@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "wok 插件市场，为 Claude Code 用户提供需求、编程、设计、方案、审视等能力扩展",
-    "version": "2.10.1"
+    "version": "2.11.0"
   },
   "plugins": [
     {
@@ -18,8 +18,8 @@
     {
       "name": "wok-kit",
       "source": "./plugins/wok-kit",
-      "description": "辅助工具集：文件保护、规则管理、技能创建、规范化提交、会话交接、agent 启动、项目初始化",
-      "version": "1.6.1"
+      "description": "辅助工具集：文件保护、规则管理、技能创建、规范化提交、会话交接、agent 启动、项目初始化、本体论规则管理、技术栈规则管理",
+      "version": "1.7.0"
     }
   ]
 }

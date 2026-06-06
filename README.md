@@ -65,7 +65,7 @@ wok/
 │   │   └── scripts/                  # 系统级脚本
 │   └── wok-kit/                      # 辅助工具集
 │       ├── .claude-plugin/plugin.json
-│       └── skills/                   # 7 个工具技能
+│       └── skills/                   # 11 个工具技能
 ├── .claude/
 │   ├── rules/                        # 项目规则
 │   └── skills/                       # 项目内部技能
@@ -117,6 +117,9 @@ wok/
 | `wok-starter` | 项目初始化：部署 rules + 配置 .gitignore |
 | `wok-access-hold` | 管理文件排除规则，保护敏感文件 |
 | `write-a-skill` | 创建符合规范的新技能 |
+| `wok-ontology` | 本体论规则管理：蒸馏方法论为可执行规则注入 .claude/rules/ |
+| `wok-tech-stack` | 技术栈规则管理：按平台选型初始化技术栈规则 |
+| `wok-setup-zzap` | 初始化项目级 zzap 技能：自动版本管理 + CHANGELOG + 发布流程 |
 
 ### 审查 Agent（wok）
 

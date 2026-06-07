@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organic Minimalism</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #FAFAF5;
+    color: #4A4A3F;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: 0.02em;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── Top Bar ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 48px;
+  }
+  .topbar__logo {
+    font-size: 22px;
+    font-weight: 600;
+    color: #5A5A4A;
+    letter-spacing: 0.04em;
+  }
+  .topbar__search {
+    width: 280px;
+    padding: 14px 24px;
+    border-radius: 28px;
+    border: none;
+    background: #F0EDE5;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    font-size: 15px;
+    color: #6B6B5E;
+    letter-spacing: 0.02em;
+    transition: box-shadow 0.3s ease, background 0.3s ease;
+  }
+  .topbar__search::placeholder { color: #A8A898; }
+  .topbar__search:focus {
+    outline: none;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.08);
+    background: #EBE7DD;
+  }
+
+  /* ── Navigation ── */
+  .nav {
+    display: flex;
+    gap: 8px;
+    padding: 0 48px;
+    margin-bottom: 40px;
+  }
+  .nav__item {
+    padding: 12px 28px;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    color: #7A7A6A;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: transparent;
+    border: none;
+  }
+  .nav__item:hover {
+    background: #F0EDE5;
+    color: #5A5A4A;
+  }
+  .nav__item--active {
+    background: #EDE9DF;
+    color: #5A5A4A;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+
+  /* ── Card ── */
+  .card {
+    max-width: 640px;
+    margin: 0 48px;
+    padding: 40px;
+    background: #F5F0E8;
+    border-radius: 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    margin-bottom: 36px;
+  }
+  .card__title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #3D3D30;
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+  }
+  .card__desc {
+    font-size: 16px;
+    color: #7A7A6A;
+    margin-bottom: 28px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Tag Chips ── */
+  .chips { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 32px; }
+  .chip {
+    padding: 10px 24px;
+    border-radius: 28px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .chip:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+  .chip--sage    { background: #D5DDD2; color: #5C6B58; }
+  .chip--terra   { background: #E8C4B8; color: #8B5A48; }
+  .chip--sand    { background: #E8DFC8; color: #7A6D55; }
+  .chip--clay    { background: #D9CCBA; color: #6B5D48; }
+  .chip--sage2   { background: #CDDAC8; color: #4E5E48; }
+
+  /* ── Buttons ── */
+  .actions { display: flex; gap: 16px; }
+  .btn {
+    padding: 14px 32px;
+    border-radius: 28px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .btn--primary {
+    background: #A8B5A2;
+    color: #FFFFFF;
+    box-shadow: 0 4px 16px rgba(168,181,162,0.3);
+  }
+  .btn--primary:hover {
+    background: #96A890;
+    box-shadow: 0 6px 24px rgba(168,181,162,0.4);
+    transform: translateY(-1px);
+  }
+  .btn--secondary {
+    background: transparent;
+    color: #8B7355;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+  .btn--secondary:hover {
+    background: #EBE7DD;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+
+  /* ── Palette Section ── */
+  .section {
+    max-width: 640px;
+    margin: 0 48px;
+    padding: 36px 40px;
+    background: #F5F0E8;
+    border-radius: 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    margin-bottom: 36px;
+  }
+  .section__title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #3D3D30;
+    margin-bottom: 24px;
+    letter-spacing: 0.02em;
+  }
+  .palette { display: flex; gap: 20px; }
+  .swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .swatch__color {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    transition: transform 0.25s ease;
+  }
+  .swatch__color:hover { transform: scale(1.08); }
+  .swatch__hex {
+    font-size: 12px;
+    color: #9A9A8A;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+
+  /* ── Typography Section ── */
+  .typo__h1 {
+    font-size: 36px;
+    font-weight: 600;
+    color: #3D3D30;
+    letter-spacing: 0.01em;
+    margin-bottom: 16px;
+  }
+  .typo__h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #5A5A4A;
+    letter-spacing: 0.02em;
+    margin-bottom: 12px;
+  }
+  .typo__body {
+    font-size: 16px;
+    color: #6B6B5E;
+    line-height: 1.8;
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+  }
+  .typo__caption {
+    font-size: 13px;
+    color: #A0A090;
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__logo">SampleApp</div>
+    <input class="topbar__search" type="text" placeholder="Search gently...">
+  </header>
+
+  <nav class="nav">
+    <button class="nav__item nav__item--active">Dashboard</button>
+    <button class="nav__item">Library</button>
+    <button class="nav__item">Settings</button>
+  </nav>
+
+  <section class="card">
+    <h1 class="card__title">Tag Collection</h1>
+    <p class="card__desc">Browse and manage your creative tags</p>
+    <div class="chips">
+      <span class="chip chip--sage">landscape</span>
+      <span class="chip chip--terra">portrait</span>
+      <span class="chip chip--sand">anime</span>
+      <span class="chip chip--clay">watercolor</span>
+      <span class="chip chip--sage2">detailed</span>
+    </div>
+    <div class="actions">
+      <button class="btn btn--primary">Add Tag</button>
+      <button class="btn btn--secondary">Filter</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section__title">Color Palette</h2>
+    <div class="palette">
+      <div class="swatch">
+        <div class="swatch__color" style="background:#A8B5A2;"></div>
+        <span class="swatch__hex">#A8B5A2</span>
+      </div>
+      <div class="swatch">
+        <div class="swatch__color" style="background:#C4725A;"></div>
+        <span class="swatch__hex">#C4725A</span>
+      </div>
+      <div class="swatch">
+        <div class="swatch__color" style="background:#D4B896;"></div>
+        <span class="swatch__hex">#D4B896</span>
+      </div>
+      <div class="swatch">
+        <div class="swatch__color" style="background:#8B7355;"></div>
+        <span class="swatch__hex">#8B7355</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section__title">Typography</h2>
+    <h1 class="typo__h1">Gentle Heading</h1>
+    <h2 class="typo__h2">Warm Subheading</h2>
+    <p class="typo__body">
+      Organic minimalism embraces the beauty of natural materials and gentle forms.
+      Every element breathes with space, creating a calm and approachable experience.
+    </p>
+    <span class="typo__caption">A quiet note beneath the surface</span>
+  </section>
+
+</body>
+</html>

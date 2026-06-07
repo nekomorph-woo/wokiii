@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glassmorphism Style</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #fff;
+    letter-spacing: 0.3px;
+    padding: 24px;
+    overflow-x: hidden;
+  }
+
+  /* Background Blobs */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: 0;
+    pointer-events: none;
+  }
+  body::before {
+    width: 500px; height: 500px;
+    background: rgba(160, 196, 255, 0.35);
+    top: -120px; left: -100px;
+  }
+  body::after {
+    width: 400px; height: 400px;
+    background: rgba(181, 234, 215, 0.3);
+    bottom: -80px; right: -60px;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Glass base style */
+  .glass {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+  }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    margin-bottom: 16px;
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .search-input {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 8px 16px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    outline: none;
+    width: 220px;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .search-input::placeholder { color: rgba(255, 255, 255, 0.5); }
+  .search-input:focus {
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+  }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    gap: 4px;
+    padding: 6px 8px;
+    margin-bottom: 24px;
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  .nav-item:hover { background: rgba(255, 255, 255, 0.1); }
+  .nav-item.active {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.1);
+  }
+
+  /* Main Card */
+  .card { padding: 28px; margin-bottom: 24px; }
+  .card-title {
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+  }
+  .card-desc {
+    font-size: 14px;
+    font-weight: 300;
+    opacity: 0.75;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+  }
+
+  /* Tag Chips */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+  .tag-chip {
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 0.8px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    cursor: default;
+  }
+  .tag-chip:hover {
+    background: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 0 14px rgba(255, 255, 255, 0.12);
+  }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 12px; }
+  .btn {
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.8px;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  .btn-primary { background: rgba(255, 255, 255, 0.22); color: #fff; }
+  .btn-primary:hover {
+    background: rgba(255, 255, 255, 0.32);
+    box-shadow: 0 0 24px rgba(255, 255, 255, 0.18);
+  }
+  .btn-secondary { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.8); }
+  .btn-secondary:hover { background: rgba(255, 255, 255, 0.18); }
+
+  /* Color Palette */
+  .palette { display: flex; gap: 14px; margin-bottom: 24px; }
+  .swatch-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .swatch {
+    width: 100%;
+    height: 56px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .swatch-label { font-size: 11px; font-weight: 300; letter-spacing: 1px; opacity: 0.7; }
+
+  /* Typography */
+  .typo-section { padding: 28px; }
+  .typo-section h1 {
+    font-size: 28px;
+    font-weight: 200;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+  }
+  .typo-section h2 {
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    opacity: 0.9;
+  }
+  .typo-section p {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.7;
+    letter-spacing: 0.4px;
+    margin-bottom: 12px;
+    opacity: 0.8;
+  }
+  .typo-section .caption {
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.55;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar glass">
+      <div class="logo">SampleApp</div>
+      <input class="search-input" type="text" placeholder="Search...">
+    </div>
+
+    <div class="nav glass">
+      <div class="nav-item active">Dashboard</div>
+      <div class="nav-item">Library</div>
+      <div class="nav-item">Settings</div>
+    </div>
+
+    <div class="card glass">
+      <div class="card-title">Tag Collection</div>
+      <div class="card-desc">Browse and manage your creative tags</div>
+      <div class="tag-row">
+        <span class="tag-chip">landscape</span>
+        <span class="tag-chip">portrait</span>
+        <span class="tag-chip">anime</span>
+        <span class="tag-chip">watercolor</span>
+        <span class="tag-chip">detailed</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Add Tag</button>
+        <button class="btn btn-secondary">Filter</button>
+      </div>
+    </div>
+
+    <div class="card glass">
+      <div class="card-title" style="margin-bottom: 16px;">Color Palette</div>
+      <div class="palette">
+        <div class="swatch-group">
+          <div class="swatch" style="background: #C3ACD0;"></div>
+          <span class="swatch-label">#C3ACD0</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #A0C4FF;"></div>
+          <span class="swatch-label">#A0C4FF</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #B5EAD7;"></div>
+          <span class="swatch-label">#B5EAD7</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #FFB7B2;"></div>
+          <span class="swatch-label">#FFB7B2</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="typo-section glass">
+      <h1>Elegant Display Heading</h1>
+      <h2>Section Subtitle</h2>
+      <p>A gentle breeze carries whispers of distant lands, where glass towers reflect the fading light of a thousand sunsets, each one more delicate than the last.</p>
+      <span class="caption">Caption text — light and airy</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soft Brutalism — SampleApp</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F9F9F7;
+    --border: #2D2D2D;
+    --pink: #F492AC;
+    --yellow: #F5DE8F;
+    --teal: #72D5CE;
+    --blue: #8AC3F0;
+    --text: #2D2D2D;
+    --text-muted: #6B6B6B;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    padding: 32px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 24px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .logo {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+  .search-input {
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    background: var(--bg);
+    box-shadow: 0 4px 0 var(--border);
+    outline: none;
+    width: 280px;
+    transition: box-shadow 0.15s ease;
+  }
+  .search-input:focus {
+    box-shadow: 0 4px 0 var(--teal);
+  }
+  .search-input::placeholder { color: var(--text-muted); }
+
+  /* ── Navigation ── */
+  .nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+  .nav-item {
+    padding: 10px 20px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    background: var(--bg);
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    box-shadow: 0 3px 0 var(--border);
+    letter-spacing: -0.01em;
+  }
+  .nav-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 var(--border);
+  }
+  .nav-item.active {
+    background: var(--yellow);
+  }
+
+  /* ── Card ── */
+  .card {
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    background: var(--bg);
+    box-shadow: 0 6px 0 var(--border);
+    margin-bottom: 32px;
+  }
+  .card-title {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+  }
+  .card-desc {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-bottom: 20px;
+  }
+
+  /* ── Tags ── */
+  .tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+  .tag {
+    padding: 6px 16px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .tag:nth-child(1) { background: var(--pink); }
+  .tag:nth-child(2) { background: var(--blue); }
+  .tag:nth-child(3) { background: var(--yellow); }
+  .tag:nth-child(4) { background: var(--teal); }
+  .tag:nth-child(5) { background: var(--pink); }
+
+  /* ── Buttons ── */
+  .actions { display: flex; gap: 12px; }
+  .btn {
+    padding: 12px 24px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: -0.01em;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .btn-primary {
+    background: var(--teal);
+    box-shadow: 0 4px 0 var(--border);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--border);
+  }
+  .btn-primary:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--border);
+  }
+  .btn-secondary {
+    background: var(--bg);
+    box-shadow: 0 4px 0 var(--border);
+  }
+  .btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--border);
+  }
+  .btn-secondary:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--border);
+  }
+
+  /* ── Color Palette ── */
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .palette {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .swatch {
+    width: 100px;
+    height: 80px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 8px;
+    box-shadow: 0 4px 0 var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── Typography ── */
+  .typography-section { margin-bottom: 32px; }
+  .typo-h1 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .typo-h2 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+  .typo-body {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 12px;
+    max-width: 520px;
+  }
+  .typo-caption {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">SampleApp</div>
+    <input class="search-input" type="text" placeholder="Search...">
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-item active">Dashboard</div>
+    <div class="nav-item">Library</div>
+    <div class="nav-item">Settings</div>
+  </nav>
+
+  <!-- Main Card -->
+  <div class="card">
+    <div class="card-title">Tag Collection</div>
+    <div class="card-desc">Browse and manage your creative tags</div>
+    <div class="tags">
+      <span class="tag">landscape</span>
+      <span class="tag">portrait</span>
+      <span class="tag">anime</span>
+      <span class="tag">watercolor</span>
+      <span class="tag">detailed</span>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary">Add Tag</button>
+      <button class="btn btn-secondary">Filter</button>
+    </div>
+  </div>
+
+  <!-- Color Palette -->
+  <div class="section-title">Color Palette</div>
+  <div class="palette">
+    <div class="swatch" style="background:var(--pink)">#F492AC</div>
+    <div class="swatch" style="background:var(--yellow)">#F5DE8F</div>
+    <div class="swatch" style="background:var(--teal)">#72D5CE</div>
+    <div class="swatch" style="background:var(--blue)">#8AC3F0</div>
+  </div>
+
+  <!-- Typography -->
+  <div class="typography-section">
+    <div class="section-title">Typography</div>
+    <h1 class="typo-h1">Bold Geometric Heading</h1>
+    <h2 class="typo-h2">Section Subtitle With Character</h2>
+    <p class="typo-body">
+      Soft brutalism blends the raw honesty of neo-brutalism with a gentler palette.
+      Hard shadows and visible borders create structure, while warm muted tones keep
+      the overall feel approachable and human.
+    </p>
+    <p class="typo-caption">Caption text — 12px, muted, slightly tracked</p>
+  </div>
+
+</body>
+</html>

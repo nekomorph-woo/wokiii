@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleApp — Aurora</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: #0B0B1A;
+    color: #E0E0F0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ── Animated Aurora Background ── */
+  .aurora-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .aurora-bg::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background:
+      radial-gradient(ellipse 600px 300px at 30% 20%, rgba(0,255,136,0.15) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 400px at 70% 30%, rgba(139,92,246,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 350px at 50% 60%, rgba(6,182,212,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 350px 250px at 20% 70%, rgba(236,72,153,0.10) 0%, transparent 70%);
+    animation: aurora-shift 12s ease-in-out infinite alternate;
+  }
+  .aurora-bg::after {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background:
+      radial-gradient(ellipse 450px 280px at 60% 80%, rgba(139,92,246,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 550px 320px at 40% 40%, rgba(0,255,136,0.10) 0%, transparent 70%),
+      radial-gradient(ellipse 380px 260px at 80% 50%, rgba(236,72,153,0.08) 0%, transparent 70%);
+    animation: aurora-shift 15s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes aurora-shift {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    33%  { transform: translate(30px, -20px) rotate(2deg); }
+    66%  { transform: translate(-20px, 30px) rotate(-1deg); }
+    100% { transform: translate(10px, -10px) rotate(1deg); }
+  }
+
+  .app { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 24px; }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+  }
+  .logo {
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    background: linear-gradient(135deg, #00FF88, #8B5CF6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .search-input {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 8px 16px;
+    color: #C8C8E0;
+    font-size: 14px;
+    font-weight: 300;
+    outline: none;
+    width: 220px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .search-input::placeholder { color: rgba(255,255,255,0.3); }
+  .search-input:focus {
+    border-color: rgba(0,255,136,0.4);
+    box-shadow: 0 0 20px rgba(0,255,136,0.08);
+  }
+
+  /* ── Nav ── */
+  .nav {
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    margin-bottom: 28px;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.45);
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.03em;
+  }
+  .nav-item:hover { color: rgba(255,255,255,0.7); }
+  .nav-item.active {
+    background: rgba(0,255,136,0.08);
+    color: #00FF88;
+    box-shadow: 0 0 24px rgba(0,255,136,0.06);
+  }
+
+  /* ── Card ── */
+  .card {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 28px;
+    box-shadow: 0 0 40px rgba(139,92,246,0.04), 0 0 80px rgba(0,255,136,0.02);
+  }
+  .card-title {
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 30px rgba(0,255,136,0.15);
+  }
+  .card-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 24px;
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  /* ── Chips ── */
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+  .chip {
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.7);
+    transition: all 0.3s;
+  }
+  .chip:nth-child(1) { box-shadow: 0 0 16px rgba(0,255,136,0.08); border-color: rgba(0,255,136,0.2); color: #00FF88; }
+  .chip:nth-child(2) { box-shadow: 0 0 16px rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.2); color: #8B5CF6; }
+  .chip:nth-child(3) { box-shadow: 0 0 16px rgba(236,72,153,0.08); border-color: rgba(236,72,153,0.2); color: #EC4899; }
+  .chip:nth-child(4) { box-shadow: 0 0 16px rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.2); color: #06B6D4; }
+  .chip:nth-child(5) { box-shadow: 0 0 16px rgba(139,92,246,0.06); border-color: rgba(139,92,246,0.15); color: #A78BFA; }
+  .chip:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateY(-1px);
+  }
+
+  /* ── Buttons ── */
+  .btn-row { display: flex; gap: 14px; }
+  .btn {
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.02em;
+    border: none;
+  }
+  .btn-primary {
+    position: relative;
+    background: rgba(255,255,255,0.06);
+    color: #00FF88;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #00FF88, #8B5CF6, #06B6D4);
+    z-index: -1;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+  }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-primary:hover { box-shadow: 0 0 30px rgba(0,255,136,0.15); }
+
+  .btn-secondary {
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.6);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .btn-secondary:hover {
+    border-color: rgba(139,92,246,0.4);
+    color: #C8C8E0;
+    box-shadow: 0 0 24px rgba(139,92,246,0.08);
+  }
+
+  /* ── Palette ── */
+  .section-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 14px;
+    font-weight: 400;
+  }
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .swatch {
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .swatch:hover { transform: translateY(-2px); }
+  .swatch-color {
+    height: 64px;
+    border-radius: 13px 13px 0 0;
+  }
+  .swatch-hex {
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.04em;
+    font-family: 'SF Mono', 'Consolas', monospace;
+  }
+  .swatch:nth-child(1) .swatch-color { background: #00FF88; box-shadow: inset 0 -20px 30px rgba(0,255,136,0.2); }
+  .swatch:nth-child(1):hover { box-shadow: 0 4px 24px rgba(0,255,136,0.12); }
+  .swatch:nth-child(2) .swatch-color { background: #8B5CF6; box-shadow: inset 0 -20px 30px rgba(139,92,246,0.2); }
+  .swatch:nth-child(2):hover { box-shadow: 0 4px 24px rgba(139,92,246,0.12); }
+  .swatch:nth-child(3) .swatch-color { background: #06B6D4; box-shadow: inset 0 -20px 30px rgba(6,182,212,0.2); }
+  .swatch:nth-child(3):hover { box-shadow: 0 4px 24px rgba(6,182,212,0.12); }
+  .swatch:nth-child(4) .swatch-color { background: #EC4899; box-shadow: inset 0 -20px 30px rgba(236,72,153,0.2); }
+  .swatch:nth-child(4):hover { box-shadow: 0 4px 24px rgba(236,72,153,0.12); }
+
+  /* ── Typography ── */
+  .typo-section { margin-bottom: 20px; }
+  .typo-section h1 {
+    font-size: 32px;
+    font-weight: 300;
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 40px rgba(0,255,136,0.1);
+  }
+  .typo-section h2 {
+    font-size: 22px;
+    font-weight: 300;
+    margin-bottom: 12px;
+    color: rgba(255,255,255,0.75);
+    letter-spacing: 0.02em;
+  }
+  .typo-section p {
+    font-size: 15px;
+    line-height: 1.8;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 12px;
+    font-weight: 300;
+  }
+  .typo-section .caption {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.06em;
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+  <div class="aurora-bg"></div>
+  <div class="app">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="logo">SampleApp</div>
+      <input class="search-input" type="text" placeholder="Search..."/>
+    </div>
+
+    <!-- Nav -->
+    <div class="nav">
+      <div class="nav-item active">Dashboard</div>
+      <div class="nav-item">Library</div>
+      <div class="nav-item">Settings</div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card">
+      <div class="card-title">Tag Collection</div>
+      <div class="card-desc">Browse and manage your creative tags</div>
+      <div class="chips">
+        <span class="chip">landscape</span>
+        <span class="chip">portrait</span>
+        <span class="chip">anime</span>
+        <span class="chip">watercolor</span>
+        <span class="chip">detailed</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Add Tag</button>
+        <button class="btn btn-secondary">Filter</button>
+      </div>
+    </div>
+
+    <!-- Color Palette -->
+    <div class="section-label">Color Palette</div>
+    <div class="palette">
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#00FF88</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#8B5CF6</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#06B6D4</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#EC4899</div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="section-label">Typography</div>
+    <div class="typo-section">
+      <h1>Ethereal Light</h1>
+      <h2>Flowing Through the Night Sky</h2>
+      <p>The aurora borealis dances across the horizon, painting the darkness with ribbons of green and violet. Each flicker is a conversation between solar wind and magnetic field, made visible for those who wait in silence.</p>
+      <div class="caption">Atmospheric Design System</div>
+    </div>
+
+  </div>
+</body>
+</html>

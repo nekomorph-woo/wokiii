@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleApp — Flat Design</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #FFFFFF;
+    color: #333333;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── Top Bar ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    background: #2196F3;
+    color: #FFFFFF;
+  }
+  .topbar-logo {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+  .topbar-search {
+    border: none;
+    background: rgba(255,255,255,0.2);
+    color: #FFFFFF;
+    font-size: 14px;
+    padding: 10px 16px;
+    width: 240px;
+    outline: none;
+  }
+  .topbar-search::placeholder { color: rgba(255,255,255,0.7); }
+
+  /* ── Nav ── */
+  .nav {
+    display: flex;
+    background: #F5F5F5;
+  }
+  .nav a {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666666;
+    padding: 14px 32px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav a.active {
+    background: #FFFFFF;
+    color: #2196F3;
+  }
+  .nav a:hover {
+    background: #EBEBEB;
+    color: #2196F3;
+  }
+
+  /* ── Content ── */
+  .content {
+    padding: 32px;
+    max-width: 840px;
+    background: #F5F5F5;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: #FFFFFF;
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .card-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #333333;
+  }
+  .card-desc {
+    font-size: 14px;
+    color: #888888;
+    margin-bottom: 24px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .chip {
+    font-size: 13px;
+    font-weight: 400;
+    padding: 8px 16px;
+    background: #E3F2FD;
+    color: #1976D2;
+  }
+  .chip:nth-child(2) { background: #E8F5E9; color: #388E3C; }
+  .chip:nth-child(3) { background: #FFF3E0; color: #F57C00; }
+  .chip:nth-child(4) { background: #FCE4EC; color: #C2185B; }
+  .chip:nth-child(5) { background: #F3E5F5; color: #7B1FA2; }
+  .card-actions {
+    display: flex;
+    gap: 12px;
+  }
+  .btn {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 28px;
+    border: none;
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+  .btn:hover { filter: brightness(0.9); }
+  .btn-primary {
+    background: #2196F3;
+    color: #FFFFFF;
+  }
+  .btn-secondary {
+    background: #FFFFFF;
+    color: #666666;
+  }
+
+  /* ── Color Palette ── */
+  .section-label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #999999;
+    margin-bottom: 16px;
+  }
+  .palette {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    background: #FFFFFF;
+    padding: 24px;
+  }
+  .swatch {
+    flex: 1;
+    text-align: center;
+  }
+  .swatch-color {
+    height: 72px;
+    margin-bottom: 8px;
+  }
+  .swatch-hex {
+    font-size: 12px;
+    font-weight: 600;
+    color: #999999;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Typography ── */
+  .typo {
+    background: #FFFFFF;
+    padding: 32px;
+  }
+  .typo h1 {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+  .typo h2 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    color: #2196F3;
+  }
+  .typo p {
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    color: #555555;
+  }
+  .typo .caption {
+    font-size: 12px;
+    color: #999999;
+    font-weight: 400;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">SampleApp</div>
+  <input type="text" class="topbar-search" placeholder="Search...">
+</div>
+
+<nav class="nav">
+  <a href="#" class="active">Dashboard</a>
+  <a href="#">Library</a>
+  <a href="#">Settings</a>
+</nav>
+
+<div class="content">
+
+  <div class="card">
+    <div class="card-title">Tag Collection</div>
+    <div class="card-desc">Browse and manage your creative tags</div>
+    <div class="chips">
+      <span class="chip">landscape</span>
+      <span class="chip">portrait</span>
+      <span class="chip">anime</span>
+      <span class="chip">watercolor</span>
+      <span class="chip">detailed</span>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-primary">Add Tag</button>
+      <button class="btn btn-secondary">Filter</button>
+    </div>
+  </div>
+
+  <div class="section-label">Color Palette</div>
+  <div class="palette">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#2196F3;"></div>
+      <div class="swatch-hex">#2196F3</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#4CAF50;"></div>
+      <div class="swatch-hex">#4CAF50</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#FF9800;"></div>
+      <div class="swatch-hex">#FF9800</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#F44336;"></div>
+      <div class="swatch-hex">#F44336</div>
+    </div>
+  </div>
+
+  <div class="typo">
+    <h1>Flat Design</h1>
+    <h2>Pure Color, Zero Depth</h2>
+    <p>No shadows, no gradients, no borders. Flat design embraces solid color blocks and clean typography to create interfaces that are honest, direct, and universally readable.</p>
+    <span class="caption">Bold, colorful, straightforward</span>
+  </div>
+
+</div>
+
+</body>
+</html>

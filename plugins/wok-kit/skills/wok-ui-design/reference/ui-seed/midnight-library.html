@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleApp — Midnight Library</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: #1A1410;
+    color: #D4C5A9;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ── Warm desk lamp glow from top ── */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background:
+      radial-gradient(ellipse 50% 40% at 40% 0%, rgba(255,216,155,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 35% 30% at 60% 0%, rgba(197,165,90,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Subtle wood grain texture ── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        92deg,
+        transparent,
+        transparent 60px,
+        rgba(62,39,35,0.03) 60px,
+        rgba(62,39,35,0.03) 61px
+      ),
+      repeating-linear-gradient(
+        88deg,
+        transparent,
+        transparent 90px,
+        rgba(62,39,35,0.02) 90px,
+        rgba(62,39,35,0.02) 91px
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 24px; }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #1E1812, #1A1410);
+    border: 1px solid rgba(197,165,90,0.2);
+    border-radius: 4px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+  }
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #C5A55A;
+    text-shadow: 0 0 12px rgba(197,165,90,0.2);
+    font-family: Georgia, serif;
+    text-transform: uppercase;
+  }
+  .search-input {
+    background: rgba(26,20,16,0.8);
+    border: 1px solid rgba(197,165,90,0.2);
+    border-radius: 2px;
+    padding: 8px 14px;
+    color: #D4C5A9;
+    font-size: 14px;
+    font-family: Georgia, serif;
+    outline: none;
+    width: 220px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .search-input::placeholder { color: rgba(197,165,90,0.3); }
+  .search-input:focus {
+    border-color: rgba(197,165,90,0.4);
+    box-shadow: 0 0 12px rgba(197,165,90,0.08);
+  }
+
+  /* ── Nav with book spine decoration ── */
+  .nav {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 28px;
+    position: relative;
+    height: 52px;
+  }
+  .book-spine {
+    width: 8px;
+    margin-right: 8px;
+    border-radius: 2px 0 0 2px;
+    box-shadow: 1px 0 3px rgba(0,0,0,0.3);
+  }
+  .book-spine-1 { background: #8B4513; }
+  .book-spine-2 { background: #556B2F; margin-right: 16px; }
+
+  .nav-inner {
+    display: flex;
+    flex: 1;
+    gap: 0;
+    background: #1E1812;
+    border: 1px solid rgba(197,165,90,0.12);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 400;
+    font-family: Georgia, serif;
+    color: rgba(197,165,90,0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.06em;
+    border-right: 1px solid rgba(197,165,90,0.08);
+    position: relative;
+  }
+  .nav-item:last-child { border-right: none; }
+  .nav-item:hover { color: rgba(197,165,90,0.65); background: rgba(197,165,90,0.03); }
+  .nav-item.active {
+    color: #C5A55A;
+    background: rgba(197,165,90,0.06);
+    border-bottom: 2px solid rgba(197,165,90,0.4);
+  }
+
+  .book-spine-end {
+    width: 6px;
+    margin-left: 8px;
+    background: #4A3520;
+    border-radius: 0 2px 2px 0;
+    box-shadow: -1px 0 3px rgba(0,0,0,0.3);
+  }
+  .book-spine-end-2 {
+    width: 10px;
+    margin-left: 4px;
+    background: #2F1B0E;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: linear-gradient(160deg, #1E1812, #1A1410);
+    border: 1px solid rgba(197,165,90,0.15);
+    border-radius: 3px;
+    padding: 32px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    background: linear-gradient(to bottom, #C5A55A, rgba(197,165,90,0.2));
+    border-radius: 0 2px 2px 0;
+  }
+  .card-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+    color: #C5A55A;
+    font-family: Georgia, serif;
+  }
+  .card-desc {
+    font-size: 14px;
+    color: rgba(197,165,90,0.5);
+    margin-bottom: 24px;
+    font-family: Georgia, serif;
+    line-height: 1.7;
+    font-style: italic;
+  }
+
+  /* ── Chips ── */
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+  .chip {
+    padding: 6px 14px;
+    border-radius: 2px;
+    font-size: 13px;
+    font-weight: 400;
+    font-family: Georgia, serif;
+    font-style: italic;
+    background: rgba(62,39,35,0.3);
+    border: 1px solid rgba(197,165,90,0.12);
+    color: rgba(212,197,169,0.7);
+    transition: all 0.3s;
+    letter-spacing: 0.03em;
+  }
+  .chip:hover {
+    border-color: rgba(197,165,90,0.3);
+    background: rgba(197,165,90,0.05);
+  }
+
+  /* ── Buttons ── */
+  .btn-row { display: flex; gap: 14px; }
+  .btn {
+    padding: 10px 24px;
+    border-radius: 2px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: Georgia, serif;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: none;
+  }
+  .btn-primary {
+    background: rgba(197,165,90,0.08);
+    color: #C5A55A;
+    border: 1px solid rgba(197,165,90,0.3);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 0 20px rgba(197,165,90,0.1);
+    border-color: rgba(197,165,90,0.5);
+    background: rgba(197,165,90,0.12);
+  }
+  .btn-secondary {
+    background: rgba(62,39,35,0.2);
+    color: rgba(197,165,90,0.4);
+    border: 1px solid rgba(197,165,90,0.12);
+  }
+  .btn-secondary:hover {
+    border-color: rgba(197,165,90,0.25);
+    color: rgba(197,165,90,0.6);
+  }
+
+  /* ── Palette ── */
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: rgba(197,165,90,0.3);
+    margin-bottom: 14px;
+    font-weight: 700;
+    font-family: Georgia, serif;
+  }
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .swatch {
+    border-radius: 3px;
+    overflow: hidden;
+    background: #1E1812;
+    border: 1px solid rgba(197,165,90,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .swatch:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+  .swatch-color { height: 60px; }
+  .swatch-hex {
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(197,165,90,0.4);
+    letter-spacing: 0.06em;
+    font-family: 'SF Mono', 'Consolas', monospace;
+  }
+  .swatch:nth-child(1) .swatch-color { background: linear-gradient(160deg, #C5A55A, #A08540); }
+  .swatch:nth-child(2) .swatch-color { background: linear-gradient(160deg, #D4C5A9, #B8A88A); }
+  .swatch:nth-child(3) .swatch-color { background: linear-gradient(160deg, #3E2723, #2A1A17); }
+  .swatch:nth-child(4) .swatch-color { background: linear-gradient(160deg, #FFD89B, #E8C080); }
+
+  /* ── Typography ── */
+  .typo-section { margin-bottom: 20px; }
+  .typo-section h1 {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #C5A55A;
+    letter-spacing: 0.04em;
+    font-family: Georgia, serif;
+  }
+  .typo-section h2 {
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 12px;
+    color: rgba(197,165,90,0.65);
+    letter-spacing: 0.03em;
+    font-family: Georgia, serif;
+    font-style: italic;
+  }
+  .typo-section p {
+    font-size: 15px;
+    line-height: 1.9;
+    color: rgba(212,197,169,0.5);
+    margin-bottom: 12px;
+    font-family: Georgia, serif;
+  }
+  .typo-section .caption {
+    font-size: 11px;
+    color: rgba(197,165,90,0.25);
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-family: Georgia, serif;
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="logo">SampleApp</div>
+      <input class="search-input" type="text" placeholder="Search..."/>
+    </div>
+
+    <!-- Nav -->
+    <div class="nav">
+      <div class="book-spine book-spine-1"></div>
+      <div class="book-spine book-spine-2"></div>
+      <div class="nav-inner">
+        <div class="nav-item active">Dashboard</div>
+        <div class="nav-item">Library</div>
+        <div class="nav-item">Settings</div>
+      </div>
+      <div class="book-spine-end"></div>
+      <div class="book-spine-end-2"></div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card">
+      <div class="card-title">Tag Collection</div>
+      <div class="card-desc">Browse and manage your creative tags</div>
+      <div class="chips">
+        <span class="chip">landscape</span>
+        <span class="chip">portrait</span>
+        <span class="chip">anime</span>
+        <span class="chip">watercolor</span>
+        <span class="chip">detailed</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Add Tag</button>
+        <button class="btn btn-secondary">Filter</button>
+      </div>
+    </div>
+
+    <!-- Color Palette -->
+    <div class="section-label">Color Palette</div>
+    <div class="palette">
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#C5A55A</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#D4C5A9</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#3E2723</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#FFD89B</div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="section-label">Typography</div>
+    <div class="typo-section">
+      <h1>The Midnight Study</h1>
+      <h2>A Collection of Quiet Hours</h2>
+      <p>In the hushed hours after midnight, the library breathes with a life of its own. Lamplight pools on leather desktops, casting long shadows between the shelves. Every volume holds a world, every page a threshold crossed by those who linger past closing time.</p>
+      <div class="caption">Scholarly Design System</div>
+    </div>
+
+  </div>
+</body>
+</html>

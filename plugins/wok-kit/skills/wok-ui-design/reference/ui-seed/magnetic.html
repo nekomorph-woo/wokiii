@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleApp — Magnetic</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  :root{
+    --blue:#00AAFF;
+    --purple:#8844FF;
+    --white:#E0E8FF;
+    --surface:#12122A;
+    --bg:#0A0A1A;
+  }
+
+  body{
+    font-family:'SF Mono','Fira Code','Cascadia Code',Consolas,monospace;
+    background:var(--bg);color:var(--white);
+    min-height:100vh;overflow-x:hidden;
+    position:relative;
+  }
+
+  /* Background field lines */
+  .field-line{
+    position:fixed;pointer-events:none;
+    width:200%;height:2px;
+    background:linear-gradient(90deg,transparent,rgba(0,170,255,0.06),rgba(136,68,255,0.06),transparent);
+    transform-origin:center;
+  }
+  .field-line:nth-child(1){top:20%;left:-30%;transform:rotate(-8deg)}
+  .field-line:nth-child(2){top:45%;left:-20%;transform:rotate(5deg)}
+  .field-line:nth-child(3){top:70%;left:-25%;transform:rotate(-3deg)}
+  .field-line:nth-child(4){top:85%;left:-15%;transform:rotate(7deg)}
+
+  /* Decorative curved lines between sections */
+  .curve-deco{
+    position:fixed;pointer-events:none;
+    border:1.5px solid rgba(0,170,255,0.08);
+    border-radius:50%;
+  }
+  .curve-deco.a{width:300px;height:300px;top:-50px;right:-80px;border-color:rgba(136,68,255,0.06)}
+  .curve-deco.b{width:200px;height:200px;bottom:10%;left:-40px;border-color:rgba(0,170,255,0.05)}
+
+  /* Top Bar */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 32px;
+    background:var(--surface);
+    border-bottom:1px solid rgba(0,170,255,0.15);
+    position:relative;z-index:10;
+  }
+  .topbar::after{
+    content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(0,170,255,0.3),rgba(136,68,255,0.2),transparent);
+  }
+  .logo{
+    font-size:1.3rem;font-weight:700;color:var(--blue);
+    letter-spacing:1px;
+    text-shadow:0 0 12px rgba(0,170,255,0.3);
+  }
+  .search{
+    background:rgba(0,170,255,0.05);border:1px solid rgba(0,170,255,0.2);
+    border-radius:6px;padding:9px 16px;font-size:0.82rem;
+    color:var(--white);outline:none;width:220px;font-family:inherit;
+    transition:border-color 0.3s,box-shadow 0.3s;
+  }
+  .search::placeholder{color:rgba(224,232,255,0.3)}
+  .search:focus{
+    border-color:rgba(0,170,255,0.4);
+    box-shadow:0 0 15px rgba(0,170,255,0.1);
+  }
+
+  /* Nav */
+  .nav{
+    display:flex;gap:4px;padding:12px 32px;
+    background:rgba(18,18,42,0.5);
+    border-bottom:1px solid rgba(0,170,255,0.08);
+  }
+  .nav-item{
+    padding:9px 20px;font-size:0.78rem;font-weight:600;
+    cursor:pointer;border:none;font-family:inherit;
+    background:transparent;color:rgba(224,232,255,0.4);
+    border-radius:4px;transition:all 0.3s;
+    letter-spacing:0.5px;
+  }
+  .nav-item.active{
+    background:rgba(0,170,255,0.08);color:var(--blue);
+    box-shadow:0 0 10px rgba(0,170,255,0.1);
+    border:1px solid rgba(0,170,255,0.2);
+  }
+  .nav-item:not(.active){
+    border:1px solid transparent;
+  }
+  .nav-item:not(.active):hover{
+    color:rgba(224,232,255,0.7);background:rgba(0,170,255,0.03);
+  }
+
+  .main{padding:16px 32px 40px;max-width:720px;position:relative;z-index:10;}
+
+  /* Field line between nav and card */
+  .section-line{
+    width:60%;height:1px;margin:0 auto 16px;
+    background:linear-gradient(90deg,transparent,rgba(0,170,255,0.15),rgba(136,68,255,0.1),transparent);
+    border-radius:1px;
+  }
+
+  /* Card */
+  .card{
+    background:var(--surface);
+    border:1px solid rgba(0,170,255,0.2);
+    border-radius:8px;padding:26px;
+    position:relative;
+    box-shadow:0 0 20px rgba(0,170,255,0.05);
+    transition:box-shadow 0.3s;
+  }
+  .card:hover{
+    box-shadow:0 0 30px rgba(0,170,255,0.08);
+  }
+  /* magnetic glow at edges */
+  .card::before{
+    content:'';position:absolute;inset:-1px;border-radius:8px;
+    background:linear-gradient(135deg,rgba(0,170,255,0.1),transparent 40%,rgba(136,68,255,0.08));
+    z-index:-1;filter:blur(8px);
+  }
+  .card-title{
+    font-size:1.4rem;font-weight:700;color:var(--white);
+    margin-bottom:4px;letter-spacing:0.5px;
+    text-shadow:0 0 8px rgba(0,170,255,0.15);
+  }
+  .card-desc{
+    font-size:0.82rem;color:rgba(224,232,255,0.5);
+    margin-bottom:18px;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+  .chip{
+    padding:6px 14px;font-size:0.74rem;font-weight:600;
+    border:1px solid rgba(0,170,255,0.2);
+    background:rgba(0,170,255,0.04);color:rgba(224,232,255,0.7);
+    border-radius:4px;cursor:pointer;font-family:inherit;
+    transition:all 0.3s;
+  }
+  .chip:hover{
+    border-color:rgba(0,170,255,0.4);color:var(--blue);
+    box-shadow:0 0 8px rgba(0,170,255,0.1);
+  }
+
+  .buttons{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{
+    padding:10px 22px;font-size:0.8rem;font-weight:700;
+    cursor:pointer;font-family:inherit;letter-spacing:0.5px;
+    border-radius:6px;transition:all 0.3s;
+  }
+  .btn-primary{
+    background:rgba(0,170,255,0.1);
+    border:1px solid rgba(0,170,255,0.4);
+    color:var(--blue);
+  }
+  .btn-primary:hover{
+    animation:pulse-glow 1.5s ease-in-out infinite;
+    background:rgba(0,170,255,0.15);
+  }
+  .btn-secondary{
+    background:transparent;
+    border:1px solid rgba(136,68,255,0.25);
+    color:rgba(224,232,255,0.5);
+  }
+  .btn-secondary:hover{
+    border-color:rgba(136,68,255,0.5);color:var(--purple);
+    box-shadow:0 0 10px rgba(136,68,255,0.15);
+  }
+
+  @keyframes pulse-glow{
+    0%,100%{box-shadow:0 0 8px rgba(0,170,255,0.2)}
+    50%{box-shadow:0 0 20px rgba(0,170,255,0.4),0 0 40px rgba(0,170,255,0.1)}
+  }
+
+  /* Color Palette */
+  .palette{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+  .swatch{
+    width:95px;overflow:hidden;border-radius:6px;
+    border:1px solid rgba(0,170,255,0.15);
+    transition:transform 0.3s,box-shadow 0.3s;
+  }
+  .swatch:hover{transform:translateY(-2px);box-shadow:0 0 15px rgba(0,170,255,0.1)}
+  .swatch-color{height:45px;width:100%}
+  .swatch-label{
+    text-align:center;padding:5px 0;font-size:0.65rem;font-weight:600;
+    background:var(--surface);color:rgba(224,232,255,0.5);
+    letter-spacing:0.5px;
+  }
+
+  /* Typography */
+  .typo{margin-top:24px}
+  .typo h1{
+    font-size:2rem;font-weight:700;color:var(--blue);
+    text-shadow:0 0 12px rgba(0,170,255,0.2);
+    margin-bottom:8px;
+  }
+  .typo h2{
+    font-size:1.1rem;font-weight:600;color:var(--purple);
+    text-shadow:0 0 8px rgba(136,68,255,0.15);
+    margin-bottom:6px;
+  }
+  .typo p{
+    font-family:-apple-system,'Segoe UI',system-ui,sans-serif;
+    font-size:0.88rem;line-height:1.7;color:rgba(224,232,255,0.45);
+    margin-bottom:8px;
+  }
+  .typo .caption{
+    font-size:0.7rem;color:rgba(224,232,255,0.25);
+    letter-spacing:1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="field-line"></div>
+<div class="field-line"></div>
+<div class="field-line"></div>
+<div class="field-line"></div>
+<div class="curve-deco a"></div>
+<div class="curve-deco b"></div>
+
+<div class="topbar">
+  <div class="logo">SampleApp</div>
+  <input class="search" type="text" placeholder="Search field...">
+</div>
+
+<nav class="nav">
+  <button class="nav-item active">Dashboard</button>
+  <button class="nav-item">Library</button>
+  <button class="nav-item">Settings</button>
+</nav>
+
+<div class="main">
+  <div class="section-line"></div>
+
+  <div class="card">
+    <div class="card-title">Tag Collection</div>
+    <div class="card-desc">Browse and manage your creative tags</div>
+    <div class="chips">
+      <span class="chip">landscape</span>
+      <span class="chip">portrait</span>
+      <span class="chip">anime</span>
+      <span class="chip">watercolor</span>
+      <span class="chip">detailed</span>
+    </div>
+    <div class="buttons">
+      <button class="btn btn-primary">Add Tag</button>
+      <button class="btn btn-secondary">Filter</button>
+    </div>
+  </div>
+
+  <div class="palette">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#00AAFF"></div>
+      <div class="swatch-label">#00AAFF</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#8844FF"></div>
+      <div class="swatch-label">#8844FF</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#E0E8FF"></div>
+      <div class="swatch-label">#E0E8FF</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#12122A"></div>
+      <div class="swatch-label">#12122A</div>
+    </div>
+  </div>
+
+  <div class="typo">
+    <h1>Heading One</h1>
+    <h2>Heading Two</h2>
+    <p>Magnetic field lines trace invisible paths through space, each one a silent conductor of force. The geometry of attraction unfolds in elegant curves.</p>
+    <span class="caption">Field strength: 0.42 T | Flux density: nominal</span>
+  </div>
+</div>
+
+</body>
+</html>

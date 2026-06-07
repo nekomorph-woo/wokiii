@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleApp — Retro Terminal</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #0A0F0A;
+    color: #33FF33;
+    min-height: 100vh;
+    position: relative;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+  }
+
+  /* ── CRT Scanlines ── */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(0,0,0,0.15) 1px,
+      rgba(0,0,0,0.15) 2px
+    );
+  }
+
+  /* ── Screen Flicker ── */
+  @keyframes flicker {
+    0%   { opacity: 1; }
+    3%   { opacity: 0.97; }
+    6%   { opacity: 1; }
+    7%   { opacity: 0.98; }
+    9%   { opacity: 1; }
+    50%  { opacity: 1; }
+    52%  { opacity: 0.985; }
+    53%  { opacity: 1; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  .page-wrap {
+    animation: flicker 4s infinite;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #33FF33;
+    background: rgba(51,255,51,0.03);
+  }
+
+  .logo {
+    font-size: 16px;
+    font-weight: bold;
+    color: #33FF33;
+    text-shadow: 0 0 8px rgba(51,255,51,0.6);
+  }
+  .logo::before { content: '> '; }
+
+  .search-input {
+    width: 240px;
+    padding: 6px 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    background: #0A0F0A;
+    border: 1px solid #33FF33;
+    color: #33FF33;
+    outline: none;
+    text-shadow: 0 0 4px rgba(51,255,51,0.4);
+  }
+  .search-input::placeholder { color: rgba(51,255,51,0.3); }
+  .search-input:focus {
+    box-shadow: 0 0 6px rgba(51,255,51,0.2);
+  }
+
+  /* ── Nav ── */
+  .nav {
+    display: flex;
+    gap: 0;
+    padding: 8px 20px;
+    border-bottom: 1px solid #33FF33;
+  }
+
+  .nav-item {
+    padding: 6px 20px;
+    font-size: 13px;
+    color: #33FF33;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+    position: relative;
+  }
+  .nav-item:hover {
+    background: rgba(51,255,51,0.05);
+  }
+  .nav-item::before { content: '['; }
+  .nav-item::after { content: ']'; }
+
+  .nav-item.active {
+    background: #33FF33;
+    color: #0A0F0A;
+    text-shadow: none;
+  }
+
+  /* ── Content ── */
+  .content {
+    max-width: 680px;
+    margin: 20px auto;
+    padding: 0 20px;
+  }
+
+  /* ── ASCII Border Art ── */
+  .ascii-border {
+    font-size: 13px;
+    line-height: 1;
+    color: rgba(51,255,51,0.25);
+    white-space: pre;
+    margin-bottom: 12px;
+    text-shadow: 0 0 4px rgba(51,255,51,0.15);
+  }
+
+  /* ── Card ── */
+  .card {
+    border: 1px solid #33FF33;
+    border-radius: 0;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    text-shadow: 0 0 6px rgba(51,255,51,0.3);
+  }
+
+  .card-header {
+    font-size: 12px;
+    color: rgba(51,255,51,0.4);
+    margin-bottom: 6px;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    text-shadow: 0 0 10px rgba(51,255,51,0.5);
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: rgba(51,255,51,0.6);
+    margin-bottom: 16px;
+  }
+
+  /* ── Chips ── */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .chip {
+    padding: 3px 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    border: 1px solid rgba(51,255,51,0.4);
+    color: rgba(51,255,51,0.7);
+  }
+  .chip::before { content: '<'; }
+  .chip::after { content: '>'; }
+
+  /* ── Buttons ── */
+  .buttons { display: flex; gap: 10px; }
+
+  .btn {
+    padding: 8px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 0;
+    text-shadow: none;
+    transition: background 0.1s;
+  }
+
+  .btn-primary {
+    background: #33FF33;
+    color: #0A0F0A;
+    border: 1px solid #33FF33;
+  }
+  .btn-primary:hover { background: #5FFF5F; }
+
+  .btn-secondary {
+    background: transparent;
+    color: #33FF33;
+    border: 1px solid #33FF33;
+    text-shadow: 0 0 4px rgba(51,255,51,0.3);
+  }
+  .btn-secondary:hover { background: rgba(51,255,51,0.1); }
+
+  /* ── Cursor Blink ── */
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 14px;
+    background: #33FF33;
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+  }
+
+  /* ── Section Title ── */
+  .section-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    text-shadow: 0 0 8px rgba(51,255,51,0.4);
+  }
+  .section-title::before { content: '== '; }
+  .section-title::after { content: ' =='; }
+
+  /* ── Color Palette ── */
+  .palette {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .swatch {
+    flex: 1;
+    border: 1px solid rgba(51,255,51,0.4);
+    text-align: center;
+  }
+
+  .swatch-color { height: 48px; }
+
+  .swatch-label {
+    padding: 8px 4px;
+    font-size: 10px;
+    border-top: 1px solid rgba(51,255,51,0.3);
+    color: rgba(51,255,51,0.6);
+    line-height: 1.5;
+  }
+
+  /* ── Typography ── */
+  .typo-section h1 {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-shadow: 0 0 12px rgba(51,255,51,0.5);
+  }
+  .typo-section h2 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-shadow: 0 0 8px rgba(51,255,51,0.4);
+  }
+  .typo-section p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: rgba(51,255,51,0.7);
+    margin-bottom: 10px;
+  }
+  .typo-section .caption {
+    font-size: 11px;
+    color: rgba(51,255,51,0.4);
+  }
+
+  /* ── Status Bar ── */
+  .status-bar {
+    padding: 6px 20px;
+    border-top: 1px solid #33FF33;
+    font-size: 11px;
+    color: rgba(51,255,51,0.4);
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">SampleApp</div>
+    <input type="text" class="search-input" placeholder="search_>">
+  </div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-item active">Dashboard</div>
+    <div class="nav-item">Library</div>
+    <div class="nav-item">Settings</div>
+  </nav>
+
+  <!-- ASCII Art -->
+  <div class="content">
+    <div class="ascii-border">
++----------------------------------------------------+
+|                                                    |
+|   ███████╗██╗   ██╗███████╗███╗   ██╗████████╗    |
+|   ██╔════╝╚██╗ ██╔╝██╔════╝████╗  ██║╚══██╔══╝    |
+|   ███████╗ ╚████╔╝ █████╗  ██╔██╗ ██║   ██║       |
+|   ╚════██║  ╚██╔╝  ██╔══╝  ██║╚██╗██║   ██║       |
+|   ███████║   ██║   ███████╗██║ ╚████║   ██║       |
+|   ╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═══╝   ╚═╝       |
+|                                                    |
++----------------------------------------------------+</div>
+
+  <!-- Card -->
+  <div class="card">
+    <div class="card-header">// MODULE: TAG_ENGINE v2.4.1</div>
+    <div class="card-title">Tag Collection<span class="cursor"></span></div>
+    <div class="card-desc">Browse and manage your creative tags</div>
+    <div class="chips">
+      <span class="chip">landscape</span>
+      <span class="chip">portrait</span>
+      <span class="chip">anime</span>
+      <span class="chip">watercolor</span>
+      <span class="chip">detailed</span>
+    </div>
+    <div class="buttons">
+      <button class="btn btn-primary">[ Add Tag ]</button>
+      <button class="btn btn-secondary">[ Filter ]</button>
+    </div>
+  </div>
+
+  <!-- Color Palette -->
+  <div class="section-title">Color Palette</div>
+  <div class="palette">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#33FF33;"></div>
+      <div class="swatch-label">Phosphor Green<br>#33FF33</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#1A8C1A;"></div>
+      <div class="swatch-label">Dim Green<br>#1A8C1A</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#0A2E0A;"></div>
+      <div class="swatch-label">Dark Green<br>#0A2E0A</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#0A0F0A;"></div>
+      <div class="swatch-label">Screen Black<br>#0A0F0A</div>
+    </div>
+  </div>
+
+  <!-- Typography -->
+  <div class="section-title">Typography</div>
+  <div class="card typo-section">
+    <h1>SYSTEM HEADER ONE</h1>
+    <h2>SUBSYSTEM HEADER TWO</h2>
+    <p>Line after line of monospaced green text scrolling across the phosphor screen. Each character burns briefly into the retina, a testament to the raw simplicity of digital communication. No fonts, no colors, no distractions -- just the pure signal.</p>
+    <div class="caption">// end of transmission _<span class="cursor"></span></div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span>SYS OK | MEM 640K</span>
+    <span>READY_<span class="cursor"></span></span>
+  </div>
+
+  </div>
+
+</div>
+</body>
+</html>

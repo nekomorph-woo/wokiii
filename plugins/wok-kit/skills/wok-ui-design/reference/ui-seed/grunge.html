@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleApp — Grunge</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  :root{
+    --bg:#1A1A1A;
+    --red:#8B3A3A;
+    --yellow:#C4A747;
+    --orange:#A0522D;
+    --grey:#6B6B6B;
+    --surface:#242424;
+    --text:#C8C0B0;
+    --text-dim:#888070;
+    --text-bright:#E8DCC0;
+  }
+
+  body{
+    font-family:'Impact','Arial Narrow',Helvetica,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    /* noise/grain texture via layered gradients */
+    background-image:
+      repeating-conic-gradient(rgba(255,255,255,0.01) 0% 25%, transparent 0% 50%) 0 0 / 4px 4px,
+      repeating-conic-gradient(rgba(255,255,255,0.008) 0% 25%, transparent 0% 50%) 2px 2px / 6px 6px,
+      radial-gradient(ellipse at 20% 50%, rgba(139,58,58,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse at 80% 30%, rgba(196,167,71,0.06) 0%, transparent 60%);
+  }
+
+  /* Top Bar */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 28px;
+    border-bottom:1px solid rgba(107,107,107,0.3);
+    background:rgba(30,30,30,0.9);
+  }
+  .logo{
+    font-size:1.3rem;font-weight:900;letter-spacing:2px;
+    text-transform:uppercase;color:var(--yellow);
+    text-shadow:1px 1px 0 rgba(0,0,0,0.6);
+    position:relative;
+  }
+  .logo::after{
+    content:'';position:absolute;bottom:-2px;left:0;right:0;
+    height:1px;background:linear-gradient(90deg,var(--red),transparent);
+  }
+  .search{
+    background:var(--surface);border:1px solid var(--grey);
+    border-width:1px 1px 1px 2px;
+    padding:8px 14px;font-size:0.8rem;color:var(--text-dim);
+    outline:none;width:200px;font-family:inherit;
+    text-transform:uppercase;letter-spacing:1px;
+  }
+  .search::placeholder{color:rgba(136,128,112,0.5)}
+
+  /* Nav */
+  .nav{
+    display:flex;gap:0;padding:0 28px;
+    border-bottom:1px solid rgba(107,107,107,0.2);
+  }
+  .nav-item{
+    padding:12px 20px;font-size:0.8rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:2px;
+    cursor:pointer;border:none;background:none;
+    color:var(--text-dim);font-family:inherit;
+    border-bottom:2px solid transparent;
+    transition:all 0.2s;
+  }
+  .nav-item.active{
+    color:var(--yellow);border-bottom-color:var(--red);
+  }
+  .nav-item:not(.active):hover{
+    color:var(--text);background:rgba(255,255,255,0.03);
+  }
+
+  .main{padding:20px 28px 40px;max-width:720px;}
+
+  /* Card */
+  .card{
+    background:var(--surface);
+    border:1px solid var(--grey);
+    border-width:1px 0 1px 1px;
+    padding:24px;
+    position:relative;
+  }
+  .card::before{
+    content:'';position:absolute;top:0;right:0;width:60%;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(160,82,45,0.4));
+  }
+  .card::after{
+    content:'';position:absolute;bottom:0;left:0;width:40%;height:1px;
+    background:linear-gradient(90deg,rgba(139,58,58,0.4),transparent);
+  }
+  .card-title{
+    font-size:1.6rem;font-weight:900;text-transform:uppercase;
+    letter-spacing:3px;color:var(--text-bright);
+    text-shadow:2px 2px 0 rgba(0,0,0,0.5);
+    margin-bottom:4px;
+  }
+  .card-desc{
+    font-size:0.82rem;color:var(--text-dim);
+    text-transform:uppercase;letter-spacing:1px;
+    margin-bottom:18px;
+    opacity:0.8;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+  .chip{
+    padding:6px 14px;font-size:0.72rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:1px;
+    border:1px solid;cursor:pointer;background:transparent;
+    font-family:inherit;
+    transition:opacity 0.2s;
+  }
+  .chip:nth-child(1){border-color:var(--red);color:var(--red)}
+  .chip:nth-child(2){border-color:var(--yellow);color:var(--yellow)}
+  .chip:nth-child(3){border-color:var(--orange);color:var(--orange)}
+  .chip:nth-child(4){border-color:var(--grey);color:var(--text)}
+  .chip:nth-child(5){border-color:var(--red);color:var(--red);opacity:0.7}
+  .chip:hover{opacity:1 !important;background:rgba(255,255,255,0.05)}
+
+  .buttons{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{
+    padding:10px 20px;font-size:0.78rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:2px;
+    cursor:pointer;font-family:inherit;
+    transition:all 0.2s;
+  }
+  .btn-primary{
+    background:var(--red);color:var(--text-bright);
+    border:1px solid rgba(255,255,255,0.1);
+    opacity:0.9;
+  }
+  .btn-primary:hover{opacity:1;box-shadow:0 0 15px rgba(139,58,58,0.4)}
+  .btn-secondary{
+    background:transparent;color:var(--text-dim);
+    border:1px solid var(--grey);
+  }
+  .btn-secondary:hover{border-color:var(--yellow);color:var(--yellow)}
+
+  /* Color Palette */
+  .palette{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+  .swatch{
+    width:90px;overflow:hidden;
+    border:1px solid rgba(107,107,107,0.3);
+    transition:transform 0.2s;
+  }
+  .swatch:hover{transform:scale(1.05)}
+  .swatch-color{height:50px;width:100%}
+  .swatch-label{
+    text-align:center;padding:5px 0;font-size:0.65rem;
+    font-weight:700;text-transform:uppercase;letter-spacing:1px;
+    background:var(--surface);color:var(--text-dim);
+  }
+
+  /* Typography */
+  .typo{margin-top:24px}
+  .typo h1{
+    font-size:2.2rem;font-weight:900;text-transform:uppercase;
+    letter-spacing:4px;color:var(--text-bright);
+    text-shadow:2px 2px 0 rgba(0,0,0,0.6);
+    margin-bottom:8px;
+  }
+  .typo h2{
+    font-size:1.1rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:3px;color:var(--yellow);
+    margin-bottom:6px;
+  }
+  .typo p{
+    font-family:'Trebuchet MS','Lucida Sans',sans-serif;
+    font-size:0.88rem;line-height:1.7;color:var(--text-dim);
+    font-weight:400;margin-bottom:8px;
+  }
+  .typo .caption{
+    font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;
+    color:rgba(136,128,112,0.6);
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">SampleApp</div>
+  <input class="search" type="text" placeholder="Search...">
+</div>
+
+<nav class="nav">
+  <button class="nav-item active">Dashboard</button>
+  <button class="nav-item">Library</button>
+  <button class="nav-item">Settings</button>
+</nav>
+
+<div class="main">
+  <div class="card">
+    <div class="card-title">Tag Collection</div>
+    <div class="card-desc">Browse and manage your creative tags</div>
+    <div class="chips">
+      <span class="chip">landscape</span>
+      <span class="chip">portrait</span>
+      <span class="chip">anime</span>
+      <span class="chip">watercolor</span>
+      <span class="chip">detailed</span>
+    </div>
+    <div class="buttons">
+      <button class="btn btn-primary">Add Tag</button>
+      <button class="btn btn-secondary">Filter</button>
+    </div>
+  </div>
+
+  <div class="palette">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#8B3A3A"></div>
+      <div class="swatch-label">#8B3A3A</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#C4A747"></div>
+      <div class="swatch-label">#C4A747</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#A0522D"></div>
+      <div class="swatch-label">#A0522D</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#6B6B6B"></div>
+      <div class="swatch-label">#6B6B6B</div>
+    </div>
+  </div>
+
+  <div class="typo">
+    <h1>Heading One</h1>
+    <h2>Heading Two</h2>
+    <p>Raw text carved from the underbelly of the city, where rust meets rain and the streets hum with forgotten frequencies. Every word wears its scars proudly.</p>
+    <span class="caption">A small caption for the margins</span>
+  </div>
+</div>
+
+</body>
+</html>

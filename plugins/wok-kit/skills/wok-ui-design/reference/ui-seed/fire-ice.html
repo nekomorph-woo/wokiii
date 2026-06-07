@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleApp — Fire & Ice</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    color: #D0D0E0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    overflow-x: hidden;
+    position: relative;
+    display: flex;
+  }
+
+  /* ── Split Background ── */
+  .bg-fire {
+    position: fixed;
+    top: 0; left: 0;
+    width: 50%;
+    height: 100%;
+    background: #1A0A0A;
+    z-index: 0;
+  }
+  .bg-fire::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 70% 50%, rgba(255,68,68,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 50% 80%, rgba(255,136,68,0.04) 0%, transparent 60%);
+  }
+  .bg-ice {
+    position: fixed;
+    top: 0; right: 0;
+    width: 50%;
+    height: 100%;
+    background: #0A0A1A;
+    z-index: 0;
+  }
+  .bg-ice::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 30% 50%, rgba(68,187,255,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 50% 30%, rgba(204,221,255,0.04) 0%, transparent 60%);
+  }
+
+  /* ── Center dividing line ── */
+  .divider {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(255,68,68,0.15) 20%,
+      rgba(255,255,255,0.1) 50%,
+      rgba(68,187,255,0.15) 80%,
+      transparent 100%
+    );
+    z-index: 2;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px;
+    width: 100%;
+  }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    background: linear-gradient(90deg, rgba(26,10,10,0.9), rgba(15,10,15,0.9), rgba(10,10,26,0.9));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+  }
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    background: linear-gradient(90deg, #FF4444, #CCDDFF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .search-input {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: #C0C0D0;
+    font-size: 14px;
+    outline: none;
+    width: 220px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .search-input::placeholder { color: rgba(255,255,255,0.25); }
+  .search-input:focus {
+    border-color: rgba(255,136,68,0.3);
+    box-shadow: 0 0 16px rgba(68,187,255,0.08), 0 0 16px rgba(255,68,68,0.08);
+  }
+
+  /* ── Nav ── */
+  .nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 28px;
+    background: linear-gradient(90deg, rgba(26,10,10,0.8), rgba(12,10,14,0.8), rgba(10,10,26,0.8));
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.35);
+    cursor: pointer;
+    transition: all 0.3s;
+    border-right: 1px solid rgba(255,255,255,0.04);
+  }
+  .nav-item:last-child { border-right: none; }
+  .nav-item:hover { color: rgba(255,255,255,0.6); }
+  .nav-item.active {
+    background: linear-gradient(90deg, rgba(255,68,68,0.08), rgba(68,187,255,0.08));
+    color: #FFFFFF;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: linear-gradient(135deg, rgba(26,10,10,0.7), rgba(14,10,16,0.7), rgba(10,10,26,0.7));
+    border: 1px solid rgba(255,255,255,0.06);
+    border-left: 1px solid rgba(255,68,68,0.15);
+    border-right: 1px solid rgba(68,187,255,0.15);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+  }
+  .card-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, #FF8844, #CCDDFF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.02em;
+  }
+  .card-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  /* ── Chips ── */
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+  .chip {
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    background: rgba(0,0,0,0.2);
+    transition: all 0.3s;
+    letter-spacing: 0.02em;
+  }
+  .chip:nth-child(odd) {
+    border: 1px solid rgba(255,68,68,0.2);
+    color: rgba(255,136,68,0.8);
+  }
+  .chip:nth-child(even) {
+    border: 1px solid rgba(68,187,255,0.2);
+    color: rgba(68,187,255,0.8);
+  }
+  .chip:hover { background: rgba(255,255,255,0.04); transform: translateY(-1px); }
+
+  /* ── Buttons ── */
+  .btn-row { display: flex; gap: 14px; }
+  .btn {
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.03em;
+    border: none;
+  }
+  .btn-fire {
+    background: rgba(255,68,68,0.1);
+    color: #FF4444;
+    border: 1px solid rgba(255,68,68,0.3);
+  }
+  .btn-fire:hover {
+    box-shadow: 0 0 24px rgba(255,68,68,0.15);
+    border-color: rgba(255,68,68,0.5);
+    background: rgba(255,68,68,0.15);
+  }
+  .btn-ice {
+    background: rgba(68,187,255,0.1);
+    color: #44BBFF;
+    border: 1px solid rgba(68,187,255,0.3);
+  }
+  .btn-ice:hover {
+    box-shadow: 0 0 24px rgba(68,187,255,0.15);
+    border-color: rgba(68,187,255,0.5);
+    background: rgba(68,187,255,0.15);
+  }
+
+  /* ── Palette ── */
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(255,255,255,0.25);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .swatch {
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .swatch:hover { transform: translateY(-2px); }
+  .swatch-color { height: 60px; }
+  .swatch-hex {
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.06em;
+    font-family: 'SF Mono', 'Consolas', monospace;
+  }
+  .swatch:nth-child(1) .swatch-color { background: #FF4444; }
+  .swatch:nth-child(1):hover { box-shadow: 0 4px 20px rgba(255,68,68,0.2); }
+  .swatch:nth-child(2) .swatch-color { background: #FF8844; }
+  .swatch:nth-child(2):hover { box-shadow: 0 4px 20px rgba(255,136,68,0.2); }
+  .swatch:nth-child(3) .swatch-color { background: #44BBFF; }
+  .swatch:nth-child(3):hover { box-shadow: 0 4px 20px rgba(68,187,255,0.2); }
+  .swatch:nth-child(4) .swatch-color { background: #CCDDFF; }
+  .swatch:nth-child(4):hover { box-shadow: 0 4px 20px rgba(204,221,255,0.15); }
+
+  /* ── Typography ── */
+  .typo-section { margin-bottom: 20px; }
+  .typo-section h1 {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg, #FF4444, #FF8844, #CCDDFF, #44BBFF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.02em;
+  }
+  .typo-section h2 {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.02em;
+  }
+  .typo-section p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 12px;
+  }
+  .typo-section .caption {
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+  <div class="bg-fire"></div>
+  <div class="bg-ice"></div>
+  <div class="divider"></div>
+  <div class="app">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="logo">SampleApp</div>
+      <input class="search-input" type="text" placeholder="Search..."/>
+    </div>
+
+    <!-- Nav -->
+    <div class="nav">
+      <div class="nav-item active">Dashboard</div>
+      <div class="nav-item">Library</div>
+      <div class="nav-item">Settings</div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card">
+      <div class="card-title">Tag Collection</div>
+      <div class="card-desc">Browse and manage your creative tags</div>
+      <div class="chips">
+        <span class="chip">landscape</span>
+        <span class="chip">portrait</span>
+        <span class="chip">anime</span>
+        <span class="chip">watercolor</span>
+        <span class="chip">detailed</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-fire">Add Tag</button>
+        <button class="btn btn-ice">Filter</button>
+      </div>
+    </div>
+
+    <!-- Color Palette -->
+    <div class="section-label">Color Palette</div>
+    <div class="palette">
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#FF4444</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#FF8844</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#44BBFF</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#CCDDFF</div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="section-label">Typography</div>
+    <div class="typo-section">
+      <h1>Two Forces Collide</h1>
+      <h2>Where Flame Meets Frost</h2>
+      <p>On one side, the relentless heat of creation. On the other, the patient crystalline order of preservation. Between them, a boundary that defines both — a line of tension where neither force surrenders, and both are transformed.</p>
+      <div class="caption">Elemental Design System</div>
+    </div>
+
+  </div>
+</body>
+</html>

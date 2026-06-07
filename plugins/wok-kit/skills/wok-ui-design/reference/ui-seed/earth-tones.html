@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earth Tones Style</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --umber: #7B6B5D;
+    --sienna: #A0522D;
+    --ochre: #CC7722;
+    --clay: #B66A50;
+    --bg: #E8E0D5;
+    --surface: #F0EAE2;
+    --text: #3E352E;
+    --text-muted: #7B6B5D;
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    /* Subtle grain texture via tiny repeating gradients */
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(123, 107, 93, 0.015) 2px,
+        rgba(123, 107, 93, 0.015) 4px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 3px,
+        rgba(123, 107, 93, 0.01) 3px,
+        rgba(123, 107, 93, 0.01) 6px
+      ),
+      radial-gradient(circle at 30% 70%, rgba(182, 106, 80, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 70% 30%, rgba(160, 82, 45, 0.03) 0%, transparent 40%);
+    font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+    color: var(--text);
+    padding: 24px;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 22px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid rgba(123, 107, 93, 0.2);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(62, 53, 46, 0.08);
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--sienna);
+    letter-spacing: 0.3px;
+  }
+
+  .search-input {
+    background: var(--bg);
+    border: 1px solid rgba(123, 107, 93, 0.2);
+    padding: 8px 16px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    border-radius: 8px;
+    outline: none;
+    width: 200px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .search-input::placeholder { color: rgba(123, 107, 93, 0.45); }
+  .search-input:focus {
+    border-color: var(--sienna);
+    box-shadow: 0 0 0 2px rgba(160, 82, 45, 0.08);
+  }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    background: var(--surface);
+    border: 1px solid rgba(123, 107, 93, 0.15);
+    border-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 2px 8px rgba(62, 53, 46, 0.06);
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.25s, color 0.25s;
+  }
+  .nav-item:hover { background: rgba(160, 82, 45, 0.06); color: var(--sienna); }
+  .nav-item.active {
+    background: var(--sienna);
+    color: var(--surface);
+    box-shadow: 0 2px 6px rgba(160, 82, 45, 0.2);
+  }
+
+  /* Main Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(123, 107, 93, 0.2);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 12px rgba(62, 53, 46, 0.1);
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+  }
+
+  /* Tag Chips */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .tag-chip {
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sienna);
+    background: rgba(160, 82, 45, 0.06);
+    border: 1px solid rgba(160, 82, 45, 0.15);
+    border-radius: 8px;
+    cursor: default;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .tag-chip:hover {
+    background: rgba(160, 82, 45, 0.1);
+    border-color: rgba(160, 82, 45, 0.3);
+  }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 10px; }
+  .btn {
+    padding: 9px 22px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+
+  .btn-primary {
+    background: var(--sienna);
+    color: var(--surface);
+    box-shadow: 0 2px 8px rgba(160, 82, 45, 0.25);
+  }
+  .btn-primary:hover { background: #B05A30; box-shadow: 0 3px 12px rgba(160, 82, 45, 0.3); }
+  .btn-secondary {
+    background: var(--umber);
+    color: var(--surface);
+    box-shadow: 0 2px 6px rgba(123, 107, 93, 0.2);
+  }
+  .btn-secondary:hover { background: #6B5C4F; box-shadow: 0 3px 10px rgba(123, 107, 93, 0.25); }
+
+  /* Color Palette */
+  .palette { display: flex; gap: 12px; margin-top: 14px; }
+  .swatch-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .swatch {
+    width: 100%;
+    height: 50px;
+    border-radius: 8px;
+    border: 1px solid rgba(123, 107, 93, 0.12);
+    box-shadow: 0 1px 4px rgba(62, 53, 46, 0.08);
+  }
+  .swatch-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+
+  /* Typography */
+  .typo-section {
+    background: var(--surface);
+    border: 1px solid rgba(123, 107, 93, 0.2);
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 3px 12px rgba(62, 53, 46, 0.1);
+  }
+  .typo-section h1 {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .typo-section h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--sienna);
+    margin-bottom: 14px;
+  }
+  .typo-section p {
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+  .typo-section .caption {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    color: var(--ochre);
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div class="logo">SampleApp</div>
+      <input class="search-input" type="text" placeholder="Search the archive...">
+    </div>
+
+    <div class="nav">
+      <div class="nav-item active">Dashboard</div>
+      <div class="nav-item">Library</div>
+      <div class="nav-item">Settings</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tag Collection</div>
+      <div class="card-desc">Browse and manage your creative tags</div>
+      <div class="tag-row">
+        <span class="tag-chip">landscape</span>
+        <span class="tag-chip">portrait</span>
+        <span class="tag-chip">anime</span>
+        <span class="tag-chip">watercolor</span>
+        <span class="tag-chip">detailed</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Add Tag</button>
+        <button class="btn btn-secondary">Filter</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Color Palette</div>
+      <div class="palette">
+        <div class="swatch-group">
+          <div class="swatch" style="background: #7B6B5D;"></div>
+          <span class="swatch-label">#7B6B5D</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #A0522D;"></div>
+          <span class="swatch-label">#A0522D</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #CC7722;"></div>
+          <span class="swatch-label">#CC7722</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #B66A50;"></div>
+          <span class="swatch-label">#B66A50</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="typo-section">
+      <h1>Earth Horizon Heading</h1>
+      <h2>Terracotta Section Title</h2>
+      <p>Hands shape wet clay on a spinning wheel, the same way rivers have carved canyons through ancient stone. There is a quiet wisdom in earth tones, in the colors of sun-baked adobe walls and weathered barnwood, in the warm patience of materials that grow more beautiful with age and use.</p>
+      <span class="caption">workshop notes — kiln log entry</span>
+    </div>
+  </div>
+</body>
+</html>

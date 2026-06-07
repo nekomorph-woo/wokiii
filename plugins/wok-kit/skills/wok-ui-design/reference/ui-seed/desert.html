@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Desert Style</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --terracotta: #C65D21;
+    --sand: #D4A76A;
+    --cactus: #6B8E4E;
+    --sunset: #E8722A;
+    --bg: #E8D5B7;
+    --surface: #F2E8D6;
+    --text: #4A3728;
+    --text-muted: #8B7355;
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 120% 40px at 30% 92%, rgba(212, 167, 106, 0.5) 0%, transparent 100%),
+      radial-gradient(ellipse 80% 30px at 70% 95%, rgba(198, 93, 33, 0.1) 0%, transparent 100%),
+      radial-gradient(ellipse 100% 35px at 50% 88%, rgba(232, 212, 183, 0.6) 0%, transparent 100%),
+      linear-gradient(180deg, #E8D5B7 0%, #DEC8A8 60%, #D4BB96 100%);
+    font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+    color: var(--text);
+    padding: 24px;
+  }
+
+  /* Heat shimmer on accent text */
+  @keyframes shimmer {
+    0%, 100% { transform: translateY(0); }
+    25% { transform: translateY(-0.5px); }
+    75% { transform: translateY(0.5px); }
+  }
+
+  .container { max-width: 720px; margin: 0 auto; }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 22px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(74, 55, 40, 0.08);
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--terracotta);
+    letter-spacing: 0.3px;
+  }
+
+  .search-input {
+    background: rgba(232, 213, 183, 0.6);
+    border: 1px solid rgba(139, 115, 85, 0.2);
+    padding: 8px 16px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    border-radius: 4px;
+    outline: none;
+    width: 200px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .search-input::placeholder { color: rgba(139, 115, 85, 0.5); }
+  .search-input:focus {
+    border-color: var(--terracotta);
+    box-shadow: 0 0 0 2px rgba(198, 93, 33, 0.1);
+  }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    background: var(--surface);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(74, 55, 40, 0.08);
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 11px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    border-right: 1px solid rgba(139, 115, 85, 0.1);
+  }
+  .nav-item:last-child { border-right: none; }
+  .nav-item:hover { background: rgba(198, 93, 33, 0.05); color: var(--terracotta); }
+  .nav-item.active {
+    background: var(--terracotta);
+    color: #fff;
+  }
+
+  /* Main Card */
+  .card {
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(74, 55, 40, 0.06);
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    animation: shimmer 4s ease-in-out infinite;
+  }
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+  }
+
+  /* Tag Chips */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .tag-chip {
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--terracotta);
+    background: rgba(198, 93, 33, 0.08);
+    border: 1px solid rgba(198, 93, 33, 0.15);
+    border-radius: 4px;
+    cursor: default;
+    transition: background 0.2s;
+  }
+  .tag-chip:hover { background: rgba(198, 93, 33, 0.14); }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 10px; }
+  .btn {
+    padding: 9px 22px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.2s, box-shadow 0.2s;
+    border: none;
+  }
+  .btn:hover { box-shadow: 0 2px 8px rgba(74, 55, 40, 0.15); }
+
+  .btn-primary {
+    background: var(--terracotta);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #D46828; }
+  .btn-secondary {
+    background: rgba(139, 115, 85, 0.12);
+    color: var(--text-muted);
+    border: 1px solid rgba(139, 115, 85, 0.2);
+  }
+  .btn-secondary:hover { background: rgba(139, 115, 85, 0.2); }
+
+  /* Color Palette */
+  .palette { display: flex; gap: 12px; margin-top: 14px; }
+  .swatch-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .swatch {
+    width: 100%;
+    height: 50px;
+    border-radius: 6px;
+    border: 1px solid rgba(139, 115, 85, 0.12);
+  }
+  .swatch-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+
+  /* Typography */
+  .typo-section {
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 24px;
+    box-shadow: 0 1px 4px rgba(74, 55, 40, 0.06);
+  }
+  .typo-section h1 {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 14px;
+    animation: shimmer 5s ease-in-out infinite;
+  }
+  .typo-section h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--terracotta);
+    margin-bottom: 14px;
+  }
+  .typo-section p {
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+  .typo-section .caption {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    color: var(--sand);
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div class="logo">SampleApp</div>
+      <input class="search-input" type="text" placeholder="Search the dunes...">
+    </div>
+
+    <div class="nav">
+      <div class="nav-item active">Dashboard</div>
+      <div class="nav-item">Library</div>
+      <div class="nav-item">Settings</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tag Collection</div>
+      <div class="card-desc">Browse and manage your creative tags</div>
+      <div class="tag-row">
+        <span class="tag-chip">landscape</span>
+        <span class="tag-chip">portrait</span>
+        <span class="tag-chip">anime</span>
+        <span class="tag-chip">watercolor</span>
+        <span class="tag-chip">detailed</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Add Tag</button>
+        <button class="btn btn-secondary">Filter</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Color Palette</div>
+      <div class="palette">
+        <div class="swatch-group">
+          <div class="swatch" style="background: #C65D21;"></div>
+          <span class="swatch-label">#C65D21</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #D4A76A;"></div>
+          <span class="swatch-label">#D4A76A</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #6B8E4E;"></div>
+          <span class="swatch-label">#6B8E4E</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #E8722A;"></div>
+          <span class="swatch-label">#E8722A</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="typo-section">
+      <h1>Desert Horizon Heading</h1>
+      <h2>Dune Section Title</h2>
+      <p>Wind sculpts endless dunes into fleeting architecture, each ridge a temporary masterpiece against the burning sky. The silence is vast and ancient, broken only by the whisper of sand grains tumbling down slopes warmed by a relentless sun that paints everything in shades of amber and ochre.</p>
+      <span class="caption">desert notes — waystation record</span>
+    </div>
+  </div>
+</body>
+</html>

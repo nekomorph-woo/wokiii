@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comic Book — SampleApp</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --comic-red: #EE2233;
+    --comic-blue: #2266EE;
+    --comic-yellow: #FFDD00;
+    --comic-green: #22CC44;
+    --black: #000000;
+    --paper: #FFFDF5;
+  }
+
+  body {
+    font-family: 'Bangers', 'Permanent Marker', Impact, cursive;
+    background: var(--paper);
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.015) 2px,
+        rgba(0,0,0,0.015) 4px
+      );
+    min-height: 100vh;
+    color: var(--black);
+    overflow-x: hidden;
+  }
+
+  /* Wobbly border effect */
+  @keyframes wobble {
+    0%, 100% { border-radius: 8px 12px 6px 14px; }
+    50% { border-radius: 12px 6px 14px 8px; }
+  }
+
+  /* === TOP BAR === */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 32px;
+    background: var(--comic-yellow);
+    border-bottom: 5px solid var(--black);
+    position: relative;
+  }
+  .topbar::after {
+    content: 'BAM!';
+    position: absolute;
+    top: -18px;
+    right: 100px;
+    font-size: 28px;
+    color: var(--comic-red);
+    text-shadow: 3px 3px 0 var(--black);
+    transform: rotate(-12deg);
+    pointer-events: none;
+  }
+  .topbar .logo {
+    font-family: 'Bangers', cursive;
+    font-size: 42px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--black);
+    -webkit-text-stroke: 2px var(--black);
+    paint-order: stroke fill;
+    text-shadow: 4px 4px 0 var(--comic-red);
+  }
+  .topbar input {
+    font-family: 'Bangers', cursive;
+    font-size: 18px;
+    letter-spacing: 2px;
+    padding: 10px 18px;
+    border: 5px solid var(--black);
+    background: var(--white);
+    width: 280px;
+    outline: none;
+    border-radius: 8px 12px 6px 14px;
+    animation: wobble 3s ease-in-out infinite;
+  }
+  .topbar input::placeholder {
+    color: var(--comic-blue);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+  }
+
+  /* === NAV === */
+  .nav {
+    display: flex;
+    gap: 0;
+    border-bottom: 5px solid var(--black);
+    background: var(--white);
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    font-size: 22px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    border-right: 5px solid var(--black);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .nav-item:last-child { border-right: none; }
+  .nav-item.active {
+    background:
+      radial-gradient(circle, var(--comic-red) 25%, transparent 25%);
+    background-size: 8px 8px;
+    background-color: var(--comic-red);
+    color: var(--white);
+    text-shadow: 3px 3px 0 var(--black);
+  }
+  .nav-item:not(.active):hover {
+    background: var(--comic-yellow);
+  }
+
+  /* === MAIN CONTENT === */
+  .content {
+    max-width: 720px;
+    margin: 40px auto;
+    padding: 0 24px;
+  }
+
+  /* === MAIN CARD === */
+  .main-card {
+    border: 5px solid var(--black);
+    border-radius: 8px 14px 10px 16px;
+    background:
+      radial-gradient(circle, var(--comic-blue) 25%, transparent 25%);
+    background-size: 8px 8px;
+    background-color: rgba(34, 102, 238, 0.1);
+    padding: 36px 32px;
+    position: relative;
+    box-shadow: 8px 8px 0 var(--black);
+  }
+  /* Halftone dot shadow decoration */
+  .main-card::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 80px;
+    height: 80px;
+    background:
+      radial-gradient(circle, var(--comic-yellow) 30%, transparent 30%);
+    background-size: 6px 6px;
+    border: 5px solid var(--black);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-30deg);
+    z-index: 2;
+  }
+  .card-title {
+    font-family: 'Bangers', cursive;
+    font-size: 52px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--comic-yellow);
+    display: inline-block;
+    padding: 6px 20px;
+    border: 4px solid var(--black);
+    border-radius: 6px 10px 4px 12px;
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+  }
+  .card-desc {
+    font-family: 'Bangers', cursive;
+    font-size: 18px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--white);
+    display: inline-block;
+    padding: 6px 16px;
+    border: 4px solid var(--black);
+    margin-bottom: 24px;
+  }
+
+  /* Chips */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .chip {
+    font-family: 'Bangers', cursive;
+    font-size: 18px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    border: 4px solid var(--black);
+    cursor: pointer;
+    transition: transform 0.1s;
+    position: relative;
+  }
+  .chip:hover { transform: scale(1.1) rotate(-2deg); }
+  .chip:nth-child(1) {
+    background: var(--comic-red);
+    color: var(--white);
+    border-radius: 10px 4px 14px 6px;
+  }
+  .chip:nth-child(2) {
+    background: var(--comic-yellow);
+    color: var(--black);
+    border-radius: 4px 14px 6px 10px;
+  }
+  .chip:nth-child(3) {
+    background: var(--comic-green);
+    color: var(--black);
+    border-radius: 14px 6px 10px 4px;
+  }
+  .chip:nth-child(4) {
+    background: var(--comic-blue);
+    color: var(--white);
+    border-radius: 6px 10px 4px 14px;
+  }
+  .chip:nth-child(5) {
+    background:
+      radial-gradient(circle, var(--comic-red) 25%, transparent 25%);
+    background-size: 6px 6px;
+    background-color: var(--comic-yellow);
+    color: var(--black);
+    border-radius: 8px 12px 6px 14px;
+  }
+
+  /* Buttons — starburst / jagged */
+  .btn-row {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+  }
+  .btn {
+    font-family: 'Bangers', cursive;
+    font-size: 24px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border: 5px solid var(--black);
+    cursor: pointer;
+    transition: transform 0.1s;
+    position: relative;
+  }
+  .btn:hover {
+    transform: scale(1.06) rotate(-1deg);
+  }
+  .btn-primary {
+    background: var(--comic-red);
+    color: var(--white);
+    clip-path: polygon(4% 0%, 96% 0%, 100% 4%, 100% 96%, 96% 100%, 4% 100%, 0% 96%, 0% 4%);
+    /* Fallback: keep border visible */
+    filter: drop-shadow(4px 4px 0 var(--black));
+  }
+  .btn-secondary {
+    background: var(--white);
+    color: var(--black);
+    clip-path: polygon(4% 0%, 96% 0%, 100% 4%, 100% 96%, 96% 100%, 4% 100%, 0% 96%, 0% 4%);
+    filter: drop-shadow(4px 4px 0 var(--black));
+  }
+
+  /* POW ZAP decorations */
+  .pow {
+    position: absolute;
+    top: 20px;
+    left: -60px;
+    font-family: 'Permanent Marker', cursive;
+    font-size: 36px;
+    color: var(--comic-yellow);
+    -webkit-text-stroke: 2px var(--black);
+    paint-order: stroke fill;
+    transform: rotate(-15deg);
+    text-shadow: 3px 3px 0 var(--black);
+    pointer-events: none;
+  }
+  .zap {
+    position: absolute;
+    bottom: 10px;
+    right: -40px;
+    font-family: 'Permanent Marker', cursive;
+    font-size: 30px;
+    color: var(--comic-green);
+    -webkit-text-stroke: 2px var(--black);
+    paint-order: stroke fill;
+    transform: rotate(12deg);
+    text-shadow: 3px 3px 0 var(--black);
+    pointer-events: none;
+  }
+
+  /* === COLOR PALETTE === */
+  .section-title {
+    font-family: 'Bangers', cursive;
+    font-size: 36px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin: 44px 0 16px;
+    border-bottom: 5px solid var(--black);
+    padding-bottom: 6px;
+    display: inline-block;
+  }
+  .palette {
+    display: flex;
+    gap: 0;
+    border: 5px solid var(--black);
+    box-shadow: 6px 6px 0 var(--black);
+  }
+  .swatch {
+    flex: 1;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    border-right: 4px solid var(--black);
+    position: relative;
+  }
+  .swatch:last-child { border-right: none; }
+  .swatch:nth-child(1) {
+    background:
+      radial-gradient(circle, var(--comic-red) 25%, transparent 25%);
+    background-size: 8px 8px;
+    background-color: var(--comic-red);
+  }
+  .swatch:nth-child(2) {
+    background:
+      radial-gradient(circle, var(--comic-blue) 25%, transparent 25%);
+    background-size: 8px 8px;
+    background-color: var(--comic-blue);
+  }
+  .swatch:nth-child(3) {
+    background:
+      radial-gradient(circle, var(--comic-yellow) 25%, transparent 25%);
+    background-size: 8px 8px;
+    background-color: var(--comic-yellow);
+  }
+  .swatch:nth-child(4) {
+    background:
+      radial-gradient(circle, var(--comic-green) 25%, transparent 25%);
+    background-size: 8px 8px;
+    background-color: var(--comic-green);
+  }
+  .swatch-label {
+    font-family: 'Bangers', cursive;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    background: var(--white);
+    border: 3px solid var(--black);
+    margin-bottom: 8px;
+  }
+
+  /* === TYPOGRAPHY === */
+  .typo-section { margin-top: 40px; }
+  .typo-section .t-h1 {
+    font-family: 'Bangers', cursive;
+    font-size: 72px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 8px;
+    color: var(--black);
+    -webkit-text-stroke: 2px var(--black);
+    text-shadow: 5px 5px 0 var(--comic-red);
+  }
+  .typo-section .t-h2 {
+    font-family: 'Bangers', cursive;
+    font-size: 40px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    color: var(--comic-blue);
+    -webkit-text-stroke: 1px var(--black);
+    paint-order: stroke fill;
+  }
+  .typo-section .t-body {
+    font-family: 'Bangers', cursive;
+    font-size: 18px;
+    line-height: 1.6;
+    letter-spacing: 2px;
+    max-width: 500px;
+    background: var(--white);
+    border: 4px solid var(--black);
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 4px 4px 0 var(--black);
+  }
+  .typo-section .t-caption {
+    font-family: 'Permanent Marker', cursive;
+    font-size: 16px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--comic-green);
+    -webkit-text-stroke: 1px var(--black);
+    paint-order: stroke fill;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">SampleApp</div>
+  <input type="text" placeholder="Search...">
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-item active">Dashboard</div>
+  <div class="nav-item">Library</div>
+  <div class="nav-item">Settings</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+  <!-- MAIN CARD -->
+  <div class="main-card">
+    <span class="pow">POW!</span>
+    <span class="zap">ZAP!</span>
+    <div class="card-title">Tag Collection</div>
+    <div class="card-desc">Browse and manage your creative tags</div>
+    <div class="chips">
+      <span class="chip">landscape</span>
+      <span class="chip">portrait</span>
+      <span class="chip">anime</span>
+      <span class="chip">watercolor</span>
+      <span class="chip">detailed</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary">Add Tag</button>
+      <button class="btn btn-secondary">Filter</button>
+    </div>
+  </div>
+
+  <!-- COLOR PALETTE -->
+  <div class="section-title">Color Palette</div>
+  <div class="palette">
+    <div class="swatch">
+      <span class="swatch-label">#EE2233</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#2266EE</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#FFDD00</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#22CC44</span>
+    </div>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <div class="typo-section">
+    <div class="section-title">Typography</div>
+    <div class="t-h1">BOLD HEADLINE</div>
+    <div class="t-h2">SUBHEADING STYLE</div>
+    <p class="t-body">
+      This is body text rendered in a bold, comic-book style.
+      Every word feels like it's SHOUTING off the page!
+      Dynamic, punchy, and packed with action — just like a
+      superhero comic.
+    </p>
+    <span class="t-caption">Caption text — small but POWERFUL</span>
+  </div>
+
+</div>
+
+</body>
+</html>

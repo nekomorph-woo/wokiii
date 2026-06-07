@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paper Craft UI Seed</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  /* Kraft paper background with noise texture */
+  body{
+    font-family:'Georgia','Times New Roman',serif;
+    min-height:100vh;
+    background-color:#D4C5A9;
+    background-image:
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    padding:24px;
+    color:#5A4A3A;
+  }
+
+  /* Paper card base with layered shadows */
+  .paper{
+    background:#FFFDF7;
+    border-radius:3px 4px 3px 5px;
+    box-shadow:
+      0 1px 1px rgba(0,0,0,0.12),
+      0 2px 2px rgba(0,0,0,0.08),
+      0 4px 4px rgba(0,0,0,0.05),
+      0 8px 8px rgba(0,0,0,0.03);
+    position:relative;
+  }
+  /* Folded corner effect */
+  .paper::after{
+    content:'';
+    position:absolute;
+    top:0;right:0;
+    width:28px;height:28px;
+    background:linear-gradient(225deg,#D4C5A9 50%,#e8dcc8 50%);
+    border-bottom-left-radius:3px;
+  }
+
+  /* ── Top bar ── */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 28px;
+    margin-bottom:24px;
+    background:#FFFDF7;
+    border-radius:2px 4px 2px 5px;
+    box-shadow:
+      0 1px 1px rgba(0,0,0,0.12),
+      0 2px 2px rgba(0,0,0,0.08),
+      0 4px 4px rgba(0,0,0,0.05);
+  }
+  .logo{
+    font-size:1.6rem;
+    font-weight:700;
+    color:#5A4A3A;
+    letter-spacing:0.5px;
+    font-family:'Courier New',monospace;
+  }
+  .search{
+    padding:10px 18px;
+    border:1.5px dashed #C4B59A;
+    border-radius:3px 5px 4px 2px;
+    width:260px;
+    font-size:0.92rem;
+    color:#5A4A3A;
+    background:#FFFEF8;
+    font-family:inherit;
+    outline:none;
+  }
+  .search::placeholder{color:#B4A58A;font-style:italic}
+
+  /* ── Washi tape decoration ── */
+  .tape{
+    display:inline-block;
+    padding:4px 24px;
+    font-size:0.72rem;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:#5A4A3A;
+    background:rgba(255,236,210,0.75);
+    transform:rotate(-1.5deg);
+    margin-bottom:16px;
+    border-radius:1px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.08);
+  }
+
+  /* ── Nav ── */
+  .nav{
+    display:flex;
+    gap:10px;
+    margin-bottom:28px;
+  }
+  .nav-item{
+    padding:11px 26px;
+    font-size:0.92rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:all .2s ease;
+    background:#FFFDF7;
+    color:#8A7A6A;
+    border:none;
+    font-family:inherit;
+    box-shadow:
+      0 1px 1px rgba(0,0,0,0.12),
+      0 2px 2px rgba(0,0,0,0.08);
+    border-radius:3px 5px 2px 4px;
+  }
+  .nav-item:hover{transform:rotate(-0.5deg) translateY(-1px)}
+  .nav-item.active{
+    background:#FFECD2;
+    color:#5A4A3A;
+    transform:rotate(0.5deg);
+    box-shadow:
+      0 1px 1px rgba(0,0,0,0.12),
+      0 2px 2px rgba(0,0,0,0.08),
+      0 4px 4px rgba(0,0,0,0.05);
+  }
+
+  /* ── Main card ── */
+  .main-card{
+    padding:36px 32px;
+    margin-bottom:28px;
+  }
+  .main-card h1{
+    font-size:1.7rem;
+    font-weight:700;
+    margin-bottom:8px;
+    color:#4A3A2A;
+  }
+  .main-card .desc{
+    font-size:1rem;
+    color:#7A6A5A;
+    margin-bottom:24px;
+    line-height:1.6;
+    font-style:italic;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px}
+  .chip{
+    padding:9px 20px;
+    font-size:0.86rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:all .2s ease;
+    border:1.5px dashed #C4B59A;
+    background:#FFFDF7;
+    color:#6A5A4A;
+    font-family:inherit;
+    border-radius:4px 2px 5px 3px;
+  }
+  .chip:hover{transform:rotate(-1deg)}
+  .chip:nth-child(1){border-color:#CC8B65;background:rgba(255,236,210,0.3)}
+  .chip:nth-child(2){border-color:#A0B8CC;background:rgba(160,184,204,0.15)}
+  .chip:nth-child(3){border-color:#C6D8AF;background:rgba(198,216,175,0.25)}
+  .chip:nth-child(4){border-color:#CC8B65;background:rgba(204,139,101,0.15)}
+  .chip:nth-child(5){border-color:#A0B8CC;background:rgba(160,184,204,0.15)}
+
+  .btn-group{display:flex;gap:14px;flex-wrap:wrap}
+  .btn{
+    padding:13px 28px;
+    font-size:0.92rem;
+    font-weight:700;
+    cursor:pointer;
+    border:none;
+    font-family:inherit;
+    transition:all .2s ease;
+    border-radius:3px 5px 4px 2px;
+  }
+  .btn:hover{transform:rotate(-0.8deg) translateY(-1px)}
+  .btn-primary{
+    background:#CC8B65;
+    color:#FFFDF7;
+    box-shadow:0 1px 1px rgba(0,0,0,0.12),0 2px 2px rgba(0,0,0,0.08),0 4px 4px rgba(0,0,0,0.05);
+  }
+  .btn-secondary{
+    background:#FFFDF7;
+    color:#7A6A5A;
+    border:1.5px solid #C4B59A;
+    box-shadow:0 1px 1px rgba(0,0,0,0.12),0 2px 2px rgba(0,0,0,0.08);
+  }
+
+  /* ── Color palette ── */
+  .palette{
+    padding:32px;
+    margin-bottom:28px;
+  }
+  .palette h2{font-size:1.3rem;font-weight:700;margin-bottom:18px;color:#4A3A2A}
+  .swatches{display:flex;gap:16px;flex-wrap:wrap}
+  .swatch{
+    flex:1;min-width:110px;
+    padding:22px 14px;
+    text-align:center;
+    font-weight:700;
+    font-size:0.8rem;
+    color:#5A4A3A;
+    border-radius:3px 4px 3px 5px;
+    box-shadow:0 1px 1px rgba(0,0,0,0.1),0 2px 2px rgba(0,0,0,0.06);
+    transition:transform .2s ease;
+  }
+  .swatch:hover{transform:rotate(1deg) scale(1.03)}
+  .swatch-1{background:#FFECD2;border:1.5px dashed #CC8B65}
+  .swatch-2{background:#C6D8AF;border:1.5px dashed #8AA870}
+  .swatch-3{background:#A0B8CC;border:1.5px dashed #7A98B0}
+  .swatch-4{background:#CC8B65;border:1.5px dashed #A06A45;color:#FFFDF7}
+
+  /* ── Typography ── */
+  .typo{padding:32px}
+  .typo h2{font-size:1.3rem;font-weight:700;margin-bottom:18px;color:#4A3A2A}
+  .typo h1{font-size:2.1rem;font-weight:700;margin-bottom:10px;color:#3A2A1A}
+  .typo h2.sample{font-size:1.5rem;font-weight:700;margin-bottom:10px;color:#4A3A2A}
+  .typo p.body{font-size:1rem;line-height:1.7;margin-bottom:12px;color:#5A4A3A}
+  .typo .caption{font-size:0.78rem;color:#9A8A7A;margin-top:6px;font-style:italic}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="logo">SampleApp</div>
+  <input class="search" type="text" placeholder="Search...">
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <button class="nav-item active">Dashboard</button>
+  <button class="nav-item">Library</button>
+  <button class="nav-item">Settings</button>
+</nav>
+
+<!-- Tape decoration -->
+<div class="tape">collection</div>
+
+<!-- Main card -->
+<div class="main-card paper">
+  <h1>Tag Collection</h1>
+  <p class="desc">Browse and manage your creative tags</p>
+  <div class="chips">
+    <button class="chip">landscape</button>
+    <button class="chip">portrait</button>
+    <button class="chip">anime</button>
+    <button class="chip">watercolor</button>
+    <button class="chip">detailed</button>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary">Add Tag</button>
+    <button class="btn btn-secondary">Filter</button>
+  </div>
+</div>
+
+<!-- Color palette -->
+<div class="palette paper">
+  <h2>Color Palette</h2>
+  <div class="swatches">
+    <div class="swatch swatch-1">Papaya<br>#FFECD2</div>
+    <div class="swatch swatch-2">Sage<br>#C6D8AF</div>
+    <div class="swatch swatch-3">Slate Blue<br>#A0B8CC</div>
+    <div class="swatch swatch-4">Terracotta<br>#CC8B65</div>
+  </div>
+</div>
+
+<!-- Typography -->
+<div class="typo paper">
+  <h2>Typography</h2>
+  <h1>Heading One</h1>
+  <h2 class="sample">Heading Two</h2>
+  <p class="body">This is body text rendered in a warm, tactile paper-craft style. Every element feels like it was cut, folded, and glued by hand — a scrapbook come to life on screen.</p>
+  <span class="caption">Caption text — lighter and smaller for secondary information</span>
+</div>
+
+</body>
+</html>

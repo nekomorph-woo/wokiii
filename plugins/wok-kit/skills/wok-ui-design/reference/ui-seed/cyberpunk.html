@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyberpunk Style</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --cyan: #00f0ff;
+    --magenta: #ff00aa;
+    --yellow: #f0ff00;
+    --green: #39ff14;
+    --bg: #0a0a14;
+    --surface: rgba(10, 10, 30, 0.85);
+    --border: rgba(0, 240, 255, 0.35);
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    font-family: 'Courier New', 'Lucida Console', monospace;
+    color: #c0c0d0;
+    padding: 24px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Scan-line overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 240, 255, 0.03) 2px,
+      rgba(0, 240, 255, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Angular clip card */
+  .clip-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    padding: 22px;
+  }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    margin-bottom: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.3);
+  }
+
+  .search-input {
+    background: rgba(0, 10, 20, 0.8);
+    border: 1px solid var(--border);
+    padding: 7px 14px;
+    color: var(--cyan);
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    outline: none;
+    width: 200px;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .search-input::placeholder { color: rgba(0, 240, 255, 0.3); }
+  .search-input:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.4), inset 0 0 8px rgba(0, 240, 255, 0.1);
+  }
+
+  /* Navigation */
+  .nav { display: flex; gap: 0; margin-bottom: 20px; }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 11px 0;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(0, 240, 255, 0.5);
+    border: 1px solid rgba(0, 240, 255, 0.12);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, text-shadow 0.2s;
+  }
+  .nav-item:hover { background: rgba(0, 240, 255, 0.08); color: var(--cyan); }
+  .nav-item.active {
+    background: rgba(0, 240, 255, 0.12);
+    color: var(--cyan);
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+    border-color: var(--border);
+  }
+
+  /* Main Card */
+  .card { margin-bottom: 20px; }
+  .card-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--magenta);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(255, 0, 170, 0.5);
+    margin-bottom: 6px;
+  }
+  .card-desc {
+    font-size: 12px;
+    color: rgba(192, 192, 208, 0.6);
+    letter-spacing: 1px;
+    margin-bottom: 18px;
+  }
+
+  /* Tag Chips */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .tag-chip {
+    padding: 5px 14px;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--green);
+    border: 1px dashed rgba(57, 255, 20, 0.4);
+    background: rgba(57, 255, 20, 0.05);
+    cursor: default;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  .tag-chip:hover {
+    background: rgba(57, 255, 20, 0.12);
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+  }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 10px; }
+  .btn {
+    padding: 9px 22px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: transparent;
+    transition: box-shadow 0.3s, background 0.3s;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  }
+  .btn-primary { color: var(--yellow); border: 1px solid rgba(240, 255, 0, 0.5); }
+  .btn-primary:hover {
+    background: rgba(240, 255, 0, 0.1);
+    box-shadow: 0 0 16px rgba(240, 255, 0, 0.35);
+  }
+  .btn-secondary { color: var(--cyan); border: 1px solid rgba(0, 240, 255, 0.35); }
+  .btn-secondary:hover {
+    background: rgba(0, 240, 255, 0.1);
+    box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
+  }
+
+  /* Color Palette */
+  .palette { display: flex; gap: 12px; margin-top: 16px; }
+  .swatch-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .swatch {
+    width: 100%;
+    height: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  }
+  .swatch-label { font-size: 10px; letter-spacing: 1px; color: rgba(192, 192, 208, 0.5); }
+
+  /* Typography */
+  .typo-section { margin-bottom: 20px; }
+  .typo-section h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    text-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+    margin-bottom: 14px;
+  }
+  .typo-section h2 {
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--magenta);
+    letter-spacing: 3px;
+    text-shadow: 0 0 8px rgba(255, 0, 170, 0.4);
+    margin-bottom: 14px;
+  }
+  .typo-section p {
+    font-size: 13px;
+    line-height: 1.8;
+    letter-spacing: 0.5px;
+    color: rgba(192, 192, 208, 0.75);
+    margin-bottom: 14px;
+  }
+  .typo-section .caption {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--yellow);
+    text-shadow: 0 0 6px rgba(240, 255, 0, 0.3);
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div class="logo">SampleApp</div>
+      <input class="search-input" type="text" placeholder="> search...">
+    </div>
+
+    <div class="nav">
+      <div class="nav-item active">Dashboard</div>
+      <div class="nav-item">Library</div>
+      <div class="nav-item">Settings</div>
+    </div>
+
+    <div class="card clip-card">
+      <div class="card-title">// Tag Collection</div>
+      <div class="card-desc">Browse and manage your creative tags</div>
+      <div class="tag-row">
+        <span class="tag-chip">landscape</span>
+        <span class="tag-chip">portrait</span>
+        <span class="tag-chip">anime</span>
+        <span class="tag-chip">watercolor</span>
+        <span class="tag-chip">detailed</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Add Tag</button>
+        <button class="btn btn-secondary">Filter</button>
+      </div>
+    </div>
+
+    <div class="clip-card" style="margin-bottom: 20px;">
+      <div class="card-title" style="margin-bottom: 2px;">// Color Palette</div>
+      <div class="palette">
+        <div class="swatch-group">
+          <div class="swatch" style="background: #00f0ff; box-shadow: 0 0 12px rgba(0,240,255,0.3);"></div>
+          <span class="swatch-label">#00F0FF</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #ff00aa; box-shadow: 0 0 12px rgba(255,0,170,0.3);"></div>
+          <span class="swatch-label">#FF00AA</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #f0ff00; box-shadow: 0 0 12px rgba(240,255,0,0.3);"></div>
+          <span class="swatch-label">#F0FF00</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #39ff14; box-shadow: 0 0 12px rgba(57,255,20,0.3);"></div>
+          <span class="swatch-label">#39FF14</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="typo-section clip-card">
+      <h1>Neon Display Heading</h1>
+      <h2>Section Subtitle</h2>
+      <p>Data streams cascade through the neon-lit corridors of a digital labyrinth, where every pixel pulses with the heartbeat of a thousand quantum processors running in parallel.</p>
+      <span class="caption">// caption text — system log entry</span>
+    </div>
+  </div>
+</body>
+</html>

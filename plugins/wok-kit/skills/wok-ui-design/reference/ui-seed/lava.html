@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleApp — Lava</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: #0D0D0D;
+    color: #D8D0C8;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-weight: 500;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ── Lava glow from bottom ── */
+  body::before {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 100%, rgba(255,45,0,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 30% 100%, rgba(255,140,0,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 35% at 70% 100%, rgba(255,215,0,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Crack/vein patterns ── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      linear-gradient(157deg, transparent 48%, rgba(255,45,0,0.03) 48.5%, transparent 49%),
+      linear-gradient(23deg, transparent 62%, rgba(255,140,0,0.025) 62.5%, transparent 63%),
+      linear-gradient(178deg, transparent 35%, rgba(255,215,0,0.02) 35.3%, transparent 35.6%),
+      linear-gradient(312deg, transparent 55%, rgba(255,45,0,0.025) 55.3%, transparent 55.6%),
+      linear-gradient(85deg, transparent 72%, rgba(255,140,0,0.02) 72.3%, transparent 72.6%),
+      linear-gradient(200deg, transparent 28%, rgba(255,45,0,0.015) 28.2%, transparent 28.4%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 24px; }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    background: #141414;
+    border: 1px solid rgba(255,45,0,0.15);
+    border-radius: 12px;
+    box-shadow: 0 1px 20px rgba(0,0,0,0.4);
+  }
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #FFD700;
+    text-shadow: 0 0 12px rgba(255,215,0,0.3);
+  }
+  .search-input {
+    background: #0D0D0D;
+    border: 1px solid rgba(255,140,0,0.2);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: #D8D0C8;
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    width: 220px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .search-input::placeholder { color: rgba(255,140,0,0.3); }
+  .search-input:focus {
+    border-color: rgba(255,140,0,0.5);
+    box-shadow: 0 0 16px rgba(255,45,0,0.1);
+  }
+
+  /* ── Nav ── */
+  .nav {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 28px;
+    background: #111111;
+    border: 1px solid rgba(255,45,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,140,0,0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .nav-item:hover { color: rgba(255,140,0,0.65); background: rgba(255,45,0,0.04); }
+  .nav-item.active {
+    color: #FF8C00;
+    background: rgba(255,45,0,0.08);
+    border-bottom: 2px solid #FF2D00;
+    text-shadow: 0 0 10px rgba(255,140,0,0.2);
+  }
+
+  /* ── Card ── */
+  .card {
+    background: #141414;
+    border: 1px solid rgba(255,45,0,0.12);
+    border-bottom: 2px solid rgba(255,140,0,0.3);
+    border-radius: 14px;
+    padding: 32px;
+    margin-bottom: 28px;
+    box-shadow:
+      0 4px 30px rgba(0,0,0,0.5),
+      0 8px 40px rgba(255,45,0,0.06),
+      inset 0 1px 0 rgba(255,140,0,0.05);
+  }
+  .card-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: 0.03em;
+    color: #FFD700;
+    text-shadow: 0 0 16px rgba(255,215,0,0.2);
+  }
+  .card-desc {
+    font-size: 14px;
+    color: rgba(255,140,0,0.45);
+    margin-bottom: 24px;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  /* ── Chips ── */
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+  .chip {
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    background: rgba(26,26,26,0.8);
+    border: 1px solid rgba(255,45,0,0.15);
+    color: rgba(255,140,0,0.7);
+    transition: all 0.3s;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .chip:hover {
+    border-color: rgba(255,140,0,0.4);
+    box-shadow: 0 0 14px rgba(255,45,0,0.08);
+    background: rgba(255,45,0,0.06);
+  }
+  .chip:nth-child(1) { border-color: rgba(255,45,0,0.25); color: #FF2D00; }
+  .chip:nth-child(2) { border-color: rgba(255,140,0,0.25); color: #FF8C00; }
+  .chip:nth-child(3) { border-color: rgba(255,215,0,0.25); color: #FFD700; }
+  .chip:nth-child(4) { border-color: rgba(255,45,0,0.2); color: rgba(255,140,0,0.8); }
+  .chip:nth-child(5) { border-color: rgba(255,140,0,0.2); color: rgba(255,215,0,0.7); }
+
+  /* ── Buttons ── */
+  .btn-row { display: flex; gap: 14px; }
+  .btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: none;
+  }
+  .btn-primary {
+    background: #1A1A1A;
+    color: #FFD700;
+    border: 1px solid rgba(255,45,0,0.4);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 0 24px rgba(255,45,0,0.2), 0 0 48px rgba(255,140,0,0.08);
+    border-color: rgba(255,140,0,0.6);
+    background: rgba(255,45,0,0.08);
+  }
+  .btn-secondary {
+    background: #111111;
+    color: rgba(255,140,0,0.5);
+    border: 1px solid rgba(255,140,0,0.15);
+  }
+  .btn-secondary:hover {
+    border-color: rgba(255,140,0,0.35);
+    color: #FF8C00;
+    box-shadow: 0 0 16px rgba(255,140,0,0.08);
+  }
+
+  /* ── Palette ── */
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(255,140,0,0.3);
+    margin-bottom: 14px;
+    font-weight: 700;
+  }
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .swatch {
+    border-radius: 10px;
+    overflow: hidden;
+    background: #141414;
+    border: 1px solid rgba(255,45,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .swatch:hover { transform: translateY(-2px); }
+  .swatch-color { height: 60px; }
+  .swatch-hex {
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,140,0,0.4);
+    letter-spacing: 0.06em;
+    font-family: 'SF Mono', 'Consolas', monospace;
+  }
+  .swatch:nth-child(1) .swatch-color { background: linear-gradient(160deg, #FF2D00, #CC2400); box-shadow: inset 0 -10px 20px rgba(255,45,0,0.3); }
+  .swatch:nth-child(1):hover { box-shadow: 0 4px 20px rgba(255,45,0,0.15); }
+  .swatch:nth-child(2) .swatch-color { background: linear-gradient(160deg, #FF8C00, #CC7000); box-shadow: inset 0 -10px 20px rgba(255,140,0,0.3); }
+  .swatch:nth-child(2):hover { box-shadow: 0 4px 20px rgba(255,140,0,0.15); }
+  .swatch:nth-child(3) .swatch-color { background: linear-gradient(160deg, #FFD700, #CCAC00); box-shadow: inset 0 -10px 20px rgba(255,215,0,0.3); }
+  .swatch:nth-child(3):hover { box-shadow: 0 4px 20px rgba(255,215,0,0.15); }
+  .swatch:nth-child(4) .swatch-color { background: linear-gradient(160deg, #1A1A1A, #111111); box-shadow: inset 0 -10px 20px rgba(0,0,0,0.5); }
+  .swatch:nth-child(4):hover { box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+
+  /* ── Typography ── */
+  .typo-section { margin-bottom: 20px; }
+  .typo-section h1 {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #FFD700;
+    text-shadow: 0 0 20px rgba(255,215,0,0.15);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .typo-section h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #FF8C00;
+    letter-spacing: 0.02em;
+  }
+  .typo-section p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(255,140,0,0.45);
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  .typo-section .caption {
+    font-size: 11px;
+    color: rgba(255,45,0,0.3);
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="logo">SampleApp</div>
+      <input class="search-input" type="text" placeholder="Search..."/>
+    </div>
+
+    <!-- Nav -->
+    <div class="nav">
+      <div class="nav-item active">Dashboard</div>
+      <div class="nav-item">Library</div>
+      <div class="nav-item">Settings</div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card">
+      <div class="card-title">Tag Collection</div>
+      <div class="card-desc">Browse and manage your creative tags</div>
+      <div class="chips">
+        <span class="chip">landscape</span>
+        <span class="chip">portrait</span>
+        <span class="chip">anime</span>
+        <span class="chip">watercolor</span>
+        <span class="chip">detailed</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Add Tag</button>
+        <button class="btn btn-secondary">Filter</button>
+      </div>
+    </div>
+
+    <!-- Color Palette -->
+    <div class="section-label">Color Palette</div>
+    <div class="palette">
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#FF2D00</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#FF8C00</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#FFD700</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#1A1A1A</div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="section-label">Typography</div>
+    <div class="typo-section">
+      <h1>Magma Rising</h1>
+      <h2>Forged in Extreme Heat</h2>
+      <p>Beneath the crust, rivers of molten rock carve channels through solid stone. Pressure builds, temperatures exceed imagination, and the earth itself gives way to forces older than any memory. From destruction, new land is born.</p>
+      <div class="caption">Volcanic Design System</div>
+    </div>
+
+  </div>
+</body>
+</html>

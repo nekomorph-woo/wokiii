@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playful</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #FFF8F0;
+    color: #3D3D3D;
+    font-family: "Nunito", "Quicksand", -apple-system, system-ui, sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ── Background Pattern ── */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle, #FFD93D22 8px, transparent 8px),
+      radial-gradient(circle, #6BCB7718 6px, transparent 6px);
+    background-size: 80px 80px, 60px 60px;
+    background-position: 0 0, 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body > * { position: relative; z-index: 1; }
+
+  /* ── Top Bar ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-bottom: 3px solid #FFD93D;
+  }
+  .topbar__logo {
+    font-size: 24px;
+    font-weight: 900;
+    color: #FF6B6B;
+    letter-spacing: -0.02em;
+    text-shadow: 2px 2px 0 #FFD93D;
+  }
+  .topbar__search {
+    width: 260px;
+    padding: 12px 20px;
+    border-radius: 50px;
+    border: 3px solid #6BCB77;
+    background: #FFFFFF;
+    font-size: 15px;
+    font-weight: 600;
+    color: #3D3D3D;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 3px 0 #6BCB77;
+  }
+  .topbar__search::placeholder { color: #C4C4C4; font-weight: 500; }
+  .topbar__search:focus {
+    outline: none;
+    border-color: #FF6B6B;
+    box-shadow: 0 3px 0 #FF6B6B, 0 0 0 4px rgba(255,107,107,0.15);
+    transform: scale(1.03);
+  }
+
+  /* ── Navigation ── */
+  .nav {
+    display: flex;
+    gap: 12px;
+    padding: 20px 40px;
+    margin-bottom: 32px;
+  }
+  .nav__item {
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: #9B59B6;
+    cursor: pointer;
+    background: #FFFFFF;
+    border: 3px solid transparent;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: none;
+  }
+  .nav__item:hover {
+    transform: scale(1.08);
+    border-color: #9B59B6;
+    box-shadow: 0 4px 0 #9B59B680;
+  }
+  .nav__item--active {
+    background: #9B59B6;
+    color: #FFFFFF;
+    border-color: #9B59B6;
+    box-shadow: 0 4px 0 #6BCB77;
+  }
+  .nav__item--active:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 0 #6BCB77;
+  }
+
+  /* ── Card ── */
+  .card {
+    max-width: 640px;
+    margin: 0 40px;
+    padding: 32px;
+    background: #FFFFFF;
+    border-radius: 24px;
+    border: 3px solid #FF6B6B;
+    box-shadow: 0 6px 0 #FFD93D;
+    margin-bottom: 32px;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+  }
+  .card:hover {
+    transform: rotate(-0.5deg) scale(1.01);
+    box-shadow: 0 8px 0 #FFD93D;
+  }
+  .card__title {
+    font-size: 28px;
+    font-weight: 900;
+    color: #FF6B6B;
+    margin-bottom: 6px;
+  }
+  .card__desc {
+    font-size: 15px;
+    font-weight: 600;
+    color: #888;
+    margin-bottom: 24px;
+  }
+
+  /* ── Tag Chips ── */
+  .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+  .chip {
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 800;
+    border: 2.5px solid transparent;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: default;
+  }
+  .chip:hover { transform: scale(1.12) rotate(-2deg); }
+  .chip--1 { background: #FFD93D33; color: #C4960B; border-color: #FFD93D; }
+  .chip--2 { background: #FF6B6B22; color: #D44; border-color: #FF6B6B; }
+  .chip--3 { background: #9B59B622; color: #7D3C98; border-color: #9B59B6; }
+  .chip--4 { background: #6BCB7722; color: #3A9; border-color: #6BCB77; }
+  .chip--5 { background: #3498DB22; color: #2E86C1; border-color: #3498DB; }
+
+  /* ── Buttons ── */
+  .actions { display: flex; gap: 14px; }
+  .btn {
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .btn--primary {
+    background: #FF6B6B;
+    color: #FFF;
+    border: 3px solid #FF6B6B;
+    box-shadow: 0 4px 0 #C0392B;
+  }
+  .btn--primary:hover {
+    transform: translateY(-3px) scale(1.06);
+    box-shadow: 0 7px 0 #C0392B;
+  }
+  .btn--primary:active { transform: translateY(0); box-shadow: 0 2px 0 #C0392B; }
+  .btn--secondary {
+    background: #FFF;
+    color: #6BCB77;
+    border: 3px solid #6BCB77;
+    box-shadow: 0 4px 0 #6BCB77;
+  }
+  .btn--secondary:hover {
+    transform: translateY(-3px) scale(1.06);
+    box-shadow: 0 7px 0 #6BCB77;
+  }
+  .btn--secondary:active { transform: translateY(0); box-shadow: 0 2px 0 #6BCB77; }
+
+  /* ── Section Shared ── */
+  .section {
+    max-width: 640px;
+    margin: 0 40px;
+    padding: 32px;
+    background: #FFFFFF;
+    border-radius: 24px;
+    border: 3px solid #9B59B6;
+    box-shadow: 0 6px 0 #6BCB77;
+    margin-bottom: 32px;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+  }
+  .section:hover {
+    transform: rotate(0.5deg) scale(1.01);
+    box-shadow: 0 8px 0 #6BCB77;
+  }
+  .section__title {
+    font-size: 18px;
+    font-weight: 900;
+    color: #9B59B6;
+    margin-bottom: 20px;
+  }
+
+  /* ── Palette ── */
+  .palette { display: flex; gap: 16px; }
+  .swatch { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .swatch__color {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid rgba(0,0,0,0.08);
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: default;
+  }
+  .swatch__color:hover { transform: scale(1.2) rotate(10deg); }
+  .swatch__hex {
+    font-size: 11px;
+    font-weight: 800;
+    color: #AAA;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Typography ── */
+  .typo__h1 {
+    font-size: 36px;
+    font-weight: 900;
+    color: #FF6B6B;
+    margin-bottom: 12px;
+    text-shadow: 1px 1px 0 #FFD93D;
+  }
+  .typo__h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #9B59B6;
+    margin-bottom: 10px;
+  }
+  .typo__body {
+    font-size: 15px;
+    font-weight: 600;
+    color: #666;
+    line-height: 1.75;
+    margin-bottom: 12px;
+  }
+  .typo__caption {
+    font-size: 12px;
+    font-weight: 700;
+    color: #BBB;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__logo">SampleApp</div>
+    <input class="topbar__search" type="text" placeholder="Search here!">
+  </header>
+
+  <nav class="nav">
+    <button class="nav__item nav__item--active">Dashboard</button>
+    <button class="nav__item">Library</button>
+    <button class="nav__item">Settings</button>
+  </nav>
+
+  <section class="card">
+    <h1 class="card__title">Tag Collection</h1>
+    <p class="card__desc">Browse and manage your creative tags</p>
+    <div class="chips">
+      <span class="chip chip--1">landscape</span>
+      <span class="chip chip--2">portrait</span>
+      <span class="chip chip--3">anime</span>
+      <span class="chip chip--4">watercolor</span>
+      <span class="chip chip--5">detailed</span>
+    </div>
+    <div class="actions">
+      <button class="btn btn--primary">Add Tag</button>
+      <button class="btn btn--secondary">Filter</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section__title">Color Palette</h2>
+    <div class="palette">
+      <div class="swatch">
+        <div class="swatch__color" style="background:#FF6B6B;"></div>
+        <span class="swatch__hex">#FF6B6B</span>
+      </div>
+      <div class="swatch">
+        <div class="swatch__color" style="background:#FFD93D;"></div>
+        <span class="swatch__hex">#FFD93D</span>
+      </div>
+      <div class="swatch">
+        <div class="swatch__color" style="background:#6BCB77;"></div>
+        <span class="swatch__hex">#6BCB77</span>
+      </div>
+      <div class="swatch">
+        <div class="swatch__color" style="background:#9B59B6;"></div>
+        <span class="swatch__hex">#9B59B6</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section__title">Typography</h2>
+    <h1 class="typo__h1">Playful Heading</h1>
+    <h2 class="typo__h2">Bouncy Subheading</h2>
+    <p class="typo__body">
+      Bold colors and bouncy interactions bring energy to every click.
+      This style celebrates creativity with thick borders, vibrant shadows, and a spirit of fun.
+    </p>
+    <span class="typo__caption">A tiny uppercase caption for details</span>
+  </section>
+
+</body>
+</html>

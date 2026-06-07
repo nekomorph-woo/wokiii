@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pop Art — SampleApp</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo+Black&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pop-red: #FF3366;
+    --pop-blue: #3366FF;
+    --pop-yellow: #FFE66D;
+    --pop-green: #33FF66;
+    --black: #000000;
+    --white: #FFFFFF;
+  }
+
+  body {
+    font-family: 'Archivo Black', 'Bebas Neue', Impact, sans-serif;
+    background: var(--white);
+    min-height: 100vh;
+    color: var(--black);
+    overflow-x: hidden;
+  }
+
+  /* === Halftone dot mixin via class === */
+  .halftone-red   { background: radial-gradient(circle, var(--pop-red) 30%, transparent 30%); background-size: 6px 6px; }
+  .halftone-blue  { background: radial-gradient(circle, var(--pop-blue) 30%, transparent 30%); background-size: 6px 6px; }
+  .halftone-yellow{ background: radial-gradient(circle, var(--pop-yellow) 30%, transparent 30%); background-size: 6px 6px; }
+  .halftone-green { background: radial-gradient(circle, var(--pop-green) 30%, transparent 30%); background-size: 6px 6px; }
+
+  /* === TOP BAR === */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px;
+    background: var(--pop-yellow);
+    border-bottom: 4px solid var(--black);
+  }
+  .topbar .logo {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 36px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--black);
+    text-shadow: 3px 3px 0 var(--pop-red);
+  }
+  .topbar .search-wrap {
+    position: relative;
+  }
+  .topbar input {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 14px;
+    padding: 10px 16px;
+    border: 3px solid var(--black);
+    background: var(--white);
+    width: 260px;
+    outline: none;
+    border-radius: 0;
+  }
+  .topbar input::placeholder {
+    color: var(--pop-blue);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  /* === NAV === */
+  .nav {
+    display: flex;
+    gap: 0;
+    border-bottom: 4px solid var(--black);
+    background: var(--white);
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    border-right: 3px solid var(--black);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .nav-item:last-child { border-right: none; }
+  .nav-item.active {
+    background: radial-gradient(circle, var(--pop-red) 30%, transparent 30%);
+    background-size: 6px 6px;
+    color: var(--white);
+    position: relative;
+  }
+  .nav-item:not(.active):hover {
+    background: var(--pop-yellow);
+  }
+
+  /* === MAIN CONTENT === */
+  .content {
+    max-width: 720px;
+    margin: 40px auto;
+    padding: 0 24px;
+  }
+
+  /* === MAIN CARD === */
+  .main-card {
+    border: 4px solid var(--black);
+    background:
+      radial-gradient(circle, var(--pop-blue) 30%, transparent 30%);
+    background-size: 6px 6px;
+    background-color: rgba(51, 102, 255, 0.12);
+    padding: 36px 32px;
+    position: relative;
+  }
+  .main-card::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 8px; right: -8px; bottom: -8px;
+    border: 4px solid var(--black);
+    background: var(--pop-yellow);
+    z-index: -1;
+  }
+  .card-title {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 48px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--pop-yellow);
+    display: inline-block;
+    padding: 4px 16px;
+    border: 3px solid var(--black);
+    margin-bottom: 12px;
+  }
+  .card-desc {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--black);
+    background: var(--white);
+    display: inline-block;
+    padding: 4px 12px;
+    border: 3px solid var(--black);
+    margin-bottom: 24px;
+  }
+
+  /* Chips */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .chip {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border: 3px solid var(--black);
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .chip:hover { transform: scale(1.08); }
+  .chip:nth-child(1) { background: var(--pop-red); color: var(--white); }
+  .chip:nth-child(2) { background: var(--pop-yellow); color: var(--black); }
+  .chip:nth-child(3) { background: var(--pop-green); color: var(--black); }
+  .chip:nth-child(4) { background: var(--pop-blue); color: var(--white); }
+  .chip:nth-child(5) {
+    background: radial-gradient(circle, var(--pop-red) 30%, transparent 30%);
+    background-size: 6px 6px;
+    background-color: var(--pop-yellow);
+    color: var(--black);
+  }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    gap: 16px;
+  }
+  .btn {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 12px 28px;
+    border: 4px solid var(--black);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    position: relative;
+  }
+  .btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--black);
+  }
+  .btn-primary {
+    background: var(--pop-red);
+    color: var(--white);
+  }
+  .btn-secondary {
+    background: var(--white);
+    color: var(--black);
+  }
+
+  /* === COLOR PALETTE === */
+  .section-title {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 32px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: 40px 0 16px;
+    border-bottom: 4px solid var(--black);
+    padding-bottom: 8px;
+    display: inline-block;
+  }
+  .palette {
+    display: flex;
+    gap: 0;
+    border: 4px solid var(--black);
+  }
+  .swatch {
+    flex: 1;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    border-right: 3px solid var(--black);
+    position: relative;
+  }
+  .swatch:last-child { border-right: none; }
+  .swatch:nth-child(1) {
+    background: radial-gradient(circle, var(--pop-red) 30%, transparent 30%);
+    background-size: 6px 6px;
+    background-color: var(--pop-red);
+  }
+  .swatch:nth-child(2) {
+    background: radial-gradient(circle, var(--pop-blue) 30%, transparent 30%);
+    background-size: 6px 6px;
+    background-color: var(--pop-blue);
+  }
+  .swatch:nth-child(3) {
+    background: radial-gradient(circle, var(--pop-yellow) 30%, transparent 30%);
+    background-size: 6px 6px;
+    background-color: var(--pop-yellow);
+  }
+  .swatch:nth-child(4) {
+    background: radial-gradient(circle, var(--pop-green) 30%, transparent 30%);
+    background-size: 6px 6px;
+    background-color: var(--pop-green);
+  }
+  .swatch-label {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    background: var(--white);
+    border: 3px solid var(--black);
+    margin-bottom: 8px;
+  }
+
+  /* === TYPOGRAPHY === */
+  .typo-section { margin-top: 40px; }
+  .typo-section .t-h1 {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 64px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 8px;
+    border: 3px solid var(--black);
+    background: var(--pop-yellow);
+    display: inline-block;
+    padding: 4px 16px;
+  }
+  .typo-section .t-h2 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 36px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    color: var(--pop-red);
+  }
+  .typo-section .t-body {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 15px;
+    line-height: 1.8;
+    letter-spacing: 1px;
+    max-width: 500px;
+    background: var(--white);
+    border: 3px solid var(--black);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .typo-section .t-caption {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 14px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--pop-blue);
+    border: 3px solid var(--pop-blue);
+    display: inline-block;
+    padding: 4px 12px;
+  }
+
+  /* Speech bubble decoration */
+  .speech-bubble {
+    position: relative;
+    background: var(--white);
+    border: 3px solid var(--black);
+    padding: 12px 20px;
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-top: 20px;
+  }
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -14px;
+    left: 24px;
+    width: 0; height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 14px solid var(--black);
+  }
+  .speech-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 26px;
+    width: 0; height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 12px solid var(--white);
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">SAMPLEAPP</div>
+  <div class="search-wrap">
+    <input type="text" placeholder="SEARCH...">
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-item active">Dashboard</div>
+  <div class="nav-item">Library</div>
+  <div class="nav-item">Settings</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+  <!-- MAIN CARD -->
+  <div class="main-card">
+    <div class="card-title">Tag Collection</div>
+    <div class="card-desc">Browse and manage your creative tags</div>
+    <div class="chips">
+      <span class="chip">landscape</span>
+      <span class="chip">portrait</span>
+      <span class="chip">anime</span>
+      <span class="chip">watercolor</span>
+      <span class="chip">detailed</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary">Add Tag</button>
+      <button class="btn btn-secondary">Filter</button>
+    </div>
+    <div class="speech-bubble">WOW! Nice tags!</div>
+  </div>
+
+  <!-- COLOR PALETTE -->
+  <div class="section-title">Color Palette</div>
+  <div class="palette">
+    <div class="swatch">
+      <span class="swatch-label">#FF3366</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#3366FF</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#FFE66D</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#33FF66</span>
+    </div>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <div class="typo-section">
+    <div class="section-title">Typography</div>
+    <div class="t-h1">BOLD HEADLINE</div>
+    <div class="t-h2">SUBHEADING STYLE</div>
+    <p class="t-body">
+      This is body text rendered in a bold, graphic style. Every word carries
+      weight and impact, just like a Roy Lichtenstein painting. Pop art demands
+      attention and refuses to be ignored.
+    </p>
+    <span class="t-caption">Caption text — small but loud</span>
+  </div>
+
+</div>
+
+</body>
+</html>

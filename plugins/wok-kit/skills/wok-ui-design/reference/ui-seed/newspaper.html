@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleApp — Newspaper</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    background-color: #F5F0E1;
+    color: #1A1A1A;
+    min-height: 100vh;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 28px,
+        rgba(0,0,0,0.015) 28px,
+        rgba(0,0,0,0.015) 29px
+      );
+  }
+
+  /* ── Masthead ── */
+  .masthead {
+    text-align: center;
+    padding: 20px 32px 0;
+    border-bottom: 4px solid #1A1A1A;
+  }
+
+  .masthead-date {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .masthead-rule-top {
+    border: none;
+    border-top: 1px solid #1A1A1A;
+    margin: 6px 0;
+  }
+
+  .masthead-title {
+    font-size: 42px;
+    font-weight: normal;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin: 4px 0;
+  }
+
+  .masthead-subtitle {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .masthead-rule-bottom {
+    border: none;
+    border-top: 3px solid #1A1A1A;
+    margin: 0;
+  }
+
+  .masthead-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 0 0;
+  }
+
+  /* ── Top Bar (Search) ── */
+  .top-bar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 32px;
+    border-bottom: 1px solid #1A1A1A;
+  }
+
+  .search-input {
+    width: 220px;
+    padding: 6px 10px;
+    font-family: Georgia, serif;
+    font-size: 13px;
+    background: transparent;
+    border: 1px solid #1A1A1A;
+    color: #1A1A1A;
+    outline: none;
+  }
+  .search-input::placeholder { color: #888; }
+
+  /* ── Nav ── */
+  .nav {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 8px 32px;
+    border-bottom: 2px solid #1A1A1A;
+  }
+
+  .nav-item {
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #1A1A1A;
+    cursor: pointer;
+    padding-bottom: 2px;
+    border-bottom: 2px solid transparent;
+    user-select: none;
+  }
+  .nav-item.active { border-bottom-color: #1A1A1A; }
+
+  /* ── Content ── */
+  .content {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ── Card ── */
+  .card {
+    border: 1px solid #1A1A1A;
+    border-radius: 0;
+    padding: 24px;
+    margin: 20px 0;
+  }
+
+  .card-title {
+    font-size: 28px;
+    font-weight: normal;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    text-align: center;
+    line-height: 1.15;
+  }
+
+  .card-rule {
+    border: none;
+    border-top: 1px solid #1A1A1A;
+    margin: 8px auto;
+    width: 40%;
+  }
+
+  .card-desc {
+    font-size: 13px;
+    text-align: center;
+    font-style: italic;
+    margin-bottom: 16px;
+    color: #444;
+  }
+
+  /* ── Chips ── */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+
+  .chip {
+    padding: 3px 12px;
+    font-size: 12px;
+    border: 1px solid #1A1A1A;
+    text-transform: lowercase;
+    font-style: italic;
+  }
+
+  /* ── Buttons ── */
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .btn {
+    padding: 8px 22px;
+    font-family: Georgia, serif;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .btn-primary {
+    background: #1A1A1A;
+    color: #F5F0E1;
+    border: 1px solid #1A1A1A;
+  }
+  .btn-primary:hover { background: #333; }
+
+  .btn-secondary {
+    background: transparent;
+    color: #1A1A1A;
+    border: 1px solid #1A1A1A;
+  }
+  .btn-secondary:hover { background: #1A1A1A; color: #F5F0E1; }
+
+  /* ── Section Divider ── */
+  .section-divider {
+    border: none;
+    border-top: 3px solid #1A1A1A;
+    margin: 24px 0 16px;
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+
+  /* ── Color Palette ── */
+  .palette {
+    display: flex;
+    gap: 0;
+    margin-bottom: 24px;
+    border: 1px solid #1A1A1A;
+  }
+
+  .swatch {
+    flex: 1;
+    text-align: center;
+    border-right: 1px solid #1A1A1A;
+  }
+  .swatch:last-child { border-right: none; }
+
+  .swatch-color { height: 50px; }
+
+  .swatch-label {
+    padding: 8px 6px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-top: 1px solid #1A1A1A;
+    line-height: 1.4;
+  }
+
+  /* ── Typography ── */
+  .typo-section h1 {
+    font-size: 32px;
+    font-weight: normal;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .typo-section h2 {
+    font-size: 20px;
+    font-weight: normal;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+  .typo-section p {
+    font-size: 14px;
+    line-height: 1.75;
+    text-align: justify;
+    column-count: 2;
+    column-gap: 24px;
+    column-rule: 1px solid #CCC;
+    hyphens: auto;
+    margin-bottom: 10px;
+  }
+  .typo-section .caption {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    color: #666;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Masthead -->
+  <div class="masthead">
+    <div class="masthead-date">Wednesday, June 7, 2026</div>
+    <hr class="masthead-rule-top">
+    <div class="masthead-title">SampleApp</div>
+    <div class="masthead-subtitle">"All the tags that's fit to print"</div>
+    <hr class="masthead-rule-bottom">
+    <div class="masthead-meta">
+      <span>Vol. 1, No. 1</span>
+      <span>Price: Free</span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="top-bar">
+    <input type="text" class="search-input" placeholder="Search the archives...">
+  </div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-item active">Dashboard</div>
+    <div class="nav-item">Library</div>
+    <div class="nav-item">Settings</div>
+  </nav>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Card -->
+    <div class="card">
+      <div class="card-title">Tag Collection</div>
+      <hr class="card-rule">
+      <div class="card-desc">Browse and manage your creative tags</div>
+      <div class="chips">
+        <span class="chip">landscape</span>
+        <span class="chip">portrait</span>
+        <span class="chip">anime</span>
+        <span class="chip">watercolor</span>
+        <span class="chip">detailed</span>
+      </div>
+      <div class="buttons">
+        <button class="btn btn-primary">Add Tag</button>
+        <button class="btn btn-secondary">Filter</button>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Color Palette -->
+    <div class="section-title">Color Palette</div>
+    <div class="palette">
+      <div class="swatch">
+        <div class="swatch-color" style="background:#1A1A1A;"></div>
+        <div class="swatch-label">Black<br>#1A1A1A</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#555;"></div>
+        <div class="swatch-label">Dark Grey<br>#555555</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#AAA;"></div>
+        <div class="swatch-label">Mid Grey<br>#AAAAAA</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#F5F0E1;"></div>
+        <div class="swatch-label">Newsprint<br>#F5F0E1</div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Typography -->
+    <div class="section-title">Typography</div>
+    <div class="card typo-section">
+      <h1>Headlines Demand Attention</h1>
+      <h2>Subheads Guide the Reader's Eye</h2>
+      <p>The art of newspaper typography lies in its restraint and authority. Black ink on off-white paper carries a weight that no amount of color can replicate. Every letter, every rule, every column break serves the singular purpose of delivering information with clarity and gravitas. The reader's eye flows naturally from headline to subhead to body, guided by hierarchy alone.</p>
+      <div class="caption">- 30 -</div>
+    </div>
+
+  </div>
+
+</body>
+</html>

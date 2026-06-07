@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neumorphism UI Seed</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    min-height:100vh;
+    background:#E0E5EC;
+    padding:24px;
+    color:#6B7B8D;
+    font-weight:500;
+  }
+
+  /* ── Top bar ── */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 28px;
+    margin-bottom:24px;
+    background:#E0E5EC;
+    border-radius:16px;
+    box-shadow:6px 6px 12px #b8bec7, -6px -6px 12px #ffffff;
+  }
+  .logo{
+    font-size:1.5rem;
+    font-weight:700;
+    color:#5A6A7A;
+    letter-spacing:-0.3px;
+  }
+  .search{
+    padding:12px 22px;
+    border-radius:14px;
+    border:none;
+    width:260px;
+    font-size:0.92rem;
+    color:#6B7B8D;
+    background:#E0E5EC;
+    box-shadow:inset 4px 4px 8px #b8bec7, inset -4px -4px 8px #ffffff;
+    outline:none;
+  }
+  .search::placeholder{color:#A0A8B4}
+
+  /* ── Nav ── */
+  .nav{
+    display:flex;
+    gap:14px;
+    margin-bottom:28px;
+  }
+  .nav-item{
+    padding:12px 30px;
+    border-radius:14px;
+    font-size:0.92rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .2s ease;
+    background:#E0E5EC;
+    box-shadow:5px 5px 10px #b8bec7, -5px -5px 10px #ffffff;
+    color:#8A96A4;
+    border:none;
+  }
+  .nav-item:hover{box-shadow:4px 4px 8px #b8bec7, -4px -4px 8px #ffffff}
+  .nav-item.active{
+    color:#6B9B9B;
+    box-shadow:inset 4px 4px 8px #b8bec7, inset -4px -4px 8px #ffffff;
+  }
+
+  /* ── Main card ── */
+  .main-card{
+    padding:36px 32px;
+    margin-bottom:28px;
+    background:#E0E5EC;
+    border-radius:16px;
+    box-shadow:8px 8px 16px #b8bec7, -8px -8px 16px #ffffff;
+  }
+  .main-card h1{
+    font-size:1.7rem;
+    font-weight:700;
+    margin-bottom:8px;
+    color:#4A5A6A;
+  }
+  .main-card .desc{
+    font-size:1rem;
+    color:#7A8A9A;
+    margin-bottom:24px;
+    line-height:1.5;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:28px}
+  .chip{
+    padding:10px 22px;
+    border-radius:12px;
+    font-size:0.86rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .2s ease;
+    border:none;
+    color:#7A8A9A;
+    background:#E0E5EC;
+    box-shadow:4px 4px 8px #b8bec7, -4px -4px 8px #ffffff;
+  }
+  .chip:hover{
+    box-shadow:inset 3px 3px 6px #b8bec7, inset -3px -3px 6px #ffffff;
+    color:#6B9B9B;
+  }
+  .btn-group{display:flex;gap:14px;flex-wrap:wrap}
+  .btn{
+    padding:14px 32px;
+    border-radius:14px;
+    font-size:0.92rem;
+    font-weight:700;
+    cursor:pointer;
+    border:none;
+    transition:all .15s ease;
+  }
+  .btn-primary{
+    background:#E0E5EC;
+    color:#6B9B9B;
+    box-shadow:6px 6px 12px #b8bec7, -6px -6px 12px #ffffff;
+  }
+  .btn-primary:hover{color:#5A8A8A}
+  .btn-primary:active{
+    box-shadow:inset 4px 4px 8px #b8bec7, inset -4px -4px 8px #ffffff;
+  }
+  .btn-secondary{
+    background:#E0E5EC;
+    color:#8A96A4;
+    box-shadow:5px 5px 10px #b8bec7, -5px -5px 10px #ffffff;
+  }
+  .btn-secondary:active{
+    box-shadow:inset 4px 4px 8px #b8bec7, inset -4px -4px 8px #ffffff;
+  }
+
+  /* ── Color palette ── */
+  .palette{
+    padding:32px;
+    margin-bottom:28px;
+    background:#E0E5EC;
+    border-radius:16px;
+    box-shadow:8px 8px 16px #b8bec7, -8px -8px 16px #ffffff;
+  }
+  .palette h2{font-size:1.3rem;font-weight:700;margin-bottom:18px;color:#4A5A6A}
+  .swatches{display:flex;gap:16px;flex-wrap:wrap}
+  .swatch{
+    flex:1;min-width:120px;
+    padding:22px 16px;
+    border-radius:14px;
+    text-align:center;
+    font-weight:700;
+    font-size:0.82rem;
+    color:#6B7B8D;
+    background:#E0E5EC;
+    box-shadow:4px 4px 8px #b8bec7, -4px -4px 8px #ffffff;
+    transition:all .2s ease;
+  }
+  .swatch:hover{
+    box-shadow:inset 3px 3px 6px #b8bec7, inset -3px -3px 6px #ffffff;
+  }
+  .swatch-1{color:#6B9B9B}
+  .swatch-2{color:#9B7B6B}
+  .swatch-3{color:#7B6B9B}
+  .swatch-4{color:#6B9B7B}
+
+  /* ── Typography ── */
+  .typo{
+    padding:32px;
+    background:#E0E5EC;
+    border-radius:16px;
+    box-shadow:8px 8px 16px #b8bec7, -8px -8px 16px #ffffff;
+  }
+  .typo h2{font-size:1.3rem;font-weight:700;margin-bottom:18px;color:#4A5A6A}
+  .typo h1{font-size:2.1rem;font-weight:800;margin-bottom:10px;color:#3A4A5A}
+  .typo h2.sample{font-size:1.5rem;font-weight:700;margin-bottom:10px;color:#4A5A6A}
+  .typo p.body{font-size:1rem;line-height:1.7;margin-bottom:12px;color:#6B7B8D}
+  .typo .caption{font-size:0.8rem;color:#9AA4B0;margin-top:6px}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="logo">SampleApp</div>
+  <input class="search" type="text" placeholder="Search...">
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <button class="nav-item active">Dashboard</button>
+  <button class="nav-item">Library</button>
+  <button class="nav-item">Settings</button>
+</nav>
+
+<!-- Main card -->
+<div class="main-card">
+  <h1>Tag Collection</h1>
+  <p class="desc">Browse and manage your creative tags</p>
+  <div class="chips">
+    <button class="chip">landscape</button>
+    <button class="chip">portrait</button>
+    <button class="chip">anime</button>
+    <button class="chip">watercolor</button>
+    <button class="chip">detailed</button>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary">Add Tag</button>
+    <button class="btn btn-secondary">Filter</button>
+  </div>
+</div>
+
+<!-- Color palette -->
+<div class="palette">
+  <h2>Color Palette</h2>
+  <div class="swatches">
+    <div class="swatch swatch-1">Teal Accent<br>#6B9B9B</div>
+    <div class="swatch swatch-2">Warm Grey<br>#9B8B7B</div>
+    <div class="swatch swatch-3">Muted Violet<br>#7B6B9B</div>
+    <div class="swatch swatch-4">Sage Green<br>#6B9B7B</div>
+  </div>
+</div>
+
+<!-- Typography -->
+<div class="typo">
+  <h2>Typography</h2>
+  <h1>Heading One</h1>
+  <h2 class="sample">Heading Two</h2>
+  <p class="body">This is body text that emerges subtly from the surface. The neumorphic style makes everything feel tactile, like pressing soft clay. Elements are distinguished only by light and shadow.</p>
+  <span class="caption">Caption text — secondary information rendered in lighter tone</span>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocean Style</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --deep-blue: #1E3A5F;
+    --seafoam: #48D1CC;
+    --coral: #FF7F50;
+    --sand: #F4D35E;
+    --bg: #0A1628;
+    --surface: rgba(30, 58, 95, 0.55);
+    --text: #C8DCE8;
+    --text-muted: #7A9BB5;
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 80%, rgba(72, 209, 204, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 75% 30%, rgba(30, 58, 95, 0.3) 0%, transparent 60%);
+    font-family: 'Source Sans Pro', 'Segoe UI', 'Helvetica Neue', sans-serif;
+    color: var(--text);
+    padding: 24px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Wave at bottom */
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background:
+      radial-gradient(ellipse 600px 80px at 25% 100%, rgba(72, 209, 204, 0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 60px at 70% 100%, rgba(30, 58, 95, 0.15) 0%, transparent 70%);
+    clip-path: polygon(0 60%, 8% 45%, 16% 55%, 24% 35%, 32% 50%, 40% 30%, 48% 48%, 56% 28%, 64% 45%, 72% 32%, 80% 50%, 88% 38%, 96% 52%, 100% 40%, 100% 100%, 0 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Subtle floating animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+  }
+
+  .container { max-width: 720px; margin: 0 auto; position: relative; z-index: 1; }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 22px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 30px rgba(72, 209, 204, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(72, 209, 204, 0.1);
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--seafoam);
+    letter-spacing: 1px;
+  }
+
+  .search-input {
+    background: rgba(10, 22, 40, 0.6);
+    border: 1px solid rgba(72, 209, 204, 0.15);
+    padding: 8px 16px;
+    color: var(--seafoam);
+    font-family: inherit;
+    font-size: 13px;
+    border-radius: 16px;
+    outline: none;
+    width: 200px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .search-input::placeholder { color: rgba(72, 209, 204, 0.3); }
+  .search-input:focus {
+    border-color: var(--seafoam);
+    box-shadow: 0 0 16px rgba(72, 209, 204, 0.2);
+  }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 5px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(72, 209, 204, 0.08);
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+  }
+  .nav-item:hover { background: rgba(72, 209, 204, 0.1); color: var(--seafoam); }
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(30, 58, 95, 0.8), rgba(72, 209, 204, 0.2));
+    color: var(--seafoam);
+    box-shadow: 0 2px 10px rgba(72, 209, 204, 0.15);
+  }
+
+  /* Main Card */
+  .card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 40px rgba(72, 209, 204, 0.04);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(72, 209, 204, 0.1);
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.3px;
+    margin-bottom: 6px;
+  }
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.2px;
+    margin-bottom: 18px;
+  }
+
+  /* Tag Chips */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .tag-chip {
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--seafoam);
+    background: rgba(72, 209, 204, 0.08);
+    border: 1px solid rgba(72, 209, 204, 0.2);
+    border-radius: 20px;
+    cursor: default;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .tag-chip:hover {
+    background: rgba(72, 209, 204, 0.15);
+    border-color: var(--seafoam);
+    transform: translateY(-2px);
+  }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 10px; }
+  .btn {
+    padding: 10px 24px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 14px;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: translateY(0) scale(0.98); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #1E3A5F, #48D1CC);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(72, 209, 204, 0.3);
+  }
+  .btn-primary:hover { box-shadow: 0 6px 24px rgba(72, 209, 204, 0.4); }
+  .btn-secondary {
+    background: linear-gradient(135deg, #0A1628, #1E3A5F);
+    color: var(--seafoam);
+    border: 1px solid rgba(72, 209, 204, 0.2);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+  }
+  .btn-secondary:hover { box-shadow: 0 4px 16px rgba(72, 209, 204, 0.2); }
+
+  /* Color Palette */
+  .palette { display: flex; gap: 12px; margin-top: 14px; }
+  .swatch-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .swatch {
+    width: 100%;
+    height: 50px;
+    border-radius: 14px;
+    border: 1px solid rgba(72, 209, 204, 0.1);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  }
+  .swatch-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+
+  /* Typography */
+  .typo-section {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(72, 209, 204, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: float 7s ease-in-out infinite 1s;
+  }
+  .typo-section h1 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+  }
+  .typo-section h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--seafoam);
+    letter-spacing: 0.3px;
+    margin-bottom: 14px;
+  }
+  .typo-section p {
+    font-size: 13px;
+    line-height: 1.9;
+    letter-spacing: 0.2px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+  .typo-section .caption {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--coral);
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div class="logo">SampleApp</div>
+      <input class="search-input" type="text" placeholder="Dive deeper...">
+    </div>
+
+    <div class="nav">
+      <div class="nav-item active">Dashboard</div>
+      <div class="nav-item">Library</div>
+      <div class="nav-item">Settings</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tag Collection</div>
+      <div class="card-desc">Browse and manage your creative tags</div>
+      <div class="tag-row">
+        <span class="tag-chip">landscape</span>
+        <span class="tag-chip">portrait</span>
+        <span class="tag-chip">anime</span>
+        <span class="tag-chip">watercolor</span>
+        <span class="tag-chip">detailed</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Add Tag</button>
+        <button class="btn btn-secondary">Filter</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Color Palette</div>
+      <div class="palette">
+        <div class="swatch-group">
+          <div class="swatch" style="background: #1E3A5F;"></div>
+          <span class="swatch-label">#1E3A5F</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #48D1CC;"></div>
+          <span class="swatch-label">#48D1CC</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #FF7F50;"></div>
+          <span class="swatch-label">#FF7F50</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #F4D35E;"></div>
+          <span class="swatch-label">#F4D35E</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="typo-section">
+      <h1>Deep Current Heading</h1>
+      <h2>Tidal Section Title</h2>
+      <p>Beneath the shimmering surface, ocean currents weave through coral cathedrals and kelp forests, carrying whispers from distant shores. Light bends and fractures into spectral ribbons that dance across the sandy floor, illuminating a world both alien and achingly familiar.</p>
+      <span class="caption">tidal notes — depth observation</span>
+    </div>
+  </div>
+</body>
+</html>

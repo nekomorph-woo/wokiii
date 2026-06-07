@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neo-Futurism — SampleApp</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #000000;
+    --red: #FF0044;
+    --white: #FFFFFF;
+    --grey: #F2F2F2;
+  }
+
+  body {
+    font-family: 'Inter', Helvetica, Arial, sans-serif;
+    background: var(--white);
+    min-height: 100vh;
+    color: var(--black);
+    overflow-x: hidden;
+  }
+
+  /* === TOP BAR === */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 40px;
+    background: var(--black);
+    position: relative;
+  }
+  .topbar::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 40px;
+    width: 60px;
+    height: 8px;
+    background: var(--red);
+  }
+  .topbar .logo {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+  .topbar .logo span {
+    color: var(--red);
+  }
+  .topbar input {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 10px 16px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--white);
+    width: 240px;
+    outline: none;
+    clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%);
+  }
+  .topbar input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+  }
+
+  /* === NAV === */
+  .nav {
+    display: flex;
+    gap: 0;
+    background: var(--white);
+    border-bottom: 4px solid var(--black);
+    padding-left: 40px;
+  }
+  .nav-item {
+    padding: 16px 32px;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.1s;
+    color: var(--black);
+    position: relative;
+  }
+  .nav-item.active {
+    background: var(--red);
+    color: var(--white);
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .nav-item:not(.active):hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  /* === MAIN CONTENT === */
+  .content {
+    max-width: 740px;
+    margin: 48px auto;
+    padding: 0 40px;
+    position: relative;
+  }
+
+  /* === MAIN CARD === */
+  .main-card {
+    background: var(--grey);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%);
+    padding: 44px 40px;
+    position: relative;
+  }
+  /* Angular accent stripe */
+  .main-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 100%;
+    background: var(--red);
+  }
+  .card-title {
+    font-size: 48px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    text-transform: uppercase;
+    line-height: 0.9;
+    margin-bottom: 10px;
+    color: var(--black);
+  }
+  .card-desc {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--red);
+    display: block;
+    margin-bottom: 32px;
+  }
+
+  /* Chips */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+  .chip {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border: 2px solid var(--black);
+    background: var(--white);
+    color: var(--black);
+    cursor: pointer;
+    transition: all 0.1s;
+    clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .chip:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+  .chip:nth-child(odd) {
+    background: var(--black);
+    color: var(--white);
+    border-color: var(--black);
+  }
+  .chip:nth-child(odd):hover {
+    background: var(--red);
+    border-color: var(--red);
+  }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+  .btn-primary {
+    background: var(--red);
+    color: var(--white);
+    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
+  }
+  .btn-primary:hover {
+    background: var(--black);
+  }
+  .btn-secondary {
+    background: var(--black);
+    color: var(--white);
+    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
+  }
+  .btn-secondary:hover {
+    background: var(--red);
+  }
+
+  /* Decorative angular element */
+  .angular-deco {
+    width: 60px;
+    height: 60px;
+    background: var(--red);
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+    position: absolute;
+    top: -20px;
+    right: -10px;
+    opacity: 0.15;
+    transform: rotate(15deg);
+  }
+
+  /* === COLOR PALETTE === */
+  .section-title {
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    margin: 56px 0 20px;
+    color: var(--black);
+    position: relative;
+    padding-left: 20px;
+  }
+  .section-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 8px;
+    height: 100%;
+    background: var(--red);
+  }
+  .palette {
+    display: flex;
+    gap: 2px;
+  }
+  .swatch {
+    flex: 1;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    position: relative;
+  }
+  .swatch:nth-child(1) { background: var(--black); }
+  .swatch:nth-child(2) { background: var(--red); }
+  .swatch:nth-child(3) { background: var(--white); border: 1px solid var(--black); }
+  .swatch:nth-child(4) { background: var(--grey); border: 1px solid rgba(0,0,0,0.15); }
+  .swatch-label {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    background: var(--black);
+    color: var(--white);
+    margin-bottom: 6px;
+    clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0% 100%);
+  }
+
+  /* === TYPOGRAPHY === */
+  .typo-section { margin-top: 56px; }
+  .typo-section .t-h1 {
+    font-size: 80px;
+    font-weight: 900;
+    letter-spacing: -4px;
+    text-transform: uppercase;
+    line-height: 0.85;
+    margin-bottom: 12px;
+    color: var(--black);
+  }
+  .typo-section .t-h2 {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    color: var(--red);
+    transform: skewX(-6deg);
+    display: inline-block;
+  }
+  .typo-section .t-body {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.9;
+    letter-spacing: 0;
+    max-width: 440px;
+    color: rgba(0, 0, 0, 0.55);
+    margin-bottom: 20px;
+    border-left: 4px solid var(--black);
+    padding-left: 20px;
+  }
+  .typo-section .t-caption {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--black);
+    opacity: 0.3;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">Sample<span>App</span></div>
+  <input type="text" placeholder="Search...">
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-item active">Dashboard</div>
+  <div class="nav-item">Library</div>
+  <div class="nav-item">Settings</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+  <!-- MAIN CARD -->
+  <div class="main-card">
+    <div class="angular-deco"></div>
+    <div class="card-title">Tag Collection</div>
+    <span class="card-desc">Browse and manage your creative tags</span>
+    <div class="chips">
+      <span class="chip">landscape</span>
+      <span class="chip">portrait</span>
+      <span class="chip">anime</span>
+      <span class="chip">watercolor</span>
+      <span class="chip">detailed</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary">Add Tag</button>
+      <button class="btn btn-secondary">Filter</button>
+    </div>
+  </div>
+
+  <!-- COLOR PALETTE -->
+  <div class="section-title">Color Palette</div>
+  <div class="palette">
+    <div class="swatch">
+      <span class="swatch-label">#000000</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#FF0044</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#FFFFFF</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#F2F2F2</span>
+    </div>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <div class="typo-section">
+    <div class="section-title">Typography</div>
+    <div class="t-h1">BOLD<br>HEADLINE</div>
+    <div class="t-h2">Subheading Style</div>
+    <p class="t-body">
+      This is body text in a neo-futurist constructivist style.
+      Angular shapes, massive size contrast, and confrontational
+      geometry. Where constructivism meets the digital future.
+    </p>
+    <span class="t-caption">Caption text</span>
+  </div>
+
+</div>
+
+</body>
+</html>

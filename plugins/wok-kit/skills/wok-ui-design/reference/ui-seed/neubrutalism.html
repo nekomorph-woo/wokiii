@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neubrutalism — SampleApp</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #FFFFFF;
+    --border: #000000;
+    --pink: #FF6B9D;
+    --yellow: #FFE156;
+    --green: #7ED957;
+    --blue: #4CC9F0;
+    --text: #000000;
+    --text-muted: #555555;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Arial Black", "Segoe UI", sans-serif;
+    line-height: 1.5;
+    padding: 32px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+  .logo {
+    font-size: 28px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    border: 4px solid var(--border);
+    padding: 6px 14px;
+    background: var(--yellow);
+  }
+  .search-input {
+    border: 4px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    background: var(--bg);
+    box-shadow: 6px 6px 0 var(--pink);
+    outline: none;
+    width: 260px;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  .search-input:focus {
+    box-shadow: 8px 8px 0 var(--blue);
+    transform: translate(-2px, -2px);
+  }
+  .search-input::placeholder { color: var(--text-muted); font-weight: 400; }
+
+  /* ── Navigation ── */
+  .nav {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+  .nav-item {
+    padding: 10px 22px;
+    border: 4px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: var(--bg);
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    box-shadow: 5px 5px 0 var(--border);
+  }
+  .nav-item:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 var(--border);
+  }
+  .nav-item.active {
+    background: var(--pink);
+    box-shadow: 5px 5px 0 var(--border);
+  }
+  .nav-item.active:hover {
+    box-shadow: 7px 7px 0 var(--border);
+  }
+
+  /* ── Card ── */
+  .card {
+    border: 4px solid var(--border);
+    border-radius: 8px;
+    padding: 28px;
+    background: var(--bg);
+    box-shadow: 8px 8px 0 var(--green);
+    margin-bottom: 36px;
+    transition: transform 0.2s ease;
+  }
+  .card:hover {
+    transform: rotate(-1deg);
+  }
+  .card-title {
+    font-size: 32px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+  .card-desc {
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 400;
+    margin-bottom: 22px;
+  }
+
+  /* ── Tags ── */
+  .tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+  .tag {
+    padding: 8px 18px;
+    border: 3px solid var(--border);
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .tag:nth-child(1) { background: var(--yellow); }
+  .tag:nth-child(2) { background: var(--blue); color: #000; }
+  .tag:nth-child(3) { background: var(--pink); }
+  .tag:nth-child(4) { background: var(--green); }
+  .tag:nth-child(5) { background: var(--yellow); }
+
+  /* ── Buttons ── */
+  .actions { display: flex; gap: 14px; }
+  .btn {
+    padding: 14px 28px;
+    border: 4px solid var(--border);
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .btn-primary {
+    background: var(--green);
+    box-shadow: 6px 6px 0 var(--border);
+  }
+  .btn-primary:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0 var(--border);
+  }
+  .btn-primary:active {
+    transform: translate(3px, 3px);
+    box-shadow: 2px 2px 0 var(--border);
+  }
+  .btn-secondary {
+    background: var(--bg);
+    box-shadow: 6px 6px 0 var(--pink);
+  }
+  .btn-secondary:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0 var(--pink);
+  }
+  .btn-secondary:active {
+    transform: translate(3px, 3px);
+    box-shadow: 2px 2px 0 var(--pink);
+  }
+
+  /* ── Color Palette ── */
+  .section-title {
+    font-size: 20px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+  .palette {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+  .swatch {
+    width: 110px;
+    height: 90px;
+    border: 4px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 10px;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Typography ── */
+  .typography-section { margin-bottom: 32px; }
+  .typo-h1 {
+    font-size: 40px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .typo-h2 {
+    font-size: 26px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1.25;
+    margin-bottom: 12px;
+    color: var(--pink);
+  }
+  .typo-body {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 12px;
+    max-width: 520px;
+  }
+  .typo-caption {
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">SampleApp</div>
+    <input class="search-input" type="text" placeholder="SEARCH...">
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-item active">Dashboard</div>
+    <div class="nav-item">Library</div>
+    <div class="nav-item">Settings</div>
+  </nav>
+
+  <!-- Main Card -->
+  <div class="card">
+    <div class="card-title">Tag Collection</div>
+    <div class="card-desc">Browse and manage your creative tags</div>
+    <div class="tags">
+      <span class="tag">landscape</span>
+      <span class="tag">portrait</span>
+      <span class="tag">anime</span>
+      <span class="tag">watercolor</span>
+      <span class="tag">detailed</span>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary">Add Tag</button>
+      <button class="btn btn-secondary">Filter</button>
+    </div>
+  </div>
+
+  <!-- Color Palette -->
+  <div class="section-title">Color Palette</div>
+  <div class="palette">
+    <div class="swatch" style="background:var(--pink)">#FF6B9D</div>
+    <div class="swatch" style="background:var(--yellow)">#FFE156</div>
+    <div class="swatch" style="background:var(--green)">#7ED957</div>
+    <div class="swatch" style="background:var(--blue)">#4CC9F0</div>
+  </div>
+
+  <!-- Typography -->
+  <div class="typography-section">
+    <div class="section-title">Typography</div>
+    <h1 class="typo-h1">Raw Bold Statement</h1>
+    <h2 class="typo-h2">Section Subtitle Pops</h2>
+    <p class="typo-body">
+      Neubrutalism is loud and unapologetic. Thick borders, vivid offset shadows,
+      and heavy uppercase type create a visual language that demands attention.
+      Nothing is subtle — and that is exactly the point.
+    </p>
+    <p class="typo-caption">Caption text — 12px uppercase tracked</p>
+  </div>
+
+</body>
+</html>

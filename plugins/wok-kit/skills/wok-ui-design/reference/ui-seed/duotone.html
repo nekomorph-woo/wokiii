@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Duotone — SampleApp</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --dark: #1A1A3E;
+    --accent: #FF6B35;
+    --white: #FFFFFF;
+  }
+
+  body {
+    font-family: 'Space Grotesk', Helvetica, Arial, sans-serif;
+    background: var(--dark);
+    min-height: 100vh;
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* === TOP BAR === */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 40px;
+    background: var(--dark);
+    border-bottom: 2px solid var(--accent);
+  }
+  .topbar .logo {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .topbar input {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    padding: 10px 16px;
+    border: 2px solid var(--accent);
+    background: var(--dark);
+    color: var(--white);
+    width: 260px;
+    outline: none;
+    border-radius: 0;
+  }
+  .topbar input::placeholder {
+    color: var(--accent);
+    opacity: 0.5;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .topbar input:focus {
+    outline: none;
+  }
+
+  /* === NAV === */
+  .nav {
+    display: flex;
+    gap: 0;
+    background: var(--dark);
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    border-right: 1px solid rgba(255, 107, 53, 0.2);
+    cursor: pointer;
+    transition: color 0.15s;
+    color: rgba(255, 255, 255, 0.35);
+  }
+  .nav-item:last-child { border-right: none; }
+  .nav-item.active {
+    color: var(--accent);
+    border-bottom: 3px solid var(--accent);
+  }
+  .nav-item:not(.active):hover {
+    color: var(--accent);
+    opacity: 0.7;
+  }
+
+  /* === MAIN CONTENT === */
+  .content {
+    max-width: 700px;
+    margin: 48px auto;
+    padding: 0 40px;
+  }
+
+  /* === MAIN CARD === */
+  .main-card {
+    background: var(--dark);
+    border: 2px solid var(--accent);
+    border-radius: 0;
+    padding: 40px 36px;
+    position: relative;
+  }
+  .card-title {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .card-desc {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    display: block;
+    margin-bottom: 32px;
+  }
+
+  /* Chips */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .chip {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    border: 2px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.15s;
+    border-radius: 0;
+  }
+  .chip:hover {
+    background: var(--accent);
+    color: var(--dark);
+  }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    gap: 16px;
+  }
+  .btn {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    border: 2px solid var(--accent);
+    cursor: pointer;
+    transition: all 0.15s;
+    border-radius: 0;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--dark);
+  }
+  .btn-primary:hover {
+    background: transparent;
+    color: var(--accent);
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--accent);
+  }
+  .btn-secondary:hover {
+    background: var(--accent);
+    color: var(--dark);
+  }
+
+  /* === COLOR PALETTE === */
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    margin: 48px 0 20px;
+    color: var(--accent);
+  }
+  .palette {
+    display: flex;
+    gap: 0;
+    border: 2px solid var(--accent);
+  }
+  .swatch {
+    flex: 1;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    border-right: 1px solid rgba(255, 107, 53, 0.3);
+  }
+  .swatch:last-child { border-right: none; }
+  .swatch:nth-child(1) { background: var(--dark); }
+  .swatch:nth-child(2) { background: var(--accent); }
+  .swatch:nth-child(3) { background: #2A2A5E; }
+  .swatch:nth-child(4) { background: #FF8B5E; }
+  .swatch-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    background: var(--dark);
+    color: var(--accent);
+    margin-bottom: 6px;
+    border: 1px solid var(--accent);
+  }
+
+  /* === TYPOGRAPHY === */
+  .typo-section { margin-top: 48px; }
+  .typo-section .t-h1 {
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 12px;
+    color: var(--accent);
+  }
+  .typo-section .t-h2 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    color: var(--white);
+  }
+  .typo-section .t-body {
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.8;
+    letter-spacing: 0.5px;
+    max-width: 460px;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 20px;
+  }
+  .typo-section .t-caption {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">SampleApp</div>
+  <input type="text" placeholder="Search...">
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-item active">Dashboard</div>
+  <div class="nav-item">Library</div>
+  <div class="nav-item">Settings</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+  <!-- MAIN CARD -->
+  <div class="main-card">
+    <div class="card-title">Tag Collection</div>
+    <span class="card-desc">Browse and manage your creative tags</span>
+    <div class="chips">
+      <span class="chip">landscape</span>
+      <span class="chip">portrait</span>
+      <span class="chip">anime</span>
+      <span class="chip">watercolor</span>
+      <span class="chip">detailed</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary">Add Tag</button>
+      <button class="btn btn-secondary">Filter</button>
+    </div>
+  </div>
+
+  <!-- COLOR PALETTE -->
+  <div class="section-title">Color Palette</div>
+  <div class="palette">
+    <div class="swatch">
+      <span class="swatch-label">#1A1A3E</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#FF6B35</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#2A2A5E</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#FF8B5E</span>
+    </div>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <div class="typo-section">
+    <div class="section-title">Typography</div>
+    <div class="t-h1">Bold Headline</div>
+    <div class="t-h2">Subheading Style</div>
+    <p class="t-body">
+      This is body text in a strict two-tone palette. Deep navy
+      meets bright orange in a high-contrast duotone system.
+      No gradients, no shadows, no rounded corners. Pure color
+      blocking — stark, minimal, confrontational.
+    </p>
+    <span class="t-caption">Caption text — understated</span>
+  </div>
+
+</div>
+
+</body>
+</html>

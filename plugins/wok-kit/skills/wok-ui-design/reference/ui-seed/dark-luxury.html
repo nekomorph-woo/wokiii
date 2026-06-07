@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark Luxury Style</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #C9A96E;
+    --champagne: #D4B896;
+    --cream: #F5E6CC;
+    --navy: #1B2838;
+    --bg-dark: #111111;
+    --bg-card: #1a1a1a;
+    --bg-elevated: #222222;
+  }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(180deg, var(--bg-dark) 0%, #0d0d0d 100%);
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: var(--cream);
+    padding: 32px 24px;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+    border: 1px solid rgba(201, 169, 110, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .logo {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .search-input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(201, 169, 110, 0.2);
+    border-radius: 6px;
+    padding: 9px 16px;
+    color: var(--cream);
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    outline: none;
+    width: 210px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .search-input::placeholder { color: rgba(212, 184, 150, 0.4); }
+  .search-input:focus {
+    border-color: rgba(201, 169, 110, 0.5);
+    box-shadow: 0 0 16px rgba(201, 169, 110, 0.1);
+  }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    gap: 2px;
+    padding: 4px;
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+    border: 1px solid rgba(201, 169, 110, 0.15);
+    border-radius: 8px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 11px 0;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(245, 230, 204, 0.45);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.35s ease, color 0.35s ease, box-shadow 0.35s ease;
+  }
+  .nav-item:hover {
+    background: rgba(201, 169, 110, 0.08);
+    color: rgba(245, 230, 204, 0.7);
+  }
+  .nav-item.active {
+    background: rgba(201, 169, 110, 0.12);
+    color: var(--gold);
+    box-shadow: 0 2px 12px rgba(201, 169, 110, 0.1);
+  }
+
+  /* Cards */
+  .card {
+    background: linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
+    border: 1px solid rgba(201, 169, 110, 0.18);
+    border-radius: 10px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .card-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+  .card-desc {
+    font-size: 13px;
+    color: rgba(212, 184, 150, 0.55);
+    letter-spacing: 0.3px;
+    margin-bottom: 24px;
+  }
+
+  /* Tag Chips */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+  .tag-chip {
+    padding: 6px 18px;
+    font-size: 12px;
+    letter-spacing: 0.8px;
+    color: var(--champagne);
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(201, 169, 110, 0.2);
+    border-radius: 4px;
+    cursor: default;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+  .tag-chip:hover {
+    border-color: rgba(201, 169, 110, 0.45);
+    background: rgba(201, 169, 110, 0.08);
+  }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 12px; }
+  .btn {
+    padding: 10px 26px;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.35s ease;
+  }
+  .btn-primary {
+    background: rgba(201, 169, 110, 0.15);
+    color: var(--gold);
+    border: 1px solid rgba(201, 169, 110, 0.4);
+  }
+  .btn-primary:hover {
+    background: rgba(201, 169, 110, 0.25);
+    box-shadow: 0 0 20px rgba(201, 169, 110, 0.2);
+    border-color: rgba(201, 169, 110, 0.6);
+  }
+  .btn-secondary {
+    background: transparent;
+    color: rgba(212, 184, 150, 0.6);
+    border: 1px solid rgba(201, 169, 110, 0.2);
+  }
+  .btn-secondary:hover {
+    background: rgba(201, 169, 110, 0.08);
+    color: var(--champagne);
+    border-color: rgba(201, 169, 110, 0.35);
+  }
+
+  /* Color Palette */
+  .palette { display: flex; gap: 16px; margin-top: 20px; }
+  .swatch-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .swatch {
+    width: 100%;
+    height: 54px;
+    border-radius: 6px;
+    border: 1px solid rgba(201, 169, 110, 0.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  .swatch-label {
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(212, 184, 150, 0.45);
+  }
+
+  /* Typography */
+  .typo-section h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: 3px;
+    color: var(--cream);
+    margin-bottom: 16px;
+  }
+  .typo-section h2 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 19px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: var(--champagne);
+    margin-bottom: 16px;
+  }
+  .typo-section p {
+    font-size: 14px;
+    line-height: 1.8;
+    letter-spacing: 0.2px;
+    color: rgba(245, 230, 204, 0.65);
+    margin-bottom: 16px;
+  }
+  .typo-section .caption {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(201, 169, 110, 0.5);
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div class="logo">SampleApp</div>
+      <input class="search-input" type="text" placeholder="Search...">
+    </div>
+
+    <div class="nav">
+      <div class="nav-item active">Dashboard</div>
+      <div class="nav-item">Library</div>
+      <div class="nav-item">Settings</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tag Collection</div>
+      <div class="card-desc">Browse and manage your creative tags</div>
+      <div class="tag-row">
+        <span class="tag-chip">landscape</span>
+        <span class="tag-chip">portrait</span>
+        <span class="tag-chip">anime</span>
+        <span class="tag-chip">watercolor</span>
+        <span class="tag-chip">detailed</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Add Tag</button>
+        <button class="btn btn-secondary">Filter</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Color Palette</div>
+      <div class="palette">
+        <div class="swatch-group">
+          <div class="swatch" style="background: #C9A96E;"></div>
+          <span class="swatch-label">#C9A96E</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #D4B896;"></div>
+          <span class="swatch-label">#D4B896</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #F5E6CC;"></div>
+          <span class="swatch-label">#F5E6CC</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #1B2838;"></div>
+          <span class="swatch-label">#1B2838</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card typo-section">
+      <h1>Refined Display Heading</h1>
+      <h2>Section Subtitle</h2>
+      <p>In the quiet elegance of a candlelit room, every detail speaks to an appreciation for the finer things — where restraint is the ultimate expression of confidence and taste.</p>
+      <span class="caption">Caption — understated and timeless</span>
+    </div>
+  </div>
+</body>
+</html>

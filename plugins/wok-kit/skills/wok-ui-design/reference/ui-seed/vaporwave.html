@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vaporwave — SampleApp</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Monoton&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --vapor-pink: #FF71CE;
+    --vapor-cyan: #01CDFE;
+    --vapor-purple: #7B68EE;
+    --vapor-grid: #B967FF;
+    --dark: #1A0A2E;
+  }
+
+  body {
+    font-family: 'Orbitron', 'Courier New', monospace;
+    background: linear-gradient(180deg, #FF71CE 0%, #B967FF 50%, #7B68EE 100%);
+    min-height: 100vh;
+    color: #FFFFFF;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Retro grid at bottom */
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40vh;
+    background:
+      linear-gradient(transparent 0%, rgba(185, 103, 255, 0.3) 100%),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 49px,
+        rgba(1, 205, 254, 0.3) 49px,
+        rgba(1, 205, 254, 0.3) 50px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 49px,
+        rgba(1, 205, 254, 0.2) 49px,
+        rgba(1, 205, 254, 0.2) 50px
+      );
+    transform: perspective(500px) rotateX(60deg);
+    transform-origin: bottom;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Sun motif */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 60px;
+    right: 80px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        #FF71CE 0px,
+        #FF71CE 10px,
+        #7B68EE 10px,
+        #7B68EE 20px
+      );
+    z-index: 0;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  /* Checkerboard helper */
+  .checkerboard {
+    background:
+      repeating-conic-gradient(
+        rgba(185, 103, 255, 0.15) 0% 25%,
+        transparent 0% 50%
+      ) 0 0 / 20px 20px;
+  }
+
+  /* === TOP BAR === */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 36px;
+    background: rgba(26, 10, 46, 0.6);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(1, 205, 254, 0.3);
+    position: relative;
+    z-index: 2;
+  }
+  .topbar .logo {
+    font-family: 'Monoton', cursive;
+    font-size: 28px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--vapor-cyan);
+    text-shadow: 0 0 10px var(--vapor-cyan), 0 0 30px var(--vapor-pink);
+  }
+  .topbar input {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    padding: 10px 18px;
+    border: 1px solid var(--vapor-cyan);
+    background: rgba(26, 10, 46, 0.7);
+    color: var(--vapor-cyan);
+    width: 260px;
+    outline: none;
+    border-radius: 20px;
+  }
+  .topbar input::placeholder {
+    color: rgba(1, 205, 254, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+  }
+
+  /* === NAV === */
+  .nav {
+    display: flex;
+    gap: 0;
+    background: rgba(26, 10, 46, 0.4);
+    border-bottom: 1px solid rgba(185, 103, 255, 0.3);
+    position: relative;
+    z-index: 2;
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    font-size: 14px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    border-right: 1px solid rgba(185, 103, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.2s;
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .nav-item:last-child { border-right: none; }
+  .nav-item.active {
+    background: linear-gradient(90deg, var(--vapor-pink), var(--vapor-purple));
+    color: var(--white);
+    text-shadow: 0 0 10px var(--vapor-cyan);
+  }
+  .nav-item:not(.active):hover {
+    background: rgba(1, 205, 254, 0.1);
+    color: var(--vapor-cyan);
+  }
+
+  /* === MAIN CONTENT === */
+  .content {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* === MAIN CARD === */
+  .main-card {
+    background: rgba(26, 10, 46, 0.65);
+    backdrop-filter: blur(12px);
+    border: 2px solid transparent;
+    border-image: linear-gradient(135deg, var(--vapor-pink), var(--vapor-cyan), var(--vapor-purple)) 1;
+    padding: 36px 32px;
+    position: relative;
+  }
+  /* Greek column decoration left */
+  .main-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -24px;
+    width: 12px;
+    height: 100%;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        var(--vapor-grid) 0px,
+        var(--vapor-grid) 16px,
+        transparent 16px,
+        transparent 20px
+      );
+    opacity: 0.5;
+    border-radius: 3px;
+  }
+  /* Greek column decoration right */
+  .main-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -24px;
+    width: 12px;
+    height: 100%;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        var(--vapor-grid) 0px,
+        var(--vapor-grid) 16px,
+        transparent 16px,
+        transparent 20px
+      );
+    opacity: 0.5;
+    border-radius: 3px;
+  }
+  .card-title {
+    font-family: 'Monoton', cursive;
+    font-size: 28px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--vapor-cyan);
+    text-shadow: 0 0 15px var(--vapor-cyan);
+    margin-bottom: 8px;
+  }
+  .card-desc {
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--vapor-pink);
+    font-style: italic;
+    margin-bottom: 28px;
+    display: block;
+  }
+
+  /* Chips */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .chip {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border: 1px solid var(--vapor-cyan);
+    background: rgba(1, 205, 254, 0.1);
+    color: var(--vapor-cyan);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 20px;
+  }
+  .chip:hover {
+    background: rgba(1, 205, 254, 0.25);
+    box-shadow: 0 0 12px var(--vapor-cyan);
+  }
+  .chip:nth-child(odd) {
+    border-color: var(--vapor-pink);
+    color: var(--vapor-pink);
+    background: rgba(255, 113, 206, 0.1);
+  }
+  .chip:nth-child(odd):hover {
+    background: rgba(255, 113, 206, 0.25);
+    box-shadow: 0 0 12px var(--vapor-pink);
+  }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    gap: 16px;
+  }
+  .btn {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 12px 28px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 24px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--vapor-pink), var(--vapor-purple));
+    color: white;
+  }
+  .btn-primary:hover {
+    box-shadow: 0 0 20px var(--vapor-pink), 0 0 40px var(--vapor-purple);
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--vapor-cyan);
+    border: 1px solid var(--vapor-cyan);
+  }
+  .btn-secondary:hover {
+    background: rgba(1, 205, 254, 0.15);
+    box-shadow: 0 0 15px var(--vapor-cyan);
+  }
+
+  /* === COLOR PALETTE === */
+  .section-title {
+    font-family: 'Monoton', cursive;
+    font-size: 20px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    margin: 44px 0 16px;
+    color: var(--vapor-cyan);
+    text-shadow: 0 0 10px var(--vapor-cyan);
+  }
+  .palette {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--vapor-purple);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .swatch {
+    flex: 1;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    position: relative;
+  }
+  .swatch:nth-child(1) { background: var(--vapor-pink); }
+  .swatch:nth-child(2) { background: var(--vapor-cyan); }
+  .swatch:nth-child(3) { background: var(--vapor-purple); }
+  .swatch:nth-child(4) { background: var(--vapor-grid); }
+  .swatch-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    background: rgba(26, 10, 46, 0.8);
+    color: white;
+    margin-bottom: 6px;
+    border-radius: 3px;
+  }
+
+  /* === TYPOGRAPHY === */
+  .typo-section { margin-top: 40px; }
+  .typo-section .t-h1 {
+    font-family: 'Monoton', cursive;
+    font-size: 36px;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    color: var(--vapor-cyan);
+    text-shadow: 0 0 20px var(--vapor-cyan), 0 0 60px var(--vapor-pink);
+  }
+  .typo-section .t-h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    color: var(--vapor-pink);
+    font-style: italic;
+  }
+  .typo-section .t-body {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    line-height: 2;
+    letter-spacing: 2px;
+    max-width: 480px;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 20px;
+    background: rgba(26, 10, 46, 0.5);
+    padding: 20px;
+    border-left: 2px solid var(--vapor-purple);
+  }
+  .typo-section .t-caption {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--vapor-grid);
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">SampleApp</div>
+  <input type="text" placeholder="Search...">
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-item active">Dashboard</div>
+  <div class="nav-item">Library</div>
+  <div class="nav-item">Settings</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+  <!-- MAIN CARD -->
+  <div class="main-card">
+    <div class="card-title">Tag Collection</div>
+    <span class="card-desc">Browse and manage your creative tags</span>
+    <div class="chips">
+      <span class="chip">landscape</span>
+      <span class="chip">portrait</span>
+      <span class="chip">anime</span>
+      <span class="chip">watercolor</span>
+      <span class="chip">detailed</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary">Add Tag</button>
+      <button class="btn btn-secondary">Filter</button>
+    </div>
+  </div>
+
+  <!-- COLOR PALETTE -->
+  <div class="section-title">Color Palette</div>
+  <div class="palette">
+    <div class="swatch">
+      <span class="swatch-label">#FF71CE</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#01CDFE</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#7B68EE</span>
+    </div>
+    <div class="swatch">
+      <span class="swatch-label">#B967FF</span>
+    </div>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <div class="typo-section">
+    <div class="section-title">Typography</div>
+    <div class="t-h1">Bold Headline</div>
+    <div class="t-h2">Subheading Style</div>
+    <p class="t-body">
+      This is body text rendered in a vaporwave aesthetic.
+      Wide letter-spacing, retro computer feel, and a nostalgic
+      pink-cyan-purple dreamscape. Feels like a vaporwave music video
+      — surreal, nostalgic, and endlessly aesthetic.
+    </p>
+    <span class="t-caption">Caption text — retro and dreamy</span>
+  </div>
+
+</div>
+
+</body>
+</html>

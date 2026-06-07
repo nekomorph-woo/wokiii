@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stained Glass UI Seed</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    min-height:100vh;
+    background:#1A1A2E;
+    padding:24px;
+    color:#E0D8C8;
+    font-weight:500;
+  }
+
+  /* Thick lead borders — the signature of stained glass */
+  .lead{
+    border:3px solid #0A0A0A;
+    border-radius:0;
+  }
+  .lead-thick{
+    border:4px solid #0A0A0A;
+    border-radius:0;
+  }
+
+  /* ── Top bar ── */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 28px;
+    margin-bottom:24px;
+    background:rgba(15,82,186,0.25);
+    border:3.5px solid #0A0A0A;
+    box-shadow:0 0 20px rgba(15,82,186,0.3),inset 0 0 30px rgba(15,82,186,0.1);
+  }
+  .logo{
+    font-size:1.6rem;
+    font-weight:800;
+    color:#FFBF00;
+    letter-spacing:1px;
+    text-shadow:0 0 8px rgba(255,191,0,0.4);
+  }
+  .search{
+    padding:11px 20px;
+    border:3px solid #0A0A0A;
+    width:260px;
+    font-size:0.92rem;
+    color:#E0D8C8;
+    background:rgba(80,200,120,0.15);
+    font-family:inherit;
+    outline:none;
+    box-shadow:inset 0 0 15px rgba(80,200,120,0.1);
+  }
+  .search::placeholder{color:rgba(224,216,200,0.4)}
+  .search:focus{box-shadow:inset 0 0 15px rgba(80,200,120,0.2),0 0 10px rgba(80,200,120,0.3)}
+
+  /* ── Nav ── */
+  .nav{
+    display:flex;
+    gap:0;
+    margin-bottom:28px;
+    border:3.5px solid #0A0A0A;
+  }
+  .nav-item{
+    flex:1;
+    padding:13px 26px;
+    font-size:0.92rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:all .2s ease;
+    background:rgba(155,17,30,0.2);
+    color:rgba(224,216,200,0.5);
+    border:none;
+    font-family:inherit;
+    border-right:3px solid #0A0A0A;
+  }
+  .nav-item:last-child{border-right:none}
+  .nav-item:hover{background:rgba(155,17,30,0.35);color:#E0D8C8}
+  .nav-item.active{
+    background:rgba(155,17,30,0.4);
+    color:#FFBF00;
+    text-shadow:0 0 6px rgba(255,191,0,0.3);
+    box-shadow:inset 0 0 20px rgba(155,17,30,0.2);
+  }
+
+  /* ── Main card ── */
+  .main-card{
+    padding:36px 32px;
+    margin-bottom:28px;
+    background:rgba(80,200,120,0.12);
+    border:4px solid #0A0A0A;
+    box-shadow:0 0 25px rgba(80,200,120,0.2),inset 0 0 40px rgba(80,200,120,0.08);
+  }
+  .main-card h1{
+    font-size:1.7rem;
+    font-weight:800;
+    margin-bottom:8px;
+    color:#FFBF00;
+    text-shadow:0 0 10px rgba(255,191,0,0.3);
+  }
+  .main-card .desc{
+    font-size:1rem;
+    color:rgba(224,216,200,0.7);
+    margin-bottom:24px;
+    line-height:1.5;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:0;margin-bottom:28px}
+  .chip{
+    padding:10px 22px;
+    font-size:0.86rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:all .2s ease;
+    border:3px solid #0A0A0A;
+    color:#E0D8C8;
+    font-family:inherit;
+    border-right:none;
+  }
+  .chip:last-child{border-right:3px solid #0A0A0A}
+  .chip:nth-child(1){background:rgba(155,17,30,0.35);box-shadow:inset 0 0 12px rgba(155,17,30,0.15)}
+  .chip:nth-child(2){background:rgba(15,82,186,0.35);box-shadow:inset 0 0 12px rgba(15,82,186,0.15)}
+  .chip:nth-child(3){background:rgba(80,200,120,0.3);box-shadow:inset 0 0 12px rgba(80,200,120,0.15)}
+  .chip:nth-child(4){background:rgba(255,191,0,0.3);color:#1A1A2E;box-shadow:inset 0 0 12px rgba(255,191,0,0.15)}
+  .chip:nth-child(5){background:rgba(155,17,30,0.25);box-shadow:inset 0 0 12px rgba(155,17,30,0.1)}
+  .chip:hover{
+    filter:brightness(1.3);
+    box-shadow:0 0 15px rgba(255,191,0,0.3);
+  }
+
+  .btn-group{display:flex;gap:0;flex-wrap:wrap}
+  .btn{
+    padding:14px 32px;
+    font-size:0.92rem;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+    transition:all .2s ease;
+    border:3.5px solid #0A0A0A;
+  }
+  .btn-primary{
+    background:rgba(255,191,0,0.4);
+    color:#1A1A2E;
+    box-shadow:0 0 20px rgba(255,191,0,0.3),inset 0 0 15px rgba(255,191,0,0.15);
+    border-right:3.5px solid #0A0A0A;
+  }
+  .btn-primary:hover{background:rgba(255,191,0,0.55);box-shadow:0 0 30px rgba(255,191,0,0.5)}
+  .btn-secondary{
+    background:rgba(15,82,186,0.3);
+    color:#E0D8C8;
+    box-shadow:0 0 15px rgba(15,82,186,0.2),inset 0 0 15px rgba(15,82,186,0.1);
+  }
+  .btn-secondary:hover{background:rgba(15,82,186,0.45);box-shadow:0 0 25px rgba(15,82,186,0.4)}
+
+  /* ── Color palette ── */
+  .palette{
+    padding:32px;
+    margin-bottom:28px;
+    background:rgba(155,17,30,0.1);
+    border:4px solid #0A0A0A;
+    box-shadow:0 0 20px rgba(155,17,30,0.15),inset 0 0 30px rgba(155,17,30,0.05);
+  }
+  .palette h2{font-size:1.3rem;font-weight:700;margin-bottom:18px;color:#FFBF00;text-shadow:0 0 6px rgba(255,191,0,0.25)}
+  .swatches{display:flex;gap:0;flex-wrap:wrap;border:3px solid #0A0A0A}
+  .swatch{
+    flex:1;min-width:110px;
+    padding:24px 14px;
+    text-align:center;
+    font-weight:700;
+    font-size:0.8rem;
+    color:#E0D8C8;
+    border-right:3px solid #0A0A0A;
+    transition:filter .2s ease;
+  }
+  .swatch:last-child{border-right:none}
+  .swatch:hover{filter:brightness(1.4)}
+  .swatch-1{background:rgba(155,17,30,0.5);box-shadow:inset 0 0 20px rgba(155,17,30,0.2);text-shadow:0 0 4px rgba(0,0,0,0.5)}
+  .swatch-2{background:rgba(15,82,186,0.5);box-shadow:inset 0 0 20px rgba(15,82,186,0.2);text-shadow:0 0 4px rgba(0,0,0,0.5)}
+  .swatch-3{background:rgba(80,200,120,0.45);box-shadow:inset 0 0 20px rgba(80,200,120,0.2);color:#1A1A2E}
+  .swatch-4{background:rgba(255,191,0,0.5);box-shadow:inset 0 0 20px rgba(255,191,0,0.2);color:#1A1A2E}
+
+  /* ── Typography ── */
+  .typo{
+    padding:32px;
+    background:rgba(15,82,186,0.1);
+    border:4px solid #0A0A0A;
+    box-shadow:0 0 20px rgba(15,82,186,0.15),inset 0 0 30px rgba(15,82,186,0.05);
+  }
+  .typo h2{font-size:1.3rem;font-weight:700;margin-bottom:18px;color:#FFBF00;text-shadow:0 0 6px rgba(255,191,0,0.25)}
+  .typo h1{font-size:2.1rem;font-weight:800;margin-bottom:10px;color:#50C878;text-shadow:0 0 10px rgba(80,200,120,0.3)}
+  .typo h2.sample{font-size:1.5rem;font-weight:700;margin-bottom:10px;color:#FFBF00;text-shadow:0 0 8px rgba(255,191,0,0.25)}
+  .typo p.body{font-size:1rem;line-height:1.7;margin-bottom:12px;color:rgba(224,216,200,0.75)}
+  .typo .caption{font-size:0.78rem;color:rgba(224,216,200,0.4);margin-top:6px}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="logo">SampleApp</div>
+  <input class="search" type="text" placeholder="Search...">
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <button class="nav-item active">Dashboard</button>
+  <button class="nav-item">Library</button>
+  <button class="nav-item">Settings</button>
+</nav>
+
+<!-- Main card -->
+<div class="main-card">
+  <h1>Tag Collection</h1>
+  <p class="desc">Browse and manage your creative tags</p>
+  <div class="chips">
+    <button class="chip">landscape</button>
+    <button class="chip">portrait</button>
+    <button class="chip">anime</button>
+    <button class="chip">watercolor</button>
+    <button class="chip">detailed</button>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary">Add Tag</button>
+    <button class="btn btn-secondary">Filter</button>
+  </div>
+</div>
+
+<!-- Color palette -->
+<div class="palette">
+  <h2>Color Palette</h2>
+  <div class="swatches">
+    <div class="swatch swatch-1">Ruby<br>#9B111E</div>
+    <div class="swatch swatch-2">Sapphire<br>#0F52BA</div>
+    <div class="swatch swatch-3">Emerald<br>#50C878</div>
+    <div class="swatch swatch-4">Amber<br>#FFBF00</div>
+  </div>
+</div>
+
+<!-- Typography -->
+<div class="typo">
+  <h2>Typography</h2>
+  <h1>Heading One</h1>
+  <h2 class="sample">Heading Two</h2>
+  <p class="body">This is body text glowing softly within a stained-glass panel. Thick lead borders frame every element, and vivid colors shine through translucent surfaces like light through cathedral windows.</p>
+  <span class="caption">Caption text — secondary information in dim translucency</span>
+</div>
+
+</body>
+</html>

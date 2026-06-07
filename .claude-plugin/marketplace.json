@@ -19,7 +19,7 @@
       "name": "wok-kit",
       "source": "./plugins/wok-kit",
       "description": "辅助工具集：文件保护、规则管理、技能创建、规范化提交、会话交接、agent 启动、项目初始化、本体论规则管理、技术栈规则管理、zzap 版本管理初始化",
-      "version": "1.8.0"
+      "version": "1.9.0"
     }
   ]
 }

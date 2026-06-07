@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleApp — Shadow Realm</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: #000000;
+    color: #E8E8F0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  .app {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    transition: all 0.4s;
+  }
+  .top-bar:hover {
+    background: rgba(232,232,240,0.02);
+    box-shadow: 0 0 40px rgba(68,102,255,0.04);
+  }
+  .logo {
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    color: #E8E8F0;
+    text-shadow: 0 0 30px rgba(232,232,240,0.15);
+    transition: text-shadow 0.4s;
+  }
+  .top-bar:hover .logo {
+    text-shadow: 0 0 40px rgba(68,102,255,0.2);
+  }
+  .search-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(232,232,240,0.06);
+    border-radius: 0;
+    padding: 8px 4px;
+    color: rgba(232,232,240,0.6);
+    font-size: 14px;
+    font-weight: 300;
+    outline: none;
+    width: 220px;
+    transition: all 0.4s;
+    letter-spacing: 0.03em;
+  }
+  .search-input::placeholder { color: rgba(232,232,240,0.12); }
+  .search-input:focus {
+    border-bottom-color: rgba(68,102,255,0.3);
+    box-shadow: 0 4px 20px rgba(68,102,255,0.06);
+  }
+
+  /* ── Nav ── */
+  .nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 32px;
+    position: relative;
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 300;
+    color: rgba(232,232,240,0.2);
+    cursor: pointer;
+    transition: all 0.4s;
+    letter-spacing: 0.06em;
+    background: transparent;
+    box-shadow: none;
+    position: relative;
+  }
+  .nav-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 1px;
+    background: rgba(68,102,255,0.3);
+    transition: width 0.4s;
+    box-shadow: 0 0 8px rgba(68,102,255,0.2);
+  }
+  .nav-item:hover {
+    color: rgba(232,232,240,0.5);
+    text-shadow: 0 0 20px rgba(232,232,240,0.1);
+  }
+  .nav-item:hover::after { width: 40%; }
+  .nav-item.active {
+    color: rgba(232,232,240,0.7);
+    text-shadow: 0 0 20px rgba(232,232,240,0.15);
+  }
+  .nav-item.active::after {
+    width: 60%;
+    background: rgba(68,102,255,0.4);
+    box-shadow: 0 0 12px rgba(68,102,255,0.3);
+  }
+
+  /* ── Card ── */
+  .card {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 32px;
+    margin-bottom: 36px;
+    box-shadow: none;
+    transition: all 0.5s;
+    position: relative;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    box-shadow: 0 0 60px rgba(68,102,255,0.04), 0 0 120px rgba(136,68,204,0.02);
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  .card:hover::before { opacity: 1; }
+  .card:hover {
+    background: rgba(232,232,240,0.015);
+    box-shadow: 0 0 80px rgba(68,102,255,0.05);
+  }
+  .card-title {
+    font-size: 22px;
+    font-weight: 300;
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+    color: rgba(232,232,240,0.6);
+    text-shadow: 0 0 30px rgba(68,102,255,0.1);
+    transition: all 0.4s;
+  }
+  .card:hover .card-title {
+    color: rgba(232,232,240,0.8);
+    text-shadow: 0 0 40px rgba(68,102,255,0.15);
+  }
+  .card-desc {
+    font-size: 14px;
+    color: rgba(232,232,240,0.2);
+    margin-bottom: 28px;
+    font-weight: 300;
+    line-height: 1.6;
+    transition: color 0.4s;
+  }
+  .card:hover .card-desc { color: rgba(232,232,240,0.35); }
+
+  /* ── Chips ── */
+  .chips { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+  .chip {
+    padding: 6px 16px;
+    border-radius: 0;
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    background: transparent;
+    border: none;
+    color: rgba(232,232,240,0.2);
+    transition: all 0.4s;
+    cursor: pointer;
+    box-shadow: none;
+  }
+  .chip:nth-child(1) { text-shadow: 0 0 16px rgba(68,204,136,0.15); }
+  .chip:nth-child(2) { text-shadow: 0 0 16px rgba(68,102,255,0.15); }
+  .chip:nth-child(3) { text-shadow: 0 0 16px rgba(136,68,204,0.15); }
+  .chip:nth-child(4) { text-shadow: 0 0 16px rgba(68,204,136,0.12); }
+  .chip:nth-child(5) { text-shadow: 0 0 16px rgba(68,102,255,0.12); }
+  .chip:hover {
+    color: rgba(232,232,240,0.6);
+    background: rgba(232,232,240,0.02);
+    box-shadow: 0 0 30px rgba(68,102,255,0.06);
+  }
+  .chip:nth-child(1):hover { text-shadow: 0 0 20px rgba(68,204,136,0.3); box-shadow: 0 0 30px rgba(68,204,136,0.06); }
+  .chip:nth-child(2):hover { text-shadow: 0 0 20px rgba(68,102,255,0.3); box-shadow: 0 0 30px rgba(68,102,255,0.06); }
+  .chip:nth-child(3):hover { text-shadow: 0 0 20px rgba(136,68,204,0.3); box-shadow: 0 0 30px rgba(136,68,204,0.06); }
+
+  /* ── Buttons ── */
+  .btn-row { display: flex; gap: 20px; }
+  .btn {
+    padding: 10px 28px;
+    border-radius: 0;
+    font-size: 14px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.4s;
+    letter-spacing: 0.06em;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+  .btn-primary {
+    color: rgba(232,232,240,0.25);
+    border: none;
+    box-shadow: none;
+  }
+  .btn-primary:hover {
+    color: rgba(232,232,240,0.8);
+    background: rgba(68,102,255,0.04);
+    box-shadow: 0 0 40px rgba(68,102,255,0.08), 0 0 80px rgba(68,102,255,0.03);
+    border: 1px solid rgba(68,102,255,0.15);
+    text-shadow: 0 0 20px rgba(68,102,255,0.2);
+  }
+  .btn-secondary {
+    color: rgba(232,232,240,0.15);
+    border: none;
+    box-shadow: none;
+  }
+  .btn-secondary:hover {
+    color: rgba(232,232,240,0.6);
+    background: rgba(136,68,204,0.03);
+    box-shadow: 0 0 40px rgba(136,68,204,0.06), 0 0 80px rgba(136,68,204,0.02);
+    border: 1px solid rgba(136,68,204,0.12);
+    text-shadow: 0 0 20px rgba(136,68,204,0.15);
+  }
+
+  /* ── Palette ── */
+  .section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(232,232,240,0.12);
+    margin-bottom: 16px;
+    font-weight: 300;
+  }
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .swatch {
+    border-radius: 0;
+    overflow: hidden;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    transition: all 0.4s;
+  }
+  .swatch:hover { transform: translateY(-2px); }
+  .swatch-color {
+    height: 60px;
+    transition: box-shadow 0.4s;
+  }
+  .swatch-hex {
+    padding: 10px 0;
+    font-size: 10px;
+    font-weight: 300;
+    color: rgba(232,232,240,0.15);
+    letter-spacing: 0.08em;
+    font-family: 'SF Mono', 'Consolas', monospace;
+    transition: color 0.4s;
+  }
+  .swatch:hover .swatch-hex { color: rgba(232,232,240,0.35); }
+  .swatch:nth-child(1) .swatch-color {
+    background: #E8E8F0;
+    box-shadow: 0 0 40px rgba(232,232,240,0.08);
+  }
+  .swatch:nth-child(1):hover .swatch-color { box-shadow: 0 0 60px rgba(232,232,240,0.15); }
+  .swatch:nth-child(2) .swatch-color {
+    background: #4466FF;
+    box-shadow: 0 0 40px rgba(68,102,255,0.1);
+  }
+  .swatch:nth-child(2):hover .swatch-color { box-shadow: 0 0 60px rgba(68,102,255,0.2); }
+  .swatch:nth-child(3) .swatch-color {
+    background: #8844CC;
+    box-shadow: 0 0 40px rgba(136,68,204,0.1);
+  }
+  .swatch:nth-child(3):hover .swatch-color { box-shadow: 0 0 60px rgba(136,68,204,0.2); }
+  .swatch:nth-child(4) .swatch-color {
+    background: #44CC88;
+    box-shadow: 0 0 40px rgba(68,204,136,0.1);
+  }
+  .swatch:nth-child(4):hover .swatch-color { box-shadow: 0 0 60px rgba(68,204,136,0.2); }
+
+  /* ── Typography ── */
+  .typo-section { margin-bottom: 20px; }
+  .typo-section h1 {
+    font-size: 30px;
+    font-weight: 300;
+    margin-bottom: 14px;
+    color: rgba(232,232,240,0.5);
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 40px rgba(232,232,240,0.06);
+    transition: all 0.4s;
+  }
+  .typo-section h1:hover {
+    color: rgba(232,232,240,0.75);
+    text-shadow: 0 0 50px rgba(68,102,255,0.1);
+  }
+  .typo-section h2 {
+    font-size: 22px;
+    font-weight: 300;
+    margin-bottom: 14px;
+    color: rgba(232,232,240,0.25);
+    letter-spacing: 0.03em;
+    transition: color 0.4s;
+  }
+  .typo-section h2:hover { color: rgba(232,232,240,0.45); }
+  .typo-section p {
+    font-size: 15px;
+    line-height: 1.8;
+    color: rgba(232,232,240,0.15);
+    margin-bottom: 14px;
+    font-weight: 300;
+    transition: color 0.4s;
+  }
+  .typo-section p:hover { color: rgba(232,232,240,0.3); }
+  .typo-section .caption {
+    font-size: 10px;
+    color: rgba(232,232,240,0.08);
+    letter-spacing: 0.18em;
+    font-weight: 300;
+    text-transform: uppercase;
+    transition: color 0.4s;
+  }
+  .typo-section .caption:hover { color: rgba(232,232,240,0.2); }
+</style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="logo">SampleApp</div>
+      <input class="search-input" type="text" placeholder="Search..."/>
+    </div>
+
+    <!-- Nav -->
+    <div class="nav">
+      <div class="nav-item active">Dashboard</div>
+      <div class="nav-item">Library</div>
+      <div class="nav-item">Settings</div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card">
+      <div class="card-title">Tag Collection</div>
+      <div class="card-desc">Browse and manage your creative tags</div>
+      <div class="chips">
+        <span class="chip">landscape</span>
+        <span class="chip">portrait</span>
+        <span class="chip">anime</span>
+        <span class="chip">watercolor</span>
+        <span class="chip">detailed</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Add Tag</button>
+        <button class="btn btn-secondary">Filter</button>
+      </div>
+    </div>
+
+    <!-- Color Palette -->
+    <div class="section-label">Color Palette</div>
+    <div class="palette">
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#E8E8F0</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#4466FF</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#8844CC</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color"></div>
+        <div class="swatch-hex">#44CC88</div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="section-label">Typography</div>
+    <div class="typo-section">
+      <h1>Echoes in the Void</h1>
+      <h2>Forms Barely Perceived</h2>
+      <p>In the absolute darkness, shapes exist only as suggestions. A faint luminescence hints at boundaries, a soft glow defines edges. What cannot be seen is imagined. What barely exists holds the most weight. Presence is measured in absence.</p>
+      <div class="caption">Void Design System</div>
+    </div>
+
+  </div>
+</body>
+</html>

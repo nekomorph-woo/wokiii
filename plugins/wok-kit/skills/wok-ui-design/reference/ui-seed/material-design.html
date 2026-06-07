@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleApp — Material Design</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #FAFAFA;
+    color: #1C1B1F;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── Top Bar ── MD3 Surface + Primary */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    background: #FFFBFE;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar-logo {
+    font-size: 20px;
+    font-weight: 500;
+    color: #1C1B1F;
+  }
+  .topbar-search {
+    border: none;
+    background: #E7E0EC;
+    font-size: 14px;
+    font-family: inherit;
+    color: #1C1B1F;
+    padding: 10px 16px;
+    width: 260px;
+    outline: none;
+    border-radius: 28px;
+    transition: background 0.2s;
+  }
+  .topbar-search::placeholder { color: #49454F; }
+  .topbar-search:focus { background: #EADDFF; }
+
+  /* ── Nav ── MD3 Tabs */
+  .nav {
+    display: flex;
+    background: #FFFBFE;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+    padding: 0 24px;
+  }
+  .nav a {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #49454F;
+    padding: 16px 24px;
+    position: relative;
+    transition: background 0.2s, color 0.2s;
+  }
+  .nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 24px;
+    right: 24px;
+    height: 3px;
+    background: transparent;
+    border-radius: 3px 3px 0 0;
+    transition: background 0.2s;
+  }
+  .nav a.active {
+    color: #6750A4;
+  }
+  .nav a.active::after {
+    background: #6750A4;
+  }
+  .nav a:hover { background: rgba(103,80,164,0.08); }
+
+  /* ── Content ── */
+  .content {
+    padding: 24px;
+    max-width: 840px;
+  }
+
+  /* ── Card ── MD3 Elevated */
+  .card {
+    background: #FFFBFE;
+    border-radius: 12px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.10);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .card-title {
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 4px;
+    color: #1C1B1F;
+  }
+  .card-desc {
+    font-size: 14px;
+    color: #49454F;
+    margin-bottom: 20px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .chip {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 16px;
+    border-radius: 8px;
+    background: #E7E0EC;
+    color: #4F378B;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .chip:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+  .card-actions {
+    display: flex;
+    gap: 12px;
+  }
+  .btn {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+    padding: 10px 24px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: box-shadow 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+    border: none;
+  }
+  .btn-primary {
+    background: #6750A4;
+    color: #FFFFFF;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.10);
+    background: #5f44a0;
+  }
+  .btn-secondary {
+    background: transparent;
+    color: #6750A4;
+    border: 1px solid #79747E;
+  }
+  .btn-secondary:hover { background: rgba(103,80,164,0.08); }
+
+  /* ── Ripple ── */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    transform: scale(0);
+    animation: ripple-anim 0.6s ease-out;
+    pointer-events: none;
+  }
+  @keyframes ripple-anim {
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* ── Color Palette ── */
+  .section-label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: #49454F;
+    margin-bottom: 12px;
+  }
+  .palette {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    background: #FFFBFE;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+    padding: 20px;
+  }
+  .swatch {
+    flex: 1;
+    text-align: center;
+  }
+  .swatch-color {
+    height: 64px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+  .swatch-hex {
+    font-size: 11px;
+    font-weight: 500;
+    color: #49454F;
+  }
+
+  /* ── Typography ── MD3 Type Scale */
+  .typo {
+    background: #FFFBFE;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+    padding: 24px;
+  }
+  .typo h1 {
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.25;
+    margin-bottom: 16px;
+    color: #1C1B1F;
+  }
+  .typo h2 {
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.3;
+    margin-bottom: 16px;
+    color: #49454F;
+  }
+  .typo p {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    color: #49454F;
+  }
+  .typo .caption {
+    font-size: 12px;
+    color: #79747E;
+    letter-spacing: 0.4px;
+  }
+
+  /* ── State layers ── */
+  .btn:hover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.12);
+    border-radius: inherit;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">SampleApp</div>
+  <input type="text" class="topbar-search" placeholder="Search...">
+</div>
+
+<nav class="nav">
+  <a href="#" class="active">Dashboard</a>
+  <a href="#">Library</a>
+  <a href="#">Settings</a>
+</nav>
+
+<div class="content">
+
+  <div class="card">
+    <div class="card-title">Tag Collection</div>
+    <div class="card-desc">Browse and manage your creative tags</div>
+    <div class="chips">
+      <span class="chip">landscape</span>
+      <span class="chip">portrait</span>
+      <span class="chip">anime</span>
+      <span class="chip">watercolor</span>
+      <span class="chip">detailed</span>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-primary" onclick="addRipple(event)">Add Tag</button>
+      <button class="btn btn-secondary" onclick="addRipple(event)">Filter</button>
+    </div>
+  </div>
+
+  <div class="section-label">Color Palette</div>
+  <div class="palette">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#6750A4;"></div>
+      <div class="swatch-hex">#6750A4</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#625B71;"></div>
+      <div class="swatch-hex">#625B71</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#7D5260;"></div>
+      <div class="swatch-hex">#7D5260</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#FFFBFE; border: 1px solid #E0E0E0;"></div>
+      <div class="swatch-hex">#FFFBFE</div>
+    </div>
+  </div>
+
+  <div class="typo">
+    <h1>Material Design 3</h1>
+    <h2>Systematic, Familiar, Polished</h2>
+    <p>Material Design provides a comprehensive design system with elevation, state layers, and a consistent type scale. Every surface has depth, every interaction has feedback, and every component follows a unified language.</p>
+    <span class="caption">Systematic, expressive, reliable</span>
+  </div>
+
+</div>
+
+<script>
+function addRipple(e) {
+  const btn = e.currentTarget;
+  const circle = document.createElement('span');
+  const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+  const radius = diameter / 2;
+  circle.style.width = circle.style.height = diameter + 'px';
+  circle.style.left = (e.clientX - btn.getBoundingClientRect().left - radius) + 'px';
+  circle.style.top = (e.clientY - btn.getBoundingClientRect().top - radius) + 'px';
+  circle.classList.add('ripple');
+  const existing = btn.querySelector('.ripple');
+  if (existing) existing.remove();
+  btn.appendChild(circle);
+}
+</script>
+
+</body>
+</html>

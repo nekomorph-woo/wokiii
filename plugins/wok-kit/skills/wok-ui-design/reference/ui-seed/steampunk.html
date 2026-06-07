@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleApp — Steampunk</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  :root{
+    --bg:#2A1810;
+    --brass:#C5A55A;
+    --copper:#B87333;
+    --bronze:#8C7853;
+    --steam:#E8DCC8;
+    --surface:#3A2A1A;
+    --surface-light:#4A3828;
+    --text:#E8DCC8;
+    --text-dim:#A89878;
+  }
+
+  body{
+    font-family:Georgia,'Times New Roman',serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    background-image:
+      /* subtle gear pattern */
+      radial-gradient(circle at 15% 20%, rgba(197,165,90,0.06) 0%, transparent 8%),
+      radial-gradient(circle at 85% 15%, rgba(184,115,51,0.05) 0%, transparent 6%),
+      radial-gradient(circle at 50% 80%, rgba(197,165,90,0.04) 0%, transparent 10%),
+      radial-gradient(circle at 90% 70%, rgba(140,120,83,0.05) 0%, transparent 7%),
+      radial-gradient(circle at 10% 65%, rgba(184,115,51,0.04) 0%, transparent 9%);
+  }
+
+  /* Top Bar */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 30px;
+    background:var(--surface);
+    border-bottom:2px solid var(--brass);
+    position:relative;
+  }
+  /* decorative rivets on topbar */
+  .topbar::before,.topbar::after{
+    content:'';position:absolute;bottom:3px;
+    width:8px;height:8px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%,var(--brass),var(--bronze));
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);
+  }
+  .topbar::before{left:12px}
+  .topbar::after{right:12px}
+  .logo{
+    font-size:1.4rem;font-weight:700;color:var(--brass);
+    letter-spacing:3px;text-transform:uppercase;
+    text-shadow:1px 1px 0 rgba(0,0,0,0.5);
+  }
+  .search{
+    background:var(--bg);border:1px solid var(--bronze);
+    padding:8px 14px;font-size:0.82rem;color:var(--steam);
+    outline:none;width:200px;font-family:inherit;
+    border-radius:2px;
+  }
+  .search::placeholder{color:var(--text-dim)}
+
+  /* Nav */
+  .nav{
+    display:flex;gap:0;padding:0 30px;
+    border-bottom:1px solid rgba(197,165,90,0.3);
+    background:rgba(58,42,26,0.5);
+  }
+  .nav-item{
+    padding:12px 22px;font-size:0.82rem;
+    text-transform:uppercase;letter-spacing:2px;
+    cursor:pointer;border:none;background:none;
+    color:var(--text-dim);font-family:inherit;
+    border-bottom:2px solid transparent;
+    transition:all 0.3s;font-weight:500;
+  }
+  .nav-item.active{
+    color:var(--brass);border-bottom-color:var(--copper);
+  }
+  .nav-item:not(.active):hover{
+    color:var(--steam);background:rgba(197,165,90,0.05);
+  }
+
+  .main{padding:20px 30px 40px;max-width:720px;}
+
+  /* Card */
+  .card{
+    background:var(--surface);
+    border:1px solid var(--bronze);
+    padding:26px;
+    position:relative;
+    border-radius:2px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.3);
+  }
+  /* corner rivets */
+  .card::before,.card::after{
+    content:'';position:absolute;width:10px;height:10px;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%,var(--brass),var(--bronze));
+    box-shadow:inset 0 1px 3px rgba(0,0,0,0.5),0 1px 2px rgba(0,0,0,0.3);
+  }
+  .card::before{top:8px;left:8px}
+  .card::after{top:8px;right:8px}
+  .card-rivet-bl,.card-rivet-br{
+    position:absolute;width:10px;height:10px;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%,var(--brass),var(--bronze));
+    box-shadow:inset 0 1px 3px rgba(0,0,0,0.5),0 1px 2px rgba(0,0,0,0.3);
+  }
+  .card-rivet-bl{bottom:8px;left:8px}
+  .card-rivet-br{bottom:8px;right:8px}
+
+  /* ornamental double line under title */
+  .card-inner{border-bottom:3px double var(--bronze);padding-bottom:4px;margin-bottom:16px}
+  .card-title{
+    font-size:1.5rem;font-weight:700;color:var(--brass);
+    text-transform:uppercase;letter-spacing:2px;
+    text-shadow:1px 1px 0 rgba(0,0,0,0.5);
+    margin-bottom:2px;
+  }
+  .card-desc{
+    font-size:0.85rem;color:var(--text-dim);
+    font-style:italic;
+    margin-bottom:0;
+  }
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+  .chip{
+    padding:6px 14px;font-size:0.75rem;
+    border:1px solid var(--bronze);
+    background:rgba(197,165,90,0.08);
+    color:var(--steam);cursor:pointer;
+    font-family:inherit;letter-spacing:0.5px;
+    transition:all 0.3s;
+  }
+  .chip:hover{
+    background:rgba(197,165,90,0.15);border-color:var(--brass);
+    box-shadow:0 0 8px rgba(197,165,90,0.15);
+  }
+
+  .buttons{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{
+    padding:10px 22px;font-size:0.8rem;
+    text-transform:uppercase;letter-spacing:2px;
+    cursor:pointer;font-family:inherit;font-weight:700;
+    transition:all 0.3s;
+  }
+  .btn-primary{
+    background:linear-gradient(180deg,var(--brass) 0%,var(--copper) 100%);
+    color:var(--bg);border:1px solid var(--brass);
+    box-shadow:0 2px 6px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .btn-primary:hover{
+    box-shadow:0 4px 12px rgba(197,165,90,0.4),inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .btn-secondary{
+    background:transparent;color:var(--brass);
+    border:1px solid var(--bronze);
+  }
+  .btn-secondary:hover{
+    background:rgba(197,165,90,0.08);
+  }
+
+  /* Color Palette */
+  .palette{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+  .swatch{
+    width:95px;overflow:hidden;
+    border:1px solid var(--bronze);
+    box-shadow:0 2px 8px rgba(0,0,0,0.3);
+  }
+  .swatch-color{height:50px;width:100%}
+  .swatch-label{
+    text-align:center;padding:5px 0;font-size:0.68rem;
+    font-weight:700;letter-spacing:1px;text-transform:uppercase;
+    background:var(--surface);color:var(--text-dim);
+  }
+
+  /* Typography */
+  .typo{margin-top:24px}
+  .typo h1{
+    font-size:2rem;font-weight:700;color:var(--brass);
+    text-transform:uppercase;letter-spacing:3px;
+    text-shadow:1px 1px 0 rgba(0,0,0,0.5);
+    margin-bottom:8px;
+  }
+  .typo h2{
+    font-size:1.2rem;font-weight:700;color:var(--copper);
+    letter-spacing:2px;margin-bottom:6px;
+  }
+  .typo p{
+    font-size:0.9rem;line-height:1.8;color:var(--text-dim);
+    margin-bottom:8px;
+  }
+  .typo .caption{
+    font-size:0.72rem;font-style:italic;
+    color:rgba(140,120,83,0.7);letter-spacing:1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">SampleApp</div>
+  <input class="search" type="text" placeholder="Search the archives...">
+</div>
+
+<nav class="nav">
+  <button class="nav-item active">Dashboard</button>
+  <button class="nav-item">Library</button>
+  <button class="nav-item">Settings</button>
+</nav>
+
+<div class="main">
+  <div class="card">
+    <div class="card-rivet-bl"></div>
+    <div class="card-rivet-br"></div>
+    <div class="card-inner">
+      <div class="card-title">Tag Collection</div>
+      <div class="card-desc">Browse and manage your creative tags</div>
+    </div>
+    <div class="chips">
+      <span class="chip">landscape</span>
+      <span class="chip">portrait</span>
+      <span class="chip">anime</span>
+      <span class="chip">watercolor</span>
+      <span class="chip">detailed</span>
+    </div>
+    <div class="buttons">
+      <button class="btn btn-primary">Add Tag</button>
+      <button class="btn btn-secondary">Filter</button>
+    </div>
+  </div>
+
+  <div class="palette">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#C5A55A"></div>
+      <div class="swatch-label">#C5A55A</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#B87333"></div>
+      <div class="swatch-label">#B87333</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#8C7853"></div>
+      <div class="swatch-label">#8C7853</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#E8DCC8"></div>
+      <div class="swatch-label">#E8DCC8</div>
+    </div>
+  </div>
+
+  <div class="typo">
+    <h1>Heading One</h1>
+    <h2>Heading Two</h2>
+    <p>Amidst the hiss of steam and the gentle clanking of brass gears, the workshop hums with quiet industry. Every surface bears the warm patina of copper and age.</p>
+    <span class="caption">Engraved on the maker's plate, circa 1887</span>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tropical Style</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --parrot: #2ECC71;
+    --flamingo: #FF6B9D;
+    --mango: #F39C12;
+    --ocean: #00BCD4;
+    --bg: #FFF9F0;
+    --surface: #FFFFFF;
+    --text: #2C3E50;
+    --text-muted: #7F8C8D;
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 10% 15%, rgba(46, 204, 113, 0.06) 0%, transparent 40%),
+      radial-gradient(circle at 85% 20%, rgba(255, 107, 157, 0.05) 0%, transparent 35%),
+      radial-gradient(circle at 50% 80%, rgba(0, 188, 212, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 25% 60%, rgba(243, 156, 18, 0.04) 0%, transparent 30%),
+      radial-gradient(8px 8px at 15% 25%, rgba(255, 107, 157, 0.12) 50%, transparent 50%),
+      radial-gradient(6px 6px at 40% 10%, rgba(46, 204, 113, 0.1) 50%, transparent 50%),
+      radial-gradient(10px 10px at 70% 45%, rgba(243, 156, 18, 0.08) 50%, transparent 50%),
+      radial-gradient(7px 7px at 88% 75%, rgba(0, 188, 212, 0.1) 50%, transparent 50%),
+      radial-gradient(5px 5px at 30% 85%, rgba(255, 107, 157, 0.08) 50%, transparent 50%),
+      radial-gradient(9px 9px at 55% 55%, rgba(46, 204, 113, 0.06) 50%, transparent 50%);
+    font-family: 'Quicksand', 'Nunito', 'Segoe UI', sans-serif;
+    color: var(--text);
+    padding: 24px;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 22px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border: 3px solid var(--parrot);
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, var(--parrot), var(--ocean));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .search-input {
+    background: var(--bg);
+    border: 2px solid rgba(0, 188, 212, 0.2);
+    padding: 8px 16px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 24px;
+    outline: none;
+    width: 200px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .search-input::placeholder { color: rgba(127, 140, 141, 0.5); }
+  .search-input:focus {
+    border-color: var(--ocean);
+    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.15);
+  }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border: 3px solid var(--mango);
+  }
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .nav-item:hover { background: rgba(243, 156, 18, 0.1); color: var(--mango); }
+  .nav-item.active {
+    background: var(--mango);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+  }
+
+  /* Main Card */
+  .card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border: 3px solid var(--flamingo);
+  }
+
+  .card-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .card-desc {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+  }
+
+  /* Tag Chips */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .tag-chip {
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 20px;
+    cursor: default;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .tag-chip:nth-child(1) { color: #fff; background: var(--parrot); }
+  .tag-chip:nth-child(2) { color: #fff; background: var(--flamingo); }
+  .tag-chip:nth-child(3) { color: #fff; background: var(--ocean); }
+  .tag-chip:nth-child(4) { color: #fff; background: var(--mango); }
+  .tag-chip:nth-child(5) { color: #fff; background: #9B59B6; }
+  .tag-chip:hover {
+    transform: scale(1.08);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 10px; }
+  .btn {
+    padding: 11px 26px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    border-radius: 14px;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); }
+  .btn:active { transform: scale(1.02); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--parrot), #27AE60);
+    color: #fff;
+    box-shadow: 0 3px 12px rgba(46, 204, 113, 0.35);
+  }
+  .btn-secondary {
+    background: linear-gradient(135deg, var(--ocean), #0097A7);
+    color: #fff;
+    box-shadow: 0 3px 12px rgba(0, 188, 212, 0.3);
+  }
+
+  /* Color Palette */
+  .palette { display: flex; gap: 12px; margin-top: 14px; }
+  .swatch-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .swatch {
+    width: 100%;
+    height: 50px;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  .swatch-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+
+  /* Typography */
+  .typo-section {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border: 3px solid var(--ocean);
+  }
+  .typo-section h1 {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 14px;
+    background: linear-gradient(135deg, var(--parrot), var(--ocean));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .typo-section h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--flamingo);
+    margin-bottom: 14px;
+  }
+  .typo-section p {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.9;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+  .typo-section .caption {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--mango);
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div class="logo">SampleApp</div>
+      <input class="search-input" type="text" placeholder="Find paradise...">
+    </div>
+
+    <div class="nav">
+      <div class="nav-item active">Dashboard</div>
+      <div class="nav-item">Library</div>
+      <div class="nav-item">Settings</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tag Collection</div>
+      <div class="card-desc">Browse and manage your creative tags</div>
+      <div class="tag-row">
+        <span class="tag-chip">landscape</span>
+        <span class="tag-chip">portrait</span>
+        <span class="tag-chip">anime</span>
+        <span class="tag-chip">watercolor</span>
+        <span class="tag-chip">detailed</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Add Tag</button>
+        <button class="btn btn-secondary">Filter</button>
+      </div>
+    </div>
+
+    <div class="card" style="border-color: var(--parrot);">
+      <div class="card-title">Color Palette</div>
+      <div class="palette">
+        <div class="swatch-group">
+          <div class="swatch" style="background: #2ECC71;"></div>
+          <span class="swatch-label">#2ECC71</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #FF6B9D;"></div>
+          <span class="swatch-label">#FF6B9D</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #F39C12;"></div>
+          <span class="swatch-label">#F39C12</span>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background: #00BCD4;"></div>
+          <span class="swatch-label">#00BCD4</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="typo-section">
+      <h1>Tropical Paradise Heading</h1>
+      <h2>Island Breeze Section</h2>
+      <p>Palm trees sway in the warm trade winds as turquoise waves lap against powdery white shores. The air is thick with the scent of hibiscus and ripe mangoes, and every sunset paints the sky in impossible gradients of coral, gold, and violet that demand to be remembered forever.</p>
+      <span class="caption">island notes — tropical dispatch</span>
+    </div>
+  </div>
+</body>
+</html>

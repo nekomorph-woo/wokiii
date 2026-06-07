@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watercolor UI Seed</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Georgia','Palatino Linotype','Book Antiqua',serif;
+    min-height:100vh;
+    background-color:#FEFEFA;
+    background-image:
+      radial-gradient(ellipse at 15% 20%,rgba(244,194,194,0.18) 0%,transparent 50%),
+      radial-gradient(ellipse at 80% 10%,rgba(194,212,244,0.18) 0%,transparent 45%),
+      radial-gradient(ellipse at 50% 60%,rgba(194,244,212,0.12) 0%,transparent 50%),
+      radial-gradient(ellipse at 85% 80%,rgba(244,240,194,0.15) 0%,transparent 40%);
+    padding:24px;
+    color:#5A5A5A;
+    font-weight:400;
+    letter-spacing:0.2px;
+  }
+
+  /* Watercolor wash card — no hard borders */
+  .wash{
+    border:none;
+    border-radius:20px;
+    position:relative;
+  }
+
+  /* ── Top bar ── */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 28px;
+    margin-bottom:28px;
+    background:rgba(255,254,250,0.6);
+    border-radius:22px;
+    box-shadow:0 0 30px 8px rgba(194,212,244,0.15);
+  }
+  .logo{
+    font-size:1.6rem;
+    font-weight:700;
+    color:#6A5A6A;
+    letter-spacing:0.8px;
+    text-shadow:0 0 20px rgba(212,181,255,0.2);
+  }
+  .search{
+    padding:12px 22px;
+    border:none;
+    border-radius:18px;
+    width:260px;
+    font-size:0.92rem;
+    color:#6A6A6A;
+    background:rgba(194,212,244,0.12);
+    box-shadow:0 0 20px 4px rgba(194,212,244,0.12);
+    font-family:inherit;
+    outline:none;
+    transition:box-shadow .3s ease;
+  }
+  .search:focus{box-shadow:0 0 25px 8px rgba(194,212,244,0.22)}
+  .search::placeholder{color:#B0A8B0;font-style:italic}
+
+  /* ── Nav ── */
+  .nav{
+    display:flex;
+    gap:8px;
+    margin-bottom:32px;
+  }
+  .nav-item{
+    padding:12px 28px;
+    font-size:0.92rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .3s ease;
+    background:transparent;
+    color:#9A8A9A;
+    border:none;
+    font-family:inherit;
+    border-radius:16px;
+    letter-spacing:0.3px;
+  }
+  .nav-item:hover{
+    background:rgba(194,212,244,0.15);
+    box-shadow:0 0 20px 4px rgba(194,212,244,0.12);
+    color:#6A6A8A;
+  }
+  .nav-item.active{
+    background:rgba(244,194,194,0.2);
+    box-shadow:0 0 25px 6px rgba(244,194,194,0.18);
+    color:#7A5A6A;
+  }
+
+  /* ── Main card ── */
+  .main-card{
+    padding:36px 32px;
+    margin-bottom:32px;
+    background:rgba(255,254,250,0.55);
+    border-radius:24px;
+    box-shadow:
+      0 0 40px 12px rgba(244,194,194,0.14),
+      0 0 60px 20px rgba(194,212,244,0.08);
+  }
+  .main-card h1{
+    font-size:1.8rem;
+    font-weight:700;
+    margin-bottom:8px;
+    color:#5A4A5A;
+    letter-spacing:0.5px;
+  }
+  .main-card .desc{
+    font-size:1rem;
+    color:#8A7A8A;
+    margin-bottom:26px;
+    line-height:1.6;
+    font-style:italic;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:30px}
+  .chip{
+    padding:10px 22px;
+    font-size:0.86rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .3s ease;
+    border:none;
+    color:#6A5A6A;
+    font-family:inherit;
+    border-radius:14px;
+    letter-spacing:0.2px;
+  }
+  .chip:nth-child(1){background:rgba(244,194,194,0.28);box-shadow:0 0 18px 4px rgba(244,194,194,0.15)}
+  .chip:nth-child(2){background:rgba(194,212,244,0.28);box-shadow:0 0 18px 4px rgba(194,212,244,0.15)}
+  .chip:nth-child(3){background:rgba(212,181,255,0.22);box-shadow:0 0 18px 4px rgba(212,181,255,0.12)}
+  .chip:nth-child(4){background:rgba(194,244,212,0.25);box-shadow:0 0 18px 4px rgba(194,244,212,0.15)}
+  .chip:nth-child(5){background:rgba(244,240,194,0.3);box-shadow:0 0 18px 4px rgba(244,240,194,0.15)}
+  .chip:hover{
+    box-shadow:0 0 28px 8px rgba(244,194,194,0.22);
+    transform:translateY(-1px);
+  }
+
+  .btn-group{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{
+    padding:14px 32px;
+    font-size:0.92rem;
+    font-weight:600;
+    cursor:pointer;
+    border:none;
+    font-family:inherit;
+    transition:all .3s ease;
+    border-radius:18px;
+    letter-spacing:0.3px;
+  }
+  .btn-primary{
+    background:rgba(244,194,194,0.35);
+    color:#7A5A5A;
+    box-shadow:0 0 25px 6px rgba(244,194,194,0.2);
+  }
+  .btn-primary:hover{
+    background:rgba(244,194,194,0.5);
+    box-shadow:0 0 35px 10px rgba(244,194,194,0.3);
+  }
+  .btn-secondary{
+    background:rgba(194,212,244,0.25);
+    color:#5A6A8A;
+    box-shadow:0 0 20px 4px rgba(194,212,244,0.15);
+  }
+  .btn-secondary:hover{
+    background:rgba(194,212,244,0.4);
+    box-shadow:0 0 30px 8px rgba(194,212,244,0.25);
+  }
+
+  /* ── Color palette ── */
+  .palette{
+    padding:32px;
+    margin-bottom:32px;
+    background:rgba(255,254,250,0.45);
+    border-radius:24px;
+    box-shadow:
+      0 0 40px 10px rgba(194,244,212,0.12),
+      0 0 60px 18px rgba(244,240,194,0.08);
+  }
+  .palette h2{font-size:1.3rem;font-weight:700;margin-bottom:20px;color:#5A4A5A}
+  .swatches{display:flex;gap:10px;flex-wrap:wrap}
+  .swatch{
+    flex:1;min-width:110px;
+    padding:24px 14px;
+    text-align:center;
+    font-weight:600;
+    font-size:0.8rem;
+    color:#6A5A6A;
+    border-radius:18px;
+    transition:all .3s ease;
+  }
+  .swatch:hover{transform:translateY(-2px)}
+  .swatch-1{background:rgba(244,194,194,0.35);box-shadow:0 0 30px 8px rgba(244,194,194,0.2)}
+  .swatch-2{background:rgba(194,212,244,0.35);box-shadow:0 0 30px 8px rgba(194,212,244,0.2)}
+  .swatch-3{background:rgba(194,244,212,0.3);box-shadow:0 0 30px 8px rgba(194,244,212,0.2)}
+  .swatch-4{background:rgba(244,240,194,0.35);box-shadow:0 0 30px 8px rgba(244,240,194,0.2)}
+
+  /* ── Typography ── */
+  .typo{
+    padding:32px;
+    background:rgba(255,254,250,0.45);
+    border-radius:24px;
+    box-shadow:
+      0 0 40px 10px rgba(212,181,255,0.1),
+      0 0 60px 18px rgba(194,212,244,0.06);
+  }
+  .typo h2{font-size:1.3rem;font-weight:700;margin-bottom:18px;color:#5A4A5A}
+  .typo h1{font-size:2.1rem;font-weight:700;margin-bottom:10px;color:#4A3A4A;letter-spacing:0.6px}
+  .typo h2.sample{font-size:1.5rem;font-weight:700;margin-bottom:10px;color:#5A4A5A}
+  .typo p.body{font-size:1rem;line-height:1.75;margin-bottom:12px;color:#6A6A6A;letter-spacing:0.3px}
+  .typo .caption{font-size:0.78rem;color:#A09AA0;margin-top:6px;font-style:italic;letter-spacing:0.4px}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar wash">
+  <div class="logo">SampleApp</div>
+  <input class="search" type="text" placeholder="Search...">
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <button class="nav-item active">Dashboard</button>
+  <button class="nav-item">Library</button>
+  <button class="nav-item">Settings</button>
+</nav>
+
+<!-- Main card -->
+<div class="main-card wash">
+  <h1>Tag Collection</h1>
+  <p class="desc">Browse and manage your creative tags</p>
+  <div class="chips">
+    <button class="chip">landscape</button>
+    <button class="chip">portrait</button>
+    <button class="chip">anime</button>
+    <button class="chip">watercolor</button>
+    <button class="chip">detailed</button>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary">Add Tag</button>
+    <button class="btn btn-secondary">Filter</button>
+  </div>
+</div>
+
+<!-- Color palette -->
+<div class="palette wash">
+  <h2>Color Palette</h2>
+  <div class="swatches">
+    <div class="swatch swatch-1">Rose Wash<br>#F4C2C2</div>
+    <div class="swatch swatch-2">Blue Wash<br>#C2D4F4</div>
+    <div class="swatch swatch-3">Green Wash<br>#C2F4D4</div>
+    <div class="swatch swatch-4">Yellow Wash<br>#F4F0C2</div>
+  </div>
+</div>
+
+<!-- Typography -->
+<div class="typo wash">
+  <h2>Typography</h2>
+  <h1>Heading One</h1>
+  <h2 class="sample">Heading Two</h2>
+  <p class="body">This is body text flowing like watercolor on wet paper. No hard edges define the shapes — only soft washes of color that gently bleed into one another, creating an atmosphere of artistic calm.</p>
+  <span class="caption">Caption text — delicate and light, like a faint wash of color</span>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleApp — Ombre</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    min-height:100vh;color:#4A3F55;
+    background:linear-gradient(180deg,#E8D8F0 0%,#F2E0EA 40%,#FFF0E8 100%);
+  }
+
+  /* Top Bar */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 32px;
+    background:linear-gradient(90deg,rgba(232,216,240,0.8),rgba(242,224,234,0.8));
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+  }
+  .logo{
+    font-size:1.4rem;font-weight:700;
+    background:linear-gradient(90deg,#C3ACD0,#F4B8C1);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .search{
+    background:rgba(255,255,255,0.5);border:none;border-radius:24px;
+    padding:10px 18px;font-size:0.85rem;color:#6B5A7A;
+    outline:none;width:220px;font-family:inherit;
+    transition:box-shadow 0.3s;
+  }
+  .search::placeholder{color:#B0A0C0}
+  .search:focus{box-shadow:0 0 0 3px rgba(195,172,208,0.3)}
+
+  /* Nav */
+  .nav{display:flex;gap:6px;padding:14px 32px}
+  .nav-item{
+    padding:10px 22px;border-radius:24px;font-size:0.85rem;
+    font-weight:600;cursor:pointer;border:none;
+    font-family:inherit;transition:all 0.3s;
+    color:#8A7A9A;
+    background:rgba(255,255,255,0.4);
+  }
+  .nav-item.active{
+    background:linear-gradient(135deg,#C3ACD0,#F4B8C1);
+    color:#fff;box-shadow:0 4px 15px rgba(195,172,208,0.35);
+  }
+  .nav-item:not(.active):hover{
+    background:rgba(255,255,255,0.6);
+  }
+
+  .main{padding:12px 32px 40px;max-width:720px;}
+
+  /* Card */
+  .card{
+    position:relative;border-radius:20px;padding:28px;
+    background:linear-gradient(135deg,rgba(255,255,255,0.85),rgba(255,248,231,0.7));
+    box-shadow:0 8px 30px rgba(195,172,208,0.2);
+    overflow:hidden;
+  }
+  .card::before{
+    content:'';position:absolute;inset:0;border-radius:20px;padding:1px;
+    background:linear-gradient(135deg,#C3ACD0,#F4B8C1,#A0C4FF);
+    -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+    pointer-events:none;
+  }
+  .card-title{
+    font-size:1.5rem;font-weight:700;
+    background:linear-gradient(90deg,#9A7AB0,#E07A95);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;margin-bottom:4px;
+  }
+  .card-desc{
+    font-size:0.88rem;color:#8A7A9A;margin-bottom:18px;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+  .chip{
+    padding:8px 16px;border-radius:24px;font-size:0.8rem;font-weight:600;
+    border:none;cursor:pointer;font-family:inherit;
+    color:#fff;transition:all 0.3s;
+  }
+  .chip:nth-child(1){background:linear-gradient(135deg,#C3ACD0,#F4B8C1)}
+  .chip:nth-child(2){background:linear-gradient(135deg,#A0C4FF,#B5EAD7)}
+  .chip:nth-child(3){background:linear-gradient(135deg,#F4B8C1,#FFB7B2)}
+  .chip:nth-child(4){background:linear-gradient(135deg,#B5EAD7,#FFF8E7)}
+  .chip:nth-child(5){background:linear-gradient(135deg,#E8D8F0,#C3ACD0)}
+  .chip:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(195,172,208,0.3)}
+
+  .buttons{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{
+    padding:12px 24px;border-radius:24px;font-size:0.85rem;
+    font-weight:700;cursor:pointer;border:none;transition:all 0.3s;
+    font-family:inherit;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg,#C3ACD0,#F4B8C1);
+    color:#fff;box-shadow:0 4px 18px rgba(195,172,208,0.4);
+  }
+  .btn-primary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 25px rgba(195,172,208,0.5);
+  }
+  .btn-secondary{
+    background:linear-gradient(135deg,rgba(255,255,255,0.7),rgba(255,248,231,0.5));
+    color:#8A7A9A;
+  }
+  .btn-secondary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(195,172,208,0.2);
+  }
+
+  /* Color Palette — ombre gradient swatches */
+  .palette{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+  .swatch{
+    width:110px;overflow:hidden;border-radius:16px;
+    box-shadow:0 4px 15px rgba(195,172,208,0.2);
+    transition:transform 0.3s;
+  }
+  .swatch:hover{transform:translateY(-3px)}
+  .swatch-color{height:55px;width:100%}
+  .swatch-label{
+    text-align:center;padding:6px 0;font-size:0.68rem;font-weight:600;
+    background:rgba(255,255,255,0.6);color:#8A7A9A;
+  }
+
+  /* Typography */
+  .typo{margin-top:28px}
+  .typo h1{
+    font-size:2.2rem;font-weight:900;
+    background:linear-gradient(90deg,#9A7AB0,#D07A95,#C09070);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;margin-bottom:8px;
+  }
+  .typo h2{
+    font-size:1.2rem;font-weight:700;
+    background:linear-gradient(90deg,#A0C4FF,#B5EAD7);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;margin-bottom:6px;
+  }
+  .typo p{
+    font-size:0.9rem;line-height:1.8;color:#8A7A9A;margin-bottom:8px;
+  }
+  .typo .caption{
+    font-size:0.72rem;
+    background:linear-gradient(90deg,#C3ACD0,#F4B8C1);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;font-weight:500;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">SampleApp</div>
+  <input class="search" type="text" placeholder="Search...">
+</div>
+
+<nav class="nav">
+  <button class="nav-item active">Dashboard</button>
+  <button class="nav-item">Library</button>
+  <button class="nav-item">Settings</button>
+</nav>
+
+<div class="main">
+  <div class="card">
+    <div class="card-title">Tag Collection</div>
+    <div class="card-desc">Browse and manage your creative tags</div>
+    <div class="chips">
+      <span class="chip">landscape</span>
+      <span class="chip">portrait</span>
+      <span class="chip">anime</span>
+      <span class="chip">watercolor</span>
+      <span class="chip">detailed</span>
+    </div>
+    <div class="buttons">
+      <button class="btn btn-primary">Add Tag</button>
+      <button class="btn btn-secondary">Filter</button>
+    </div>
+  </div>
+
+  <div class="palette">
+    <div class="swatch">
+      <div class="swatch-color" style="background:linear-gradient(135deg,#C3ACD0,#F4B8C1)"></div>
+      <div class="swatch-label">Lavender to Rose</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:linear-gradient(135deg,#A0C4FF,#B5EAD7)"></div>
+      <div class="swatch-label">Sky to Mint</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:linear-gradient(135deg,#FFB7B2,#FFF8E7)"></div>
+      <div class="swatch-label">Peach to Cream</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:linear-gradient(135deg,#E8D8F0,#FFE8E0)"></div>
+      <div class="swatch-label">Lilac to Blush</div>
+    </div>
+  </div>
+
+  <div class="typo">
+    <h1>Heading One</h1>
+    <h2>Heading Two</h2>
+    <p>Soft hues dissolve into one another like watercolors bleeding on damp paper. No edge is sharp, no boundary abrupt — everything flows with gentle grace.</p>
+    <span class="caption">An ombre caption that fades softly</span>
+  </div>
+</div>
+
+</body>
+</html>

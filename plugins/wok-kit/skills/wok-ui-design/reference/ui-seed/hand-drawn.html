@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hand Drawn UI Seed</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  /* Graph paper background */
+  body{
+    font-family:'Comic Sans MS','Chalkboard SE','Marker Felt',cursive;
+    min-height:100vh;
+    background-color:#F8F9FC;
+    background-image:
+      repeating-linear-gradient(0deg,transparent,transparent 27px,#D8DCE6 27px,#D8DCE6 28px),
+      repeating-linear-gradient(90deg,transparent,transparent 27px,#D8DCE6 27px,#D8DCE6 28px);
+    padding:24px;
+    color:#4A4A4A;
+  }
+
+  /* Wobbly hand-drawn border helper */
+  .wobbly{
+    border:1.8px solid #4A4A4A;
+    border-radius:255px 15px 225px 15px/15px 225px 15px 255px;
+  }
+
+  /* ── Top bar ── */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 26px;
+    margin-bottom:24px;
+    background:rgba(255,255,255,0.7);
+    border:1.8px solid #4A4A4A;
+    border-radius:225px 15px 255px 15px/15px 255px 15px 225px;
+    transform:rotate(-0.3deg);
+  }
+  .logo{
+    font-size:1.6rem;
+    font-weight:700;
+    color:#4A4A4A;
+    letter-spacing:0.5px;
+    text-decoration:underline;
+    text-decoration-style:wavy;
+    text-underline-offset:4px;
+  }
+  .search{
+    padding:10px 18px;
+    border:1.8px solid #4A4A4A;
+    border-radius:255px 15px 225px 15px/15px 225px 15px 255px;
+    width:260px;
+    font-size:0.92rem;
+    color:#4A4A4A;
+    background:rgba(255,241,118,0.15);
+    font-family:inherit;
+    outline:none;
+  }
+  .search::placeholder{color:#9A9A9A;font-style:italic}
+
+  /* ── Nav ── */
+  .nav{
+    display:flex;
+    gap:10px;
+    margin-bottom:28px;
+    padding-left:4px;
+  }
+  .nav-item{
+    padding:11px 26px;
+    font-size:0.92rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:all .15s ease;
+    background:rgba(255,255,255,0.6);
+    color:#8A8A8A;
+    border:1.8px solid #4A4A4A;
+    font-family:inherit;
+    border-radius:255px 15px 225px 15px/15px 225px 15px 255px;
+  }
+  .nav-item:nth-child(2){transform:rotate(0.5deg)}
+  .nav-item:nth-child(3){transform:rotate(-0.4deg)}
+  .nav-item:hover{background:rgba(255,241,118,0.2)}
+  .nav-item.active{
+    background:rgba(255,241,118,0.35);
+    color:#4A4A4A;
+    border-color:#E74C3C;
+    transform:rotate(-0.8deg);
+    box-shadow:3px 3px 0 rgba(0,0,0,0.1);
+  }
+
+  /* ── Main card ── */
+  .main-card{
+    padding:36px 32px;
+    margin-bottom:28px;
+    background:rgba(255,255,255,0.75);
+    border:1.8px solid #4A4A4A;
+    border-radius:15px 255px 15px 225px/225px 15px 255px 15px;
+    transform:rotate(-0.5deg);
+  }
+  .main-card h1{
+    font-size:1.7rem;
+    font-weight:700;
+    margin-bottom:8px;
+    color:#3A3A3A;
+    text-decoration:underline;
+    text-decoration-color:#FFF176;
+    text-decoration-thickness:3px;
+    text-underline-offset:4px;
+  }
+  .main-card .desc{
+    font-size:1rem;
+    color:#6A6A6A;
+    margin-bottom:24px;
+    line-height:1.6;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px}
+  .chip{
+    padding:9px 20px;
+    font-size:0.86rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:all .15s ease;
+    border:1.8px solid #4A4A4A;
+    background:rgba(255,255,255,0.6);
+    color:#5A5A5A;
+    font-family:inherit;
+  }
+  .chip:nth-child(1){border-radius:255px 15px 225px 15px/15px 225px 15px 255px;transform:rotate(-1deg)}
+  .chip:nth-child(2){border-radius:15px 255px 15px 225px/225px 15px 255px 15px;transform:rotate(0.8deg)}
+  .chip:nth-child(3){border-radius:225px 15px 255px 15px/15px 225px 15px 255px;transform:rotate(-0.6deg)}
+  .chip:nth-child(4){border-radius:15px 225px 15px 255px/255px 15px 225px 15px;transform:rotate(0.5deg)}
+  .chip:nth-child(5){border-radius:255px 15px 225px 15px/225px 15px 255px 15px;transform:rotate(-0.7deg)}
+  .chip:hover{background:rgba(255,241,118,0.3);box-shadow:3px 3px 0 rgba(0,0,0,0.08)}
+
+  .btn-group{display:flex;gap:14px;flex-wrap:wrap}
+  .btn{
+    padding:13px 28px;
+    font-size:0.92rem;
+    font-weight:700;
+    cursor:pointer;
+    border:1.8px solid #4A4A4A;
+    font-family:inherit;
+    transition:all .15s ease;
+  }
+  .btn-primary{
+    background:#FFF176;
+    color:#4A4A4A;
+    border-radius:255px 15px 225px 15px/15px 225px 15px 255px;
+    transform:rotate(-1deg);
+  }
+  .btn-primary:hover{box-shadow:3px 3px 0 rgba(0,0,0,0.15);transform:rotate(-1deg) translateY(-2px)}
+  .btn-secondary{
+    background:rgba(255,255,255,0.6);
+    color:#6A6A6A;
+    border-radius:15px 255px 15px 225px/225px 15px 255px 15px;
+    transform:rotate(0.6deg);
+  }
+  .btn-secondary:hover{background:rgba(52,152,219,0.1)}
+
+  /* ── Color palette ── */
+  .palette{
+    padding:32px;
+    margin-bottom:28px;
+    background:rgba(255,255,255,0.7);
+    border:1.8px solid #4A4A4A;
+    border-radius:225px 15px 255px 15px/15px 225px 15px 255px;
+    transform:rotate(0.4deg);
+  }
+  .palette h2{font-size:1.3rem;font-weight:700;margin-bottom:18px;color:#3A3A3A}
+  .swatches{display:flex;gap:16px;flex-wrap:wrap}
+  .swatch{
+    flex:1;min-width:110px;
+    padding:22px 14px;
+    text-align:center;
+    font-weight:700;
+    font-size:0.8rem;
+    color:#4A4A4A;
+    border:1.8px solid #4A4A4A;
+    transition:transform .15s ease;
+  }
+  .swatch:hover{transform:rotate(2deg) scale(1.04)}
+  .swatch:nth-child(1){background:#4A4A4A;color:#FFF;border-radius:255px 15px 225px 15px/15px 225px 15px 255px}
+  .swatch:nth-child(2){background:#E74C3C;border-radius:15px 255px 15px 225px/225px 15px 255px 15px}
+  .swatch:nth-child(3){background:#3498DB;border-radius:225px 15px 255px 15px/15px 225px 15px 255px;color:#fff}
+  .swatch:nth-child(4){background:#FFF176;border-radius:15px 225px 15px 255px/255px 15px 225px 15px}
+
+  /* ── Typography ── */
+  .typo{
+    padding:32px;
+    background:rgba(255,255,255,0.7);
+    border:1.8px solid #4A4A4A;
+    border-radius:15px 255px 15px 225px/225px 15px 255px 15px;
+    transform:rotate(-0.3deg);
+  }
+  .typo h2{font-size:1.3rem;font-weight:700;margin-bottom:18px;color:#3A3A3A}
+  .typo h1{font-size:2.1rem;font-weight:700;margin-bottom:10px;color:#3A3A3A}
+  .typo h2.sample{font-size:1.5rem;font-weight:700;margin-bottom:10px;color:#4A4A4A}
+  .typo p.body{font-size:1rem;line-height:1.7;margin-bottom:12px;color:#5A5A5A}
+  .typo .caption{font-size:0.78rem;color:#8A8A8A;margin-top:6px;font-style:italic}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="logo">SampleApp</div>
+  <input class="search" type="text" placeholder="Search...">
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <button class="nav-item active">Dashboard</button>
+  <button class="nav-item">Library</button>
+  <button class="nav-item">Settings</button>
+</nav>
+
+<!-- Main card -->
+<div class="main-card">
+  <h1>Tag Collection</h1>
+  <p class="desc">Browse and manage your creative tags</p>
+  <div class="chips">
+    <button class="chip">landscape</button>
+    <button class="chip">portrait</button>
+    <button class="chip">anime</button>
+    <button class="chip">watercolor</button>
+    <button class="chip">detailed</button>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary">Add Tag</button>
+    <button class="btn btn-secondary">Filter</button>
+  </div>
+</div>
+
+<!-- Color palette -->
+<div class="palette">
+  <h2>Color Palette</h2>
+  <div class="swatches">
+    <div class="swatch">Pencil Grey<br>#4A4A4A</div>
+    <div class="swatch">Red Pen<br>#E74C3C</div>
+    <div class="swatch">Blue Pen<br>#3498DB</div>
+    <div class="swatch">Highlighter<br>#FFF176</div>
+  </div>
+</div>
+
+<!-- Typography -->
+<div class="typo">
+  <h2>Typography</h2>
+  <h1>Heading One</h1>
+  <h2 class="sample">Heading Two</h2>
+  <p class="body">This is body text that looks like it was scribbled in a notebook. Wobbly borders, casual spacing, and a hand-drawn feel make everything feel personal and creative.</p>
+  <span class="caption">Caption text — lighter and smaller, like a note in the margin</span>
+</div>
+
+</body>
+</html>

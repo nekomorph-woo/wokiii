@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claymorphism UI Seed</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    min-height:100vh;
+    background:linear-gradient(135deg,#FFDEE9 0%,#B5FFFC 100%);
+    padding:24px;
+    color:#5A5A7A;
+    font-weight:500;
+  }
+  /* Clay mixin — every surface gets the double shadow */
+  .clay{
+    border-radius:24px;
+    background:rgba(255,255,255,0.55);
+    box-shadow:
+      8px 8px 16px rgba(200,200,220,0.5),
+      -4px -4px 12px rgba(255,255,255,0.8),
+      inset 2px 2px 4px rgba(255,255,255,0.6),
+      inset -2px -2px 4px rgba(200,200,220,0.3);
+    border:none;
+  }
+
+  /* ── Top bar ── */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 28px;
+    margin-bottom:24px;
+    backdrop-filter:blur(6px);
+  }
+  .logo{
+    font-size:1.6rem;
+    font-weight:700;
+    color:#7A6B8A;
+    letter-spacing:-0.5px;
+  }
+  .search{
+    padding:12px 22px;
+    border-radius:28px;
+    border:none;
+    width:280px;
+    font-size:0.95rem;
+    color:#7A6B8A;
+    background:rgba(255,255,255,0.6);
+    box-shadow:
+      6px 6px 12px rgba(200,200,220,0.5),
+      -3px -3px 10px rgba(255,255,255,0.8),
+      inset 2px 2px 4px rgba(255,255,255,0.6),
+      inset -2px -2px 4px rgba(200,200,220,0.3);
+    outline:none;
+  }
+  .search::placeholder{color:#B0A8C0}
+
+  /* ── Nav ── */
+  .nav{
+    display:flex;
+    gap:12px;
+    margin-bottom:28px;
+  }
+  .nav-item{
+    padding:12px 28px;
+    border-radius:22px;
+    font-size:0.95rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .2s ease;
+    background:rgba(255,255,255,0.45);
+    box-shadow:
+      6px 6px 12px rgba(200,200,220,0.45),
+      -3px -3px 10px rgba(255,255,255,0.75),
+      inset 2px 2px 4px rgba(255,255,255,0.55),
+      inset -2px -2px 4px rgba(200,200,220,0.25);
+    color:#8A7A9A;
+    border:none;
+  }
+  .nav-item:hover{
+    box-shadow:
+      4px 4px 8px rgba(200,200,220,0.5),
+      -2px -2px 6px rgba(255,255,255,0.8),
+      inset 3px 3px 6px rgba(255,255,255,0.7),
+      inset -3px -3px 6px rgba(200,200,220,0.35);
+  }
+  .nav-item.active{
+    background:rgba(255,181,194,0.45);
+    color:#7A5A6A;
+    box-shadow:
+      inset 3px 3px 6px rgba(180,160,180,0.4),
+      inset -3px -3px 6px rgba(255,255,255,0.5);
+  }
+
+  /* ── Main card ── */
+  .main-card{
+    padding:36px 32px;
+    margin-bottom:28px;
+  }
+  .main-card h1{
+    font-size:1.7rem;
+    font-weight:700;
+    margin-bottom:8px;
+    color:#6A5A7A;
+  }
+  .main-card .desc{
+    font-size:1rem;
+    color:#8A7A9A;
+    margin-bottom:22px;
+    line-height:1.5;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px}
+  .chip{
+    padding:10px 22px;
+    border-radius:20px;
+    font-size:0.88rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .2s ease;
+    border:none;
+    color:#7A6B8A;
+  }
+  .chip:nth-child(1){background:rgba(255,181,194,0.5)}
+  .chip:nth-child(2){background:rgba(181,216,255,0.5)}
+  .chip:nth-child(3){background:rgba(212,181,255,0.5)}
+  .chip:nth-child(4){background:rgba(181,255,212,0.5)}
+  .chip:nth-child(5){background:rgba(255,224,178,0.5)}
+  .chip:hover{
+    box-shadow:
+      inset 3px 3px 6px rgba(180,160,180,0.4),
+      inset -3px -3px 6px rgba(255,255,255,0.5);
+  }
+  .btn-group{display:flex;gap:14px;flex-wrap:wrap}
+  .btn{
+    padding:14px 30px;
+    border-radius:22px;
+    font-size:0.95rem;
+    font-weight:700;
+    cursor:pointer;
+    border:none;
+    transition:all .15s ease;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg,#FFB5C2,#D4B5FF);
+    color:#5A4A6A;
+    box-shadow:
+      8px 8px 16px rgba(200,180,200,0.5),
+      -4px -4px 12px rgba(255,255,255,0.8),
+      inset 2px 2px 4px rgba(255,255,255,0.5),
+      inset -2px -2px 4px rgba(200,180,200,0.25);
+  }
+  .btn-primary:active{
+    box-shadow:
+      inset 4px 4px 8px rgba(180,160,180,0.45),
+      inset -4px -4px 8px rgba(255,255,255,0.4);
+  }
+  .btn-secondary{
+    background:rgba(255,255,255,0.5);
+    color:#7A6B8A;
+    box-shadow:
+      6px 6px 12px rgba(200,200,220,0.45),
+      -3px -3px 10px rgba(255,255,255,0.75),
+      inset 2px 2px 4px rgba(255,255,255,0.55),
+      inset -2px -2px 4px rgba(200,200,220,0.25);
+  }
+  .btn-secondary:active{
+    box-shadow:
+      inset 3px 3px 6px rgba(180,160,180,0.4),
+      inset -3px -3px 6px rgba(255,255,255,0.5);
+  }
+
+  /* ── Color palette ── */
+  .palette{
+    padding:32px;
+    margin-bottom:28px;
+  }
+  .palette h2{font-size:1.3rem;font-weight:700;margin-bottom:18px;color:#6A5A7A}
+  .swatches{display:flex;gap:16px;flex-wrap:wrap}
+  .swatch{
+    flex:1;min-width:120px;
+    padding:22px 16px;
+    border-radius:22px;
+    text-align:center;
+    font-weight:700;
+    font-size:0.85rem;
+    color:#5A4A6A;
+    transition:all .2s ease;
+  }
+  .swatch:hover{
+    transform:scale(1.04);
+    box-shadow:
+      10px 10px 20px rgba(200,200,220,0.5),
+      -5px -5px 14px rgba(255,255,255,0.8),
+      inset 2px 2px 4px rgba(255,255,255,0.6),
+      inset -2px -2px 4px rgba(200,200,220,0.3);
+  }
+  .swatch-1{background:#FFB5C2}
+  .swatch-2{background:#B5D8FF}
+  .swatch-3{background:#D4B5FF}
+  .swatch-4{background:#B5FFD4}
+
+  /* ── Typography ── */
+  .typo{
+    padding:32px;
+  }
+  .typo h2{font-size:1.3rem;font-weight:700;margin-bottom:18px;color:#6A5A7A}
+  .typo h1{font-size:2.2rem;font-weight:800;margin-bottom:10px;color:#5A4A6A}
+  .typo h2.sample{font-size:1.5rem;font-weight:700;margin-bottom:10px;color:#6A5A7A}
+  .typo p.body{font-size:1rem;line-height:1.7;margin-bottom:12px;color:#7A6B8A}
+  .typo .caption{font-size:0.82rem;color:#A09AB0;margin-top:6px}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar clay">
+  <div class="logo">SampleApp</div>
+  <input class="search" type="text" placeholder="Search...">
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <button class="nav-item active">Dashboard</button>
+  <button class="nav-item">Library</button>
+  <button class="nav-item">Settings</button>
+</nav>
+
+<!-- Main card -->
+<div class="main-card clay">
+  <h1>Tag Collection</h1>
+  <p class="desc">Browse and manage your creative tags</p>
+  <div class="chips">
+    <button class="chip">landscape</button>
+    <button class="chip">portrait</button>
+    <button class="chip">anime</button>
+    <button class="chip">watercolor</button>
+    <button class="chip">detailed</button>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary">Add Tag</button>
+    <button class="btn btn-secondary">Filter</button>
+  </div>
+</div>
+
+<!-- Color palette -->
+<div class="palette clay">
+  <h2>Color Palette</h2>
+  <div class="swatches">
+    <div class="swatch swatch-1 clay">Pastel Pink<br>#FFB5C2</div>
+    <div class="swatch swatch-2 clay">Pastel Blue<br>#B5D8FF</div>
+    <div class="swatch swatch-3 clay">Pastel Purple<br>#D4B5FF</div>
+    <div class="swatch swatch-4 clay">Pastel Mint<br>#B5FFD4</div>
+  </div>
+</div>
+
+<!-- Typography -->
+<div class="typo clay">
+  <h2>Typography</h2>
+  <h1>Heading One</h1>
+  <h2 class="sample">Heading Two</h2>
+  <p class="body">This is body text rendered in a soft, rounded style that complements the inflated clay aesthetic. The medium weight and gentle color keep everything feeling approachable and warm.</p>
+  <span class="caption">Caption text — lighter and smaller for secondary information</span>
+</div>
+
+</body>
+</html>

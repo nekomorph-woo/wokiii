@@ -2,7 +2,82 @@
 
 为 Claude Code / Cursor CLI 设计的技能插件市场。
 
+## 安装
+
+添加 marketplace：
+
+```
+/plugin marketplace add nekomorph-woo/wokiii
+```
+
+安装插件：
+
+```
+/plugin install wok@wok
+/plugin install wok-kit@wok
+```
+
+更新：
+
+```
+/plugin marketplace update wok
+```
+
+## 项目初始化
+
+安装插件后，在新项目中按以下步骤初始化 wok 环境。每步完成后即可使用对应能力，全部完成可解锁完整管道体验。
+
+### 初始化流程
+
+```
+wok-starter           部署 rules + .gitignore
+       │
+       ├── wok-ontology     蒸馏方法论为行为规则
+       ├── wok-tech-stack   按平台初始化技术栈规则
+       └── wok-access-hold  保护敏感文件
+       │
+wok-setup-zzap        生成项目级提交 + 版本管理技能
+       │
+wok-refine-rule       （可选）审计规则质量与冲突
+```
+
+- `wok-starter` 是所有初始化的第一步
+- `wok-ontology`、`wok-tech-stack`、`wok-access-hold` 三者无顺序依赖，按需选择
+- `wok-setup-zzap` 在上述规则就绪后运行，确保生成的版本管理技能与项目配置一致
+
+### 各步骤说明
+
+| 步骤 | 做什么 | 跳过的后果 |
+|------|--------|-----------|
+| **wok-starter** | 部署 .claude/rules/ 规则文件、配置 .gitignore | 管道缺乏编码规范约束，提交可能包含临时文件 |
+| **wok-ontology** | 将开发方法论蒸馏为阶段性行为规则 | implement 等技能缺乏方法论指导，实现风格漂移 |
+| **wok-tech-stack** | 按目标平台（桌面/移动/Web）初始化技术选型、目录结构规则 | 设计和实现阶段缺乏技术约束，产出不一致 |
+| **wok-access-hold** | 配置 .env/secrets 等文件的排除规则 | 敏感文件可能被读取或提交 |
+| **wok-setup-zzap** | 生成定制的提交 + 版本升级 + CHANGELOG 技能 | 使用通用 zap 代替，缺少项目特定的版本文件检测 |
+| **wok-refine-rule** | 五维度评估规则质量，审计规则间冲突 | 规则可能存在冲突或低质量指令 |
+
+### 最小初始化
+
+快速试用 wok，执行前两步即可开始：
+
+```
+/wok-starter
+/wok-ontology
+```
+
+此时管道技能已可用。后续随时补充其他初始化步骤。
+
+### 进阶初始化
+
+| 场景 | 补充步骤 |
+|------|---------|
+| 想让 AI 学习个人编码习惯 | `wok-distill-session` — 分析近 7 日会话日志，提取习惯生成 rules |
+| 需要交接工作给下一个 session | `wok-handoff` — 生成结构化交接文档 |
+| 想创建项目专属技能 | `write-a-skill` — 引导创建符合规范的技能 |
+
 ## 开发管道
+
+初始化完成后，通过以下管道技能驱动开发：
 
 ```
 wok-idea             灵感发散 + 路线图规划
@@ -65,7 +140,7 @@ wok/
 │   │   └── scripts/                  # 系统级脚本
 │   └── wok-kit/                      # 辅助工具集
 │       ├── .claude-plugin/plugin.json
-│       └── skills/                   # 11 个工具技能
+│       └── skills/                   # 12 个工具技能
 ├── .claude/
 │   ├── rules/                        # 项目规则
 │   └── skills/                       # 项目内部技能
@@ -120,6 +195,7 @@ wok/
 | `wok-ontology` | 本体论规则管理：蒸馏方法论为可执行规则注入 .claude/rules/ |
 | `wok-tech-stack` | 技术栈规则管理：按平台选型初始化技术栈规则 |
 | `wok-setup-zzap` | 初始化项目级 zzap 技能：自动版本管理 + CHANGELOG + 发布流程 |
+| `wok-ui-design` | 多端 UI 设计工作流：设计系统生成 → 各端原型 → MD3 合规审计 |
 
 ### 审查 Agent（wok）
 
@@ -131,27 +207,6 @@ wok/
 | `comment-analyzer` | 注释准确性分析（代码与注释不一致） |
 | `pr-test-analyzer` | 测试质量审查（覆盖/边界/mock/断言） |
 | `type-design-analyzer` | 类型设计审查（类型安全/泛型/类型推导） |
-
-## 安装
-
-添加 marketplace：
-
-```
-/plugin marketplace add nekomorph-woo/wokiii
-```
-
-安装插件：
-
-```
-/plugin install wok@wok
-/plugin install wok-kit@wok
-```
-
-更新：
-
-```
-/plugin marketplace update wok
-```
 
 ## 贡献
 

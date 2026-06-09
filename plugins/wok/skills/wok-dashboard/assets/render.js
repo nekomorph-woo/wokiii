@@ -45,10 +45,10 @@
   };
 
   const PIPELINE_TABS = {
-    feat: ['overview', 'findings', 'requirements', 'design', 'check', 'execution', 'review'],
-    'feat-s': ['overview', 'findings', 'requirements', 'design', 'check', 'execution', 'review'],
-    fix: ['overview', 'findings', 'issue', 'design', 'check', 'execution', 'review'],
-    exp: ['overview', 'findings', 'execution', 'review'],
+    feat: ['overview', 'findings', 'requirements', 'design', 'check', 'execution', 'autopilot', 'review'],
+    'feat-s': ['overview', 'findings', 'requirements', 'design', 'check', 'execution', 'autopilot', 'review'],
+    fix: ['overview', 'findings', 'issue', 'design', 'check', 'execution', 'autopilot', 'review'],
+    exp: ['overview', 'findings', 'execution', 'autopilot', 'review'],
     cr: ['overview', 'review'],
   };
 
@@ -59,6 +59,7 @@
       { title: '模块设计', test: (n) => n.includes('modules/') },
       { title: '校验文档', test: (n) => n === '_check.md' || n.endsWith('/_check.md') },
       { title: '执行文档', test: (n) => n === '_plan.md' || n.endsWith('/_plan.md') },
+      { title: 'Autopilot 日志', test: (n) => n === '_autopilot.md' || n.endsWith('/_autopilot.md') },
       { title: '审查文档', test: (n) => n === '_review.md' || n.endsWith('/_review.md') },
     ],
     'feat-s': [
@@ -67,6 +68,7 @@
       { title: '模块设计', test: (n) => n.includes('modules/') },
       { title: '校验文档', test: (n) => n === '_check.md' || n.endsWith('/_check.md') },
       { title: '执行文档', test: (n) => n === '_plan.md' || n.endsWith('/_plan.md') },
+      { title: 'Autopilot 日志', test: (n) => n === '_autopilot.md' || n.endsWith('/_autopilot.md') },
       { title: '审查文档', test: (n) => n === '_review.md' || n.endsWith('/_review.md') },
     ],
     fix: [
@@ -75,11 +77,13 @@
       { title: '模块设计', test: (n) => n.includes('modules/') },
       { title: '校验文档', test: (n) => n === '_check.md' || n.endsWith('/_check.md') },
       { title: '执行文档', test: (n) => n === '_plan.md' || n.endsWith('/_plan.md') },
+      { title: 'Autopilot 日志', test: (n) => n === '_autopilot.md' || n.endsWith('/_autopilot.md') },
       { title: '审查文档', test: (n) => n === '_review.md' || n.endsWith('/_review.md') },
     ],
     exp: [
       { title: '探索文档', test: (n) => /^_findings/.test(n) },
       { title: '执行文档', test: (n) => n === '_plan.md' || n.endsWith('/_plan.md') },
+      { title: 'Autopilot 日志', test: (n) => n === '_autopilot.md' || n.endsWith('/_autopilot.md') },
       { title: '审查文档', test: (n) => n === '_review.md' || n.endsWith('/_review.md') },
     ],
     cr: [
@@ -94,7 +98,7 @@
 
   const TAB_LABELS = {
     overview: '概览', requirements: '需求', design: '设计',
-    check: '校验', execution: '执行', review: '审查',
+    check: '校验', execution: '执行', autopilot: 'Autopilot', review: '审查',
     issue: '问题', findings: '探索',
   };
 
@@ -395,6 +399,7 @@
       case 'design': renderDesign(); break;
       case 'check': renderCheck(); break;
       case 'execution': renderExecution(); break;
+      case 'autopilot': renderAutopilot(); break;
       case 'review': renderReview(); break;
       case 'issue': renderIssue(); break;
       case 'findings': renderFindings(); break;
@@ -2677,6 +2682,143 @@
     return rounds;
   }
 
+  // ── Autopilot Tab ──
+  function parseAutopilotLog(raw) {
+    const body = raw.replace(/^---\n[\s\S]*?\n---\s*\n/, '');
+    const steps = [];
+    let status = 'pending';
+    let startTime = null;
+    let endTime = null;
+    let summary = {};
+
+    for (const line of body.split('\n')) {
+      const launchMatch = line.match(/^###\s+🚀\s+\[([^\]]+)\]\s+Autopilot\s+启动/);
+      if (launchMatch) {
+        startTime = launchMatch[1];
+        continue;
+      }
+      const doneMatch = line.match(/^###\s+🏁\s+\[([^\]]+)\]\s+Autopilot\s+完成/);
+      if (doneMatch) {
+        endTime = doneMatch[1];
+        status = 'completed';
+        continue;
+      }
+      const failMatch = line.match(/^###\s+🔴\s+\[([^\]]+)\]\s+Autopilot\s+(?:中断|失败)/);
+      if (failMatch) {
+        endTime = failMatch[1];
+        status = 'failed';
+        continue;
+      }
+      const handoffMatch = line.match(/^###\s+⚠️\s+\[([^\]]+)\]\s+Handoff/);
+      if (handoffMatch) {
+        endTime = handoffMatch[1];
+        status = 'handoff';
+        continue;
+      }
+      const stepMatch = line.match(/^###\s+(✅|❌|🔄)\s+\[([^\]]+)\]\s+Step\s+(\d+)/);
+      if (stepMatch) {
+        steps.push({
+          icon: stepMatch[1],
+          time: stepMatch[2],
+          num: parseInt(stepMatch[3]),
+          done: stepMatch[1] === '✅',
+        });
+        continue;
+      }
+      const summaryDone = line.match(/^-?\s*完成步骤:\s*(\d+)\/(\d+)/);
+      if (summaryDone) {
+        summary.stepsDone = parseInt(summaryDone[1]);
+        summary.stepsTotal = parseInt(summaryDone[2]);
+        continue;
+      }
+      const summaryCR = line.match(/^-?\s*代码审查:\s*(\d+)\s+round/);
+      if (summaryCR) summary.reviewRounds = parseInt(summaryCR[1]);
+      const summaryFix = line.match(/^-?\s*修复问题:\s*(.+)/);
+      if (summaryFix) summary.fixes = summaryFix[1];
+      const summaryAC = line.match(/^-?\s*验收标准:\s*(.+)/);
+      if (summaryAC) summary.acceptance = summaryAC[1];
+    }
+
+    return { status, startTime, endTime, steps, summary, body };
+  }
+
+  function renderAutopilot() {
+    const el = $('#tab-autopilot');
+    const autopilotKeys = findAllFiles('_autopilot.md');
+    if (!autopilotKeys.length) {
+      el.innerHTML = '<p style="color:#737373;">未找到 Autopilot 日志（_autopilot.md）<br><span style="font-size:12px">执行计划审批后，运行 <code>wok-implement / wok-autopilot</code> 自动生成</span></p>';
+      return;
+    }
+
+    const logPhases = autopilotKeys.map((ak, i) => ({
+      key: ak, label: extractPhase(ak) || 'Autopilot 日志', id: `ap-phase-${i}`
+    }));
+
+    let contentHtml = '';
+    for (const phase of logPhases) {
+      const raw = state.files.get(phase.key);
+      const log = parseAutopilotLog(raw);
+      const parsed = state.parsed.get(phase.key);
+
+      contentHtml += `<div id="${phase.id}">`;
+      contentHtml += renderPhaseHeader(phase.key);
+      contentHtml += renderFileStatusBar(phase.key);
+
+      // Summary card
+      const statusColors = { completed: '#22C55E', failed: '#CC0000', handoff: '#E5A100', pending: '#737373' };
+      const statusLabels = { completed: '完成', failed: '失败', handoff: '需介入', pending: '执行中' };
+      contentHtml += '<div class="findings-summary-card">';
+      contentHtml += '<div class="findings-summary-metrics">';
+      contentHtml += `<span class="fsm-item" style="font-weight:600"><span style="color:${statusColors[log.status]}">${statusLabels[log.status]}</span></span>`;
+      if (log.startTime) contentHtml += `<span class="fsm-item">🚀 ${esc(log.startTime)}</span>`;
+      if (log.endTime) contentHtml += `<span class="fsm-item">🏁 ${esc(log.endTime)}</span>`;
+      contentHtml += '</div>';
+
+      if (log.steps.length) {
+        contentHtml += '<div class="findings-summary-row"><div class="fsm-group">';
+        contentHtml += '<span class="fsm-label">执行进度</span>';
+        contentHtml += '<div class="fsm-issue-list">';
+        for (const step of log.steps) {
+          contentHtml += `<span class="fsm-tag ${step.done ? 'pattern' : 'impact'}">${step.icon} Step ${step.num}</span>`;
+        }
+        contentHtml += '</div></div></div>';
+      }
+
+      if (log.summary.stepsTotal) {
+        contentHtml += '<div class="findings-summary-row" style="gap:20px">';
+        contentHtml += `<div class="fsm-group"><span class="fsm-label">步骤</span><span class="fsm-count">${log.summary.stepsDone}/${log.summary.stepsTotal}</span></div>`;
+        if (log.summary.reviewRounds) contentHtml += `<div class="fsm-group"><span class="fsm-label">审查轮次</span><span class="fsm-count">${log.summary.reviewRounds}</span></div>`;
+        if (log.summary.fixes) contentHtml += `<div class="fsm-group"><span class="fsm-label">修复问题</span><span class="fsm-count">${esc(log.summary.fixes)}</span></div>`;
+        if (log.summary.acceptance) contentHtml += `<div class="fsm-group"><span class="fsm-label">验收标准</span><span class="fsm-count">${esc(log.summary.acceptance)}</span></div>`;
+        contentHtml += '</div>';
+      }
+      contentHtml += '</div>';
+
+      // Full log
+      contentHtml += '<details class="findings-details" open><summary class="findings-summary">完整日志</summary>';
+      contentHtml += '<div class="findings-body">' + renderMd(parsed.body, phase.key, parsed.bodyOffset) + '</div>';
+      contentHtml += '</details>';
+      contentHtml += '</div>';
+    }
+
+    let html = '';
+    if (logPhases.length > 1) {
+      let sidebarHtml = '<div class="tab-sidebar-layout"><div class="tab-sidebar"><div class="tab-sidebar-title">阶段</div>';
+      for (const phase of logPhases) {
+        const cls = state.sidebarActive.autopilot === phase.id ? ' active' : '';
+        sidebarHtml += `<div class="tab-sidebar-item${cls}" data-target="${phase.id}">${esc(phase.label)}</div>`;
+      }
+      sidebarHtml += '</div>';
+      html = sidebarHtml + '<div class="tab-sidebar-content">' + contentHtml + '</div></div>';
+    } else {
+      html = contentHtml;
+    }
+
+    el.innerHTML = html;
+    bindStatusToggles(el);
+    if (logPhases.length > 1) bindSidebarNav(el, 'autopilot');
+  }
+
   function renderReview() {
     const el = $('#tab-review');
     const reviewKeys = findAllFiles('_review.md');
@@ -2898,11 +3040,12 @@
     let processed = body;
 
     // ### [DECISION] or ## [DECISION] → <div class="marker decision">
+    // Single-line replacement to preserve line count for data-source-line accuracy
     processed = processed.replace(
       /^(#{2,3})\s+\[DECISION\]\s+(.+)$/gm,
       (match, hashes, title) => {
         const level = hashes.length;
-        return `</div><div class="marker decision">\n<h${level}>${esc(title)}</h${level}>\n`;
+        return `</div><div class="marker decision"><h${level}>${esc(title)}</h${level}>`;
       }
     );
 
@@ -2911,7 +3054,7 @@
       /^(#{2,3})\s+\[OPEN\]\s+(.+)$/gm,
       (match, hashes, title) => {
         const level = hashes.length;
-        return `</div><div class="marker open">\n<h${level}>${esc(title)}</h${level}>\n`;
+        return `</div><div class="marker open"><h${level}>${esc(title)}</h${level}>`;
       }
     );
 
@@ -2937,14 +3080,14 @@
       /^(#{2,3})\s+\[DECISION\]\s+(.+)$/gm,
       (match, hashes, title) => {
         const level = hashes.length;
-        return `</div><div class="marker decision">\n${'#'.repeat(level)} ${esc(title)}\n`;
+        return `</div><div class="marker decision">${'#'.repeat(level)} ${esc(title)}`;
       }
     );
     processed = processed.replace(
       /^(#{2,3})\s+\[OPEN\]\s+(.+)$/gm,
       (match, hashes, title) => {
         const level = hashes.length;
-        return `</div><div class="marker open">\n${'#'.repeat(level)} ${esc(title)}\n`;
+        return `</div><div class="marker open">${'#'.repeat(level)} ${esc(title)}`;
       }
     );
     processed = processed.replace(
@@ -3346,6 +3489,7 @@
     if (file.includes('modules/')) return 'design';
     if (file === '_check.md' || file.endsWith('/_check.md')) return 'check';
     if (file === '_plan.md' || file.endsWith('/_plan.md')) return 'execution';
+    if (file === '_autopilot.md' || file.endsWith('/_autopilot.md')) return 'autopilot';
     if (file === '_review.md' || file.endsWith('/_review.md')) return 'review';
     if (PIPELINE_TYPE === 'fix') return 'issue';
     if (PIPELINE_TYPE === 'exp') return 'findings';

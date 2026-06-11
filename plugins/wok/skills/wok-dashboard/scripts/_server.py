@@ -210,7 +210,7 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
                 return f'freshness: {new_freshness}'
             content, _ = re.subn(r'^freshness:\s*(\S+)', replace_freshness, content, count=1, flags=re.MULTILINE)
 
-        target.write_text(content, encoding='utf-8')
+        target.write_text(content, encoding='utf-8', newline='')
         result = {'ok': True, 'file': rel_file}
         if new_status:
             result['oldStatus'] = old_status
@@ -262,7 +262,7 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
             lines[idx] = re.sub(r'^([-*]\s+)\[\s?\]', r'\1[x]', line, count=1)
         else:
             lines[idx] = re.sub(r'^([-*]\s+)\[x\]', r'\1[ ]', line, count=1)
-        target.write_text('\n'.join(lines), encoding='utf-8')
+        target.write_text('\n'.join(lines), encoding='utf-8', newline='')
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Cache-Control', 'no-cache')
@@ -424,7 +424,7 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
                                 lambda m: f'{m.group(1)}\nfreshness: {target_freshness}',
                                 text, count=1, flags=re.MULTILINE
                             )[0]
-                        md_files[rel_path].write_text(new_text, encoding='utf-8')
+                        md_files[rel_path].write_text(new_text, encoding='utf-8', newline='')
                         marked.append(rel_path)
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
@@ -469,7 +469,7 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
     def _write_all_notes(self, feature_root, notes):
         p = self._notes_path(feature_root)
         lines = [json.dumps(n, ensure_ascii=False) for n in notes]
-        p.write_text('\n'.join(lines) + '\n' if lines else '', encoding='utf-8')
+        p.write_text('\n'.join(lines) + '\n' if lines else '', encoding='utf-8', newline='')
 
     def _serve_notes(self, feature_root):
         notes = self._read_all_notes(feature_root)

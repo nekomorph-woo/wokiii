@@ -188,7 +188,8 @@
       for (const path of filePaths) {
         const fileResp = await fetch(FEATURE_BASE + '/' + path.split('/').map(encodeURIComponent).join('/'));
         if (!fileResp.ok) continue;
-        const text = await fileResp.text();
+        const raw = await fileResp.text();
+        const text = raw.replace(/\r\n/g, '\n');
         state.files.set(path, text);
         state.parsed.set(path, parseMarkdown(text, path));
       }
@@ -224,7 +225,8 @@
   async function loadFilesFromInput(fileList) {
     const files = Array.from(fileList).filter(f => f.name.endsWith('.md'));
     for (const file of files) {
-      const text = await file.text();
+      const raw = await file.text();
+      const text = raw.replace(/\r\n/g, '\n');
       const key = file.webkitRelativePath || file.name;
       state.files.set(key, text);
       state.parsed.set(key, parseMarkdown(text, key));

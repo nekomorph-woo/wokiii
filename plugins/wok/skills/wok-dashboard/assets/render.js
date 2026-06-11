@@ -2757,11 +2757,14 @@
     }));
 
     let contentHtml = '';
-    for (const phase of logPhases) {
+    for (let pi = 0; pi < logPhases.length; pi++) {
+      const phase = logPhases[pi];
       const raw = state.files.get(phase.key);
       const log = parseAutopilotLog(raw);
       const parsed = state.parsed.get(phase.key);
 
+      const isLastPhase = pi === logPhases.length - 1;
+      const detailsOpen = logPhases.length <= 1 || isLastPhase;
       contentHtml += `<div id="${phase.id}">`;
       contentHtml += renderPhaseHeader(phase.key);
       contentHtml += renderFileStatusBar(phase.key);
@@ -2776,16 +2779,6 @@
       if (log.endTime) contentHtml += `<span class="fsm-item">🏁 ${esc(log.endTime)}</span>`;
       contentHtml += '</div>';
 
-      if (log.steps.length) {
-        contentHtml += '<div class="findings-summary-row"><div class="fsm-group">';
-        contentHtml += '<span class="fsm-label">执行进度</span>';
-        contentHtml += '<div class="fsm-issue-list">';
-        for (const step of log.steps) {
-          contentHtml += `<span class="fsm-tag ${step.done ? 'pattern' : 'impact'}">${step.icon} Step ${step.num}</span>`;
-        }
-        contentHtml += '</div></div></div>';
-      }
-
       if (log.summary.stepsTotal) {
         contentHtml += '<div class="findings-summary-row" style="gap:20px">';
         contentHtml += `<div class="fsm-group"><span class="fsm-label">步骤</span><span class="fsm-count">${log.summary.stepsDone}/${log.summary.stepsTotal}</span></div>`;
@@ -2797,7 +2790,7 @@
       contentHtml += '</div>';
 
       // Full log
-      contentHtml += '<details class="findings-details" open><summary class="findings-summary">完整日志</summary>';
+      contentHtml += `<details class="findings-details"${detailsOpen ? ' open' : ''}><summary class="findings-summary">完整日志</summary>`;
       contentHtml += '<div class="findings-body">' + renderMd(parsed.body, phase.key, parsed.bodyOffset) + '</div>';
       contentHtml += '</details>';
       contentHtml += '</div>';

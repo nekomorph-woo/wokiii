@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """wok-dashboard local HTTP server.
 
-Multi-feature architecture: serves from .wok-plans/ parent directory.
+Multi-project, multi-feature architecture.
+Features are registered via POST /_api/register or discovered via X-Wok-Plans-Dir header.
 Each feature is accessed via /<feature-name>/... URL prefix.
 API routes: /<feature>/api/files, /<feature>/api/notes, etc.
+Global routes: /_api/register, /_api/features.
 Static files: /<feature>/_dashboard.html, /<feature>/_define.md, etc.
 
-Usage: python3 _server.py --port PORT --directory DIR
+Usage: python3 _server.py --port PORT [--directory DIR]
 """
 
 import argparse
@@ -20,10 +22,47 @@ import time
 from pathlib import Path
 
 ALLOWED_EXTENSIONS = {'.md', '.html', '.css', '.js', '.json'}
-BASE_DIR = None  # Points to .wok-plans/ parent directory
+BASE_DIR = None  # Optional fallback for backward compat
+REGISTRY_FILE = Path.home() / '.claude' / 'wok-dashboard' / 'registry.json'
+registry = {}  # { feature_name: plans_dir_path }
+
+
+def _load_registry():
+    global registry
+    if REGISTRY_FILE.is_file():
+        try:
+            registry = json.loads(REGISTRY_FILE.read_text(encoding='utf-8'))
+        except (json.JSONDecodeError, OSError):
+            registry = {}
+
+
+def _save_registry():
+    try:
+        REGISTRY_FILE.parent.mkdir(parents=True, exist_ok=True)
+        REGISTRY_FILE.write_text(json.dumps(registry, ensure_ascii=False, indent=2), encoding='utf-8')
+    except OSError:
+        pass
 
 
 class SecureHandler(http.server.SimpleHTTPRequestHandler):
+    def _plans_dir_for(self, feature):
+        """Lookup plansDir for a feature: registry -> header -> BASE_DIR."""
+        if feature in registry:
+            if Path(registry[feature]).is_dir():
+                return registry[feature]
+            del registry[feature]
+            _save_registry()
+        plans_dir = self.headers.get('X-Wok-Plans-Dir')
+        if plans_dir:
+            p = Path(plans_dir)
+            if p.is_dir() and (p / feature).is_dir():
+                registry[feature] = str(p)
+                _save_registry()
+                return str(p)
+        if BASE_DIR:
+            return BASE_DIR
+        return None
+
     def translate_path(self, path):
         path = path.split('?', 1)[0].split('#', 1)[0]
 
@@ -31,12 +70,25 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
             self.send_error(403, 'Path traversal not allowed')
             return ''
 
-        translated = Path(BASE_DIR) / path.lstrip('/')
+        parts = path.lstrip('/').split('/')
+        if not parts or not parts[0]:
+            self.send_error(400, 'Invalid path')
+            return ''
+
+        feature = parts[0]
+        plans_dir = self._plans_dir_for(feature)
+        if plans_dir:
+            translated = Path(plans_dir) / path.lstrip('/')
+        elif BASE_DIR:
+            translated = Path(BASE_DIR) / path.lstrip('/')
+        else:
+            self.send_error(404, f'Feature not found: {feature}')
+            return ''
 
         try:
             translated = translated.resolve()
-            base_resolved = Path(BASE_DIR).resolve()
-            if not str(translated).startswith(str(base_resolved)):
+            root = Path(plans_dir).resolve() if plans_dir else Path(BASE_DIR).resolve()
+            if not str(translated).startswith(str(root)):
                 self.send_error(403, 'Access denied')
                 return ''
         except (OSError, ValueError):
@@ -57,11 +109,15 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
         if '..' in feature_name or '/' in feature_name or not feature_name:
             self.send_error(400, 'Invalid feature name')
             return None
-        feature_root = Path(BASE_DIR).resolve() / feature_name
+        plans_dir = self._plans_dir_for(feature_name)
+        if not plans_dir:
+            self.send_error(404, f'Feature not found: {feature_name}')
+            return None
+        feature_root = Path(plans_dir) / feature_name
         try:
             feature_root = feature_root.resolve()
-            base_resolved = Path(BASE_DIR).resolve()
-            if not str(feature_root).startswith(str(base_resolved)):
+            plans_resolved = Path(plans_dir).resolve()
+            if not str(feature_root).startswith(str(plans_resolved)):
                 self.send_error(403, 'Access denied')
                 return None
         except (OSError, ValueError):
@@ -88,6 +144,10 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
     # ── HTTP method dispatch ──
 
     def do_GET(self):
+        path = self.path.split('?', 1)[0].split('#', 1)[0]
+        if path == '/_api/features':
+            self._serve_features()
+            return
         feature_root, api_path = self._parse_api_route()
         if feature_root:
             if api_path == '/files':
@@ -104,6 +164,10 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
         super().do_GET()
 
     def do_POST(self):
+        path = self.path.split('?', 1)[0].split('#', 1)[0]
+        if path == '/_api/register':
+            self._register_feature()
+            return
         feature_root, api_path = self._parse_api_route()
         if feature_root:
             if api_path == '/notes':
@@ -148,7 +212,7 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-Wok-Plans-Dir')
         self.end_headers()
 
     # ── Status / Freshness ──
@@ -432,6 +496,58 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps({'ok': True, 'impact': impact_level, 'marked': marked}, ensure_ascii=False).encode())
 
+    # ── Global API (no feature prefix) ──
+
+    def _serve_features(self):
+        features = [{'name': name, 'plansDir': pd} for name, pd in registry.items()]
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Cache-Control', 'no-cache')
+        self.end_headers()
+        self.wfile.write(json.dumps({'features': features}, ensure_ascii=False).encode())
+
+    def _register_feature(self):
+        length = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(length)
+        try:
+            data = json.loads(body)
+        except (json.JSONDecodeError, ValueError):
+            self.send_error(400, 'Invalid JSON')
+            return
+        feature = data.get('feature', '')
+        plans_dir = data.get('plansDir', '')
+        if not feature or not plans_dir:
+            self.send_error(400, 'Missing feature or plansDir')
+            return
+        if '..' in feature or '/' in feature:
+            self.send_error(400, 'Invalid feature name')
+            return
+        plans_path = Path(plans_dir)
+        if not plans_path.is_absolute():
+            self.send_error(400, 'plansDir must be absolute')
+            return
+        if not plans_path.is_dir():
+            self.send_error(400, f'plansDir does not exist: {plans_dir}')
+            return
+        feature_path = plans_path / feature
+        if not feature_path.is_dir():
+            self.send_error(400, f'Feature directory does not exist: {feature_path}')
+            return
+        # GC: remove stale entries
+        cleaned = []
+        for name in list(registry):
+            if not Path(registry[name]).is_dir():
+                del registry[name]
+                cleaned.append(name)
+        # Register
+        registry[feature] = str(plans_path)
+        _save_registry()
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Cache-Control', 'no-cache')
+        self.end_headers()
+        self.wfile.write(json.dumps({'ok': True, 'cleaned': cleaned}, ensure_ascii=False).encode())
+
     # ── File list ──
 
     def _serve_file_list(self, feature_root):
@@ -654,22 +770,25 @@ class SecureHandler(http.server.SimpleHTTPRequestHandler):
 def main():
     global BASE_DIR
 
-    parser = argparse.ArgumentParser(description='wok-dashboard server (multi-feature)')
+    parser = argparse.ArgumentParser(description='wok-dashboard server (multi-project)')
     parser.add_argument('--port', type=int, required=True)
-    parser.add_argument('--directory', type=str, required=True,
-                        help='Parent directory containing feature folders (e.g., .wok-plans/)')
+    parser.add_argument('--directory', type=str, default=None,
+                        help='(Optional) Default .wok-plans/ directory for backward compatibility')
     args = parser.parse_args()
 
     BASE_DIR = args.directory
-    if not os.path.isdir(BASE_DIR):
-        print(f'Error: directory does not exist: {BASE_DIR}', file=sys.stderr)
-        sys.exit(1)
+    if BASE_DIR and not os.path.isdir(BASE_DIR):
+        print(f'Warning: directory does not exist: {BASE_DIR}', file=sys.stderr)
+        BASE_DIR = None
+
+    _load_registry()
 
     class ReuseServer(http.server.HTTPServer):
         allow_reuse_address = True
 
     server = ReuseServer(('127.0.0.1', args.port), SecureHandler)
-    print(f'wok-dashboard serving {BASE_DIR} on http://127.0.0.1:{args.port}', file=sys.stderr)
+    mode = f'{BASE_DIR} (directory mode)' if BASE_DIR else 'registry mode'
+    print(f'wok-dashboard serving [{mode}] on http://127.0.0.1:{args.port}', file=sys.stderr)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

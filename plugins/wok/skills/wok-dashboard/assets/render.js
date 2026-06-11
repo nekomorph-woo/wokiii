@@ -7,6 +7,22 @@
     ? `http://127.0.0.1:${SERVER_PORT}/${SYSTEM_NAME}`
     : '/' + SYSTEM_NAME;
 
+  const PLANS_DIR = window.location.protocol === 'file:'
+    ? (() => {
+        const idx = window.location.pathname.indexOf('.wok-plans/');
+        return idx > 0 ? decodeURIComponent(window.location.pathname.substring(0, idx + '.wok-plans'.length)) : '';
+      })()
+    : '';
+
+  function wokFetch(url, opts) {
+    if (!opts) opts = {};
+    if (PLANS_DIR) {
+      opts.headers = opts.headers || {};
+      opts.headers['X-Wok-Plans-Dir'] = PLANS_DIR;
+    }
+    return fetch(url, opts);
+  }
+
   // ── Pipeline Type Detection ──
   function detectPipelineType(name) {
     if (name.startsWith('feat-s-')) return 'feat-s';
@@ -178,7 +194,7 @@
   // ── File Reading (HTTP fetch) ──
   async function fetchAndLoadFiles() {
     try {
-      const resp = await fetch(FEATURE_BASE + '/api/files');
+      const resp = await wokFetch(FEATURE_BASE + '/api/files');
       if (!resp.ok) throw new Error(`API error: ${resp.status}`);
       const filePaths = await resp.json();
 
@@ -186,7 +202,7 @@
       state.parsed.clear();
 
       for (const path of filePaths) {
-        const fileResp = await fetch(FEATURE_BASE + '/' + path.split('/').map(encodeURIComponent).join('/'));
+        const fileResp = await wokFetch(FEATURE_BASE + '/' + path.split('/').map(encodeURIComponent).join('/'));
         if (!fileResp.ok) continue;
         const raw = await fileResp.text();
         const text = raw.replace(/\r\n/g, '\n');
@@ -421,7 +437,7 @@
     try {
       const body = { file, status: newStatus };
       if (newFreshness) body.freshness = newFreshness;
-      const resp = await fetch(FEATURE_BASE + '/api/status', {
+      const resp = await wokFetch(FEATURE_BASE + '/api/status', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -437,7 +453,7 @@
 
   async function checkFreshness() {
     try {
-      const resp = await fetch(FEATURE_BASE + '/api/freshness');
+      const resp = await wokFetch(FEATURE_BASE + '/api/freshness');
       if (!resp.ok) return;
       freshnessMap = await resp.json();
       for (const [path, info] of Object.entries(freshnessMap)) {
@@ -456,7 +472,7 @@
 
   async function propagateImpact(changedDoc, impactLevel) {
     try {
-      const resp = await fetch(FEATURE_BASE + '/api/freshness/propagate', {
+      const resp = await wokFetch(FEATURE_BASE + '/api/freshness/propagate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ file: changedDoc, impact: impactLevel }),
@@ -2016,7 +2032,7 @@
       checkbox.addEventListener('change', async () => {
         const wasChecked = checkbox.checked;
         try {
-          const resp = await fetch(FEATURE_BASE + '/api/checkbox', {
+          const resp = await wokFetch(FEATURE_BASE + '/api/checkbox', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ file: sourceFile, line: sourceLine, checked: wasChecked })
@@ -3111,7 +3127,7 @@
   // ── Notes Panel ──
   async function loadNotes() {
     try {
-      const resp = await fetch(FEATURE_BASE + '/api/notes');
+      const resp = await wokFetch(FEATURE_BASE + '/api/notes');
       if (!resp.ok) return;
       state.notes = await resp.json();
       renderNotes();
@@ -3123,7 +3139,7 @@
 
   async function saveNote(note) {
     try {
-      const resp = await fetch(FEATURE_BASE + '/api/notes', {
+      const resp = await wokFetch(FEATURE_BASE + '/api/notes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(note),
@@ -3141,7 +3157,7 @@
 
   async function deleteNoteRemote(id) {
     try {
-      await fetch(FEATURE_BASE + '/api/notes/' + id, { method: 'DELETE' });
+      await wokFetch(FEATURE_BASE + '/api/notes/' + id, { method: 'DELETE' });
       state.notes = state.notes.filter(n => n.id !== id);
       renderNotes();
     } catch (e) {
@@ -3151,7 +3167,7 @@
 
   async function deleteNoteRef(noteId, refIdx) {
     try {
-      await fetch(FEATURE_BASE + '/api/notes/' + noteId + '/refs/' + refIdx, { method: 'DELETE' });
+      await wokFetch(FEATURE_BASE + '/api/notes/' + noteId + '/refs/' + refIdx, { method: 'DELETE' });
       const note = state.notes.find(n => n.id === noteId);
       if (note && note.refs) {
         note.refs.splice(refIdx, 1);
@@ -3177,7 +3193,7 @@
 
   async function updateRemarkState(id, newState) {
     try {
-      const resp = await fetch(FEATURE_BASE + '/api/notes/' + id, {
+      const resp = await wokFetch(FEATURE_BASE + '/api/notes/' + id, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ state: newState }),
@@ -3373,7 +3389,7 @@
     if (!content) return;
 
     if (editingNoteId !== null) {
-      fetch(`${FEATURE_BASE}/api/notes/${editingNoteId}`, {
+      wokFetch(`${FEATURE_BASE}/api/notes/${editingNoteId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content, type: selectedNoteType, refs: pendingRefs.slice() }),

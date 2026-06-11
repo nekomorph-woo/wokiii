@@ -3,8 +3,8 @@
 # deploy.sh - 部署 wok dashboard + 启动本地 HTTP server
 # 用法: deploy.sh <system-name> [--restart]
 #
-# 多 feature 架构：server 绑定 .wok-plans/ 父目录，通过 URL 路径 /<feature>/ 访问不同 feature。
-# 切换 feature 无需重启 server，只需部署 assets 到对应 feature 目录。
+# 多项目多 feature 架构：全局 server 通过 registry 路由到不同项目的 .wok-plans/。
+# 每次 deploy 注册 feature 到 server，跨项目无需重启。
 
 set -e
 
@@ -66,7 +66,7 @@ if [ -f "$RESOLVE_SRC" ]; then
 fi
 
 # ── 2. Server 生命周期管理 ──
-# Server 绑定 .wok-plans/ 父目录，所有 feature 共享同一个 server 进程。
+# 全局 server 通过 registry 路由到不同项目的 .wok-plans/。
 # 只有 server 脚本更新或 --restart 时才重启。
 
 PLANS_DIR="$WOK_ROOT/.wok-plans"
@@ -92,10 +92,10 @@ ensure_server() {
         rm -f "$SERVER_STATE"
     fi
 
-    # 启动 server（绑定 .wok-plans/ 父目录）
+    # 启动 server（无 --directory，纯 registry 模式）
     local port=$SERVER_PORT
 
-    nohup python3 "$SERVER_SCRIPT" --port "$port" --directory "$PLANS_DIR" > /dev/null 2>&1 &
+    nohup python3 "$SERVER_SCRIPT" --port "$port" > /dev/null 2>&1 &
     local pid=$!
 
     # 写入状态文件（仅 pid + port，不含 feature 信息）
@@ -104,10 +104,10 @@ import json
 json.dump({'pid': $pid, 'port': $port}, open('$SERVER_STATE', 'w'))
 "
 
-    # 验证 server 启动
+    # 验证 server 启动（等待 global API 可用）
     local verify_attempts=0
-    while [ $verify_attempts -lt 5 ]; do
-        if curl -sf "http://127.0.0.1:$port/$SYSTEM_NAME/api/files" >/dev/null 2>&1; then
+    while [ $verify_attempts -lt 10 ]; do
+        if curl -sf "http://127.0.0.1:$port/_api/features" >/dev/null 2>&1; then
             echo "✓ Server 已启动: http://127.0.0.1:$port"
             return 0
         fi
@@ -123,6 +123,21 @@ json.dump({'pid': $pid, 'port': $port}, open('$SERVER_STATE', 'w'))
 }
 
 ensure_server "$RESTART"
+
+# ── 3. 注册 feature 到 server ──
+
+register_result=$(curl -sf -X POST "http://127.0.0.1:$SERVER_PORT/_api/register" \
+  -H "Content-Type: application/json" \
+  -d "{\"feature\":\"$SYSTEM_NAME\",\"plansDir\":\"$PLANS_DIR\"}" 2>&1) || {
+    echo "错误: 注册 feature 失败"
+    exit 1
+}
+
+cleaned=$(echo "$register_result" | python3 -c "import sys,json; d=json.load(sys.stdin); print(','.join(d.get('cleaned',[])))" 2>/dev/null || echo "")
+if [ -n "$cleaned" ]; then
+    echo "✓ 已清理过期注册: $cleaned"
+fi
+echo "✓ 已注册: $SYSTEM_NAME → $PLANS_DIR"
 
 echo ""
 echo "Dashboard URL: http://127.0.0.1:$SERVER_PORT/$SYSTEM_NAME/_dashboard.html"

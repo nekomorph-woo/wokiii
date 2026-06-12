@@ -237,6 +237,10 @@
     }
   }
 
+  async function refreshDashboard() {
+    await Promise.all([fetchAndLoadFiles(), loadNotes()]);
+  }
+
   // Fallback for file:// protocol
   async function loadFilesFromInput(fileList) {
     const files = Array.from(fileList).filter(f => f.name.endsWith('.md'));
@@ -3674,6 +3678,17 @@
         switchTab(btn.dataset.tab);
       });
     });
+
+    // Refresh button
+    const refreshBtn = document.createElement('button');
+    refreshBtn.className = 'refresh-btn';
+    refreshBtn.title = '刷新数据';
+    refreshBtn.textContent = '↻';
+    refreshBtn.addEventListener('click', () => {
+      refreshBtn.classList.add('spinning');
+      refreshDashboard().finally(() => refreshBtn.classList.remove('spinning'));
+    });
+    document.querySelector('.tab-bar').appendChild(refreshBtn);
 
     // Auto-load files from server
     fetchAndLoadFiles();

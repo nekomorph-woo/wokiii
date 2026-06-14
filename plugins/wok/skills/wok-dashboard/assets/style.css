@@ -1496,6 +1496,43 @@ main {
 .help-state.rejected { color: #737373; border-color: #737373; }
 .help-state.deferred { color: #F59E0B; border-color: #F59E0B; }
 
+.prompt-modal {
+  max-width: 720px;
+}
+
+.prompt-textarea {
+  width: 100%;
+  min-height: 280px;
+  max-height: 50vh;
+  border: 1px solid var(--border);
+  padding: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  background: var(--muted);
+  color: var(--fg);
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.prompt-textarea:focus {
+  outline: none;
+  border-color: var(--fg);
+}
+
+.prompt-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.prompt-copy-status {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #22C55E;
+}
+
 .notes-filter-btn {
   padding: 2px 8px;
   font-family: var(--font-body);

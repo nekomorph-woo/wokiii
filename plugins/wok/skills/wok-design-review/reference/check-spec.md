@@ -77,3 +77,33 @@ python3 plugins/wok/scripts/check_anchors.py <phase-dir>
 - 🔴 `[SECURITY]` 锚点无模块认领、`[EXCLUSION]` 关键词命中（违规）、用户故事无模块负责
 - 🟡 `[EFFECT]`/`[NECESSITY]` 锚点无模块认领、存在孤立模块、模块职责重叠
 - 🟢 验收标准与接口定义不完全对齐
+
+## 4. 输出格式检查
+
+**检查内容**：
+
+上游产物（`decisions.md` / `design.md` / `_registry.md`）和本技能输出（`_check.md`）的 Markdown 格式是否符合 `output-format.md` 规范。
+
+**检查维度**：
+
+| 维度 | 检查方式 |
+|------|----------|
+| decisions.md 决策/开放问题 | 每条决策必须以 `### [DECISION]` 开头；开放问题以 `### [OPEN]` 开头；行动项以 `- [ACTION]` 开头 |
+| decisions.md 缩写禁用 | 扫描 `D1`/`D2`/`O1`/`A1` 等缩写标记，命中即报错 |
+| decisions.md 决策字段完整性 | 每条 `### [DECISION]` 必须包含 `**选择**`、`**否决**`、`**理由**`、`**影响**` 四个字段 |
+| design.md 接口签名格式 | 接口签名段不包含"为什么选择 X"类决策理由（属于 decisions.md） |
+| _check.md finding 标题 | `🔴/🟡/🟢 **Finding N: <问题>**` 格式，N 从 1 递增 |
+| _check.md 行动项标题 | `#### [OPEN] <severity>-<N>: <标题>`，severity 取 🔴/🟡，N 对应 finding 编号 |
+| _check.md 行动项动作 | `- [ACTION] <动作描述>`，每条行动项至少一个动作 |
+| _check.md 折叠规则 | 🟢 finding 必须 `<details>` 折叠；🟡 非阻塞 finding 超过 3 条时第 4 条起 `<details>` 折叠 |
+| _check.md 跨严重度引用 | 禁止 `O1`/`A1`/`F1` 等缩写引用，必须用完整 `#### [OPEN]` 标题或 `Finding N` |
+
+**执行方式**：
+
+逐文件扫描 Markdown 标题、列表标记和加粗字段，与 `plugins/wok/skills/wok-design/reference/output-format.md` 中的模板比对。
+
+**严重度**：
+
+- 🔴 决策字段缺失（如缺 `**理由**`）、决策与开放问题混用同一标题、_check.md 行动项缺 `- [ACTION]`
+- 🟡 缩写标记残留、finding 编号不连续、🟢 finding 未折叠
+- 🟢 标题层级不一致、空行风格差异

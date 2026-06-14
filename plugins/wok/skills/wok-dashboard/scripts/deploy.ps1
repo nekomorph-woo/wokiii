@@ -1,4 +1,4 @@
-# deploy.ps1 - Deploy wok dashboard + start local HTTP server (PowerShell)
+﻿# deploy.ps1 - Deploy wok dashboard + start local HTTP server (PowerShell)
 # Usage: deploy.ps1 <system-name> [-Restart]
 #
 # Multi-feature architecture: server binds .wok-plans/ parent directory,
@@ -22,7 +22,8 @@ if (-not $SystemName) {
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $AssetsDir = Join-Path $ScriptDir '..\assets'
-$WokRoot = (git rev-parse --show-toplevel 2>$null) ?? $PWD.Path
+$gitRoot = git rev-parse --show-toplevel 2>$null
+if ($LASTEXITCODE -eq 0 -and $gitRoot) { $WokRoot = $gitRoot } else { $WokRoot = $PWD.Path }
 $DashboardDir = Join-Path $HOME '.claude\wok-dashboard'
 $WokDir = Join-Path $HOME '.claude\wok'
 $ServerState = Join-Path $DashboardDir 'server.json'
@@ -59,8 +60,8 @@ Copy-Item -Force (Join-Path $ScriptDir '_server.py') $ServerScript
 # Replace {{SYSTEM_NAME}} template
 $dashboardHtml = Join-Path $SystemDir '_dashboard.html'
 $renderJs = Join-Path $SystemDir '_render.js'
-(Get-Content $dashboardHtml -Raw) -replace '\{\{SYSTEM_NAME\}\}', $SystemName | Set-Content $dashboardHtml -NoNewline
-(Get-Content $renderJs -Raw) -replace '\{\{SYSTEM_NAME\}\}', $SystemName | Set-Content $renderJs -NoNewline
+(Get-Content $dashboardHtml -Raw -Encoding UTF8) -replace '\{\{SYSTEM_NAME\}\}', $SystemName | Set-Content $dashboardHtml -NoNewline -Encoding UTF8
+(Get-Content $renderJs -Raw -Encoding UTF8) -replace '\{\{SYSTEM_NAME\}\}', $SystemName | Set-Content $renderJs -NoNewline -Encoding UTF8
 
 Write-Host "✓ 三件套已部署到: $SystemDir"
 
@@ -104,10 +105,10 @@ function Ensure-Server {
     $port = $ServerPort
     $serverArgs = "`"$ServerScript`" --port $port --directory `"$PlansDir`""
     $procInfo = Start-Process -FilePath $Python -ArgumentList $serverArgs -WindowStyle Hidden -PassThru
-    $pid = $procInfo.Id
+    $serverPid = $procInfo.Id
 
     # Write state file
-    @{pid = $pid; port = $port} | ConvertTo-Json | Set-Content $ServerState
+    @{pid = $serverPid; port = $port} | ConvertTo-Json | Set-Content $ServerState
 
     # Verify server started
     $verifyAttempts = 0
@@ -123,7 +124,7 @@ function Ensure-Server {
     }
 
     # Startup failed — cleanup
-    Stop-Process -Id $pid -ErrorAction SilentlyContinue
+    Stop-Process -Id $serverPid -ErrorAction SilentlyContinue
     Remove-Item -Force $ServerState -ErrorAction SilentlyContinue
     Write-Host "错误: Server 启动失败（端口 $port）" -ForegroundColor Red
     exit 1

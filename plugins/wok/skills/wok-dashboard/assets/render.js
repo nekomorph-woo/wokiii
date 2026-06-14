@@ -3455,6 +3455,33 @@
     deleteNoteRemote(id);
   }
 
+  function copyPromptToClipboard(btn) {
+    const textarea = document.getElementById('prompt-textarea');
+    const status = document.getElementById('prompt-copy-status');
+    const text = textarea.value;
+    const flash = (msg, isErr) => {
+      status.textContent = msg;
+      status.style.color = isErr ? '#CC0000' : '#22C55E';
+    };
+    const fallback = () => {
+      try {
+        textarea.removeAttribute('readonly');
+        textarea.focus();
+        textarea.select();
+        const ok = document.execCommand('copy');
+        textarea.setAttribute('readonly', '');
+        flash(ok ? '已复制' : '请按 Ctrl+C 复制选中内容', !ok);
+      } catch (e) {
+        flash('请手动选中并复制', true);
+      }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => flash('已复制')).catch(fallback);
+    } else {
+      fallback();
+    }
+  }
+
   function generatePrompt() {
     if (!selectedNoteIds.size) return;
     const selected = state.notes.filter(n => selectedNoteIds.has(n.id));
@@ -3475,10 +3502,13 @@
       prompt += JSON.stringify(entry, null, 0) + '\n';
     }
     prompt += '```\n';
-    navigator.clipboard.writeText(prompt).then(() => {
-      generatePromptBtn.textContent = '已复制';
-      setTimeout(() => updateMultiSelectUI(), 1500);
-    });
+
+    const textarea = document.getElementById('prompt-textarea');
+    const overlay = document.getElementById('prompt-overlay');
+    textarea.value = prompt;
+    document.getElementById('prompt-copy').textContent = '复制全部';
+    document.getElementById('prompt-copy-status').textContent = '';
+    overlay.style.display = 'flex';
   }
 
   function toggleMultiSelect() {
@@ -3758,6 +3788,12 @@
     $('#notes-help-btn').addEventListener('click', () => { helpOverlay.style.display = 'flex'; });
     $('#notes-help-close').addEventListener('click', () => { helpOverlay.style.display = 'none'; });
     helpOverlay.addEventListener('click', (e) => { if (e.target === helpOverlay) helpOverlay.style.display = 'none'; });
+
+    // Prompt modal
+    const promptOverlay = $('#prompt-overlay');
+    $('#prompt-close').addEventListener('click', () => { promptOverlay.style.display = 'none'; });
+    promptOverlay.addEventListener('click', (e) => { if (e.target === promptOverlay) promptOverlay.style.display = 'none'; });
+    $('#prompt-copy').addEventListener('click', (e) => { copyPromptToClipboard(e.currentTarget); });
 
     // Global click: close state dropdowns
     document.addEventListener('click', () => {

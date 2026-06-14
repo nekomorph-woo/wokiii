@@ -104,7 +104,8 @@
         <ol>
           <li>点击「选择应用」进入选择模式</li>
           <li>勾选需要处理的备注</li>
-          <li>点击「生成 Prompt」复制结构化文本到剪贴板</li>
+          <li>点击「生成 Prompt」弹出 Prompt 内容</li>
+          <li>点击「复制全部」复制到剪贴板，或手动选中文本复制</li>
           <li>粘贴到 Claude Code 中执行，或直接运行 <code>/wok-apply-remarks</code></li>
           <li>Skill 修改文档后备注状态变为「已应用」，展示修改摘要和影响</li>
         </ol>
@@ -121,6 +122,23 @@
           <li><b>已应用</b> → 用户确认后变为「已解决」</li>
           <li><b>已解决</b> / <b>已拒绝</b> / <b>已搁置</b> → 可重新打开</li>
         </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="prompt-overlay" class="help-overlay" style="display:none">
+    <div class="help-modal prompt-modal">
+      <div class="help-modal-header">
+        <span>生成的 Prompt</span>
+        <button class="help-close-btn" id="prompt-close">&times;</button>
+      </div>
+      <div class="help-modal-body">
+        <p class="help-intro">复制以下内容到 Claude Code 中执行 <code>/wok-apply-remarks</code>。</p>
+        <textarea id="prompt-textarea" class="prompt-textarea" readonly></textarea>
+        <div class="prompt-actions">
+          <button class="btn-sm btn-info" id="prompt-copy">复制全部</button>
+          <span id="prompt-copy-status" class="prompt-copy-status"></span>
+        </div>
       </div>
     </div>
   </div>

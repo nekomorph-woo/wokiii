@@ -17,6 +17,18 @@ import re
 import sys
 from pathlib import Path
 
+# Force UTF-8 stdout/stderr to avoid UnicodeEncodeError on Windows GBK terminals
+# when printing emoji (🚨, ✅, ⚠️, 📋, 📦, 🛑). errors='replace' ensures the
+# script never crashes even if the terminal cannot render UTF-8 (e.g. legacy
+# cmd.exe on cp936); emoji will display as ? instead of crashing.
+for _stream_name in ("stdout", "stderr"):
+    _stream = getattr(sys, _stream_name, None)
+    if _stream is not None:
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, OSError):
+            pass
+
 ANCHOR_TYPES = ("EFFECT", "SECURITY", "NECESSITY", "EXCLUSION")
 
 

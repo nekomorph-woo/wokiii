@@ -1,0 +1,32 @@
+{
+  "id": "image-analysis",
+  "name": "图片识别增强",
+  "description": "通过 stdio JSON-RPC 直连 zhipu MCP server，让 base64 永不进入 LLM 上下文。绕开 LLM 上下文 cap（25-30k tokens）和 Claude Code 默认 CDN 压缩。",
+  "files": [
+    {
+      "src": "reference/mcp-analyze-image.py",
+      "dest": "~/.claude/scripts/mcp-analyze-image.py",
+      "mode": "0755",
+      "role": "helper 脚本（stdio MCP 客户端）"
+    },
+    {
+      "src": "reference/mcp-image-analysis.md",
+      "dest": "~/.claude/rules/mcp-image-analysis.md",
+      "mode": "0644",
+      "role": "使用规则（告诉 LLM 何时调用 helper）"
+    }
+  ],
+  "dependencies": [
+    {
+      "type": "mcp_server",
+      "name": "zai-mcp-server",
+      "source": "DEFAULT_SERVER in reference/mcp-analyze-image.py",
+      "exposes": ["analyze_image", "analyze_data_visualization", "ui_to_artifact"],
+      "install": {
+        "method_cli": "claude mcp add zai-mcp-server -e Z_AI_API_KEY=<your-key> -- npx -y @z_ai/mcp-server",
+        "method_manual": "在 ~/.claude.json 的 mcpServers 中添加：{\"zai-mcp-server\": {\"type\": \"stdio\", \"command\": \"npx\", \"args\": [\"-y\", \"@z_ai/mcp-server\"], \"env\": {\"Z_AI_API_KEY\": \"<your-key>\"}}}",
+        "prereq": "API key 申请：https://open.bigmodel.cn/usercenter/proj-mgmt/apikey"
+      }
+    }
+  ]
+}

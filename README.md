@@ -80,6 +80,9 @@ wok-refine-rule       （可选）审计规则质量与冲突
 初始化完成后，通过以下管道技能驱动开发：
 
 ```
+wok-intake           非管道对话成果 → 接入 wok 管道（调度模式）
+       │
+       ▼
 wok-idea             灵感发散 + 路线图规划
        │
 wok-findings         探索代码现状基线
@@ -102,6 +105,8 @@ zap                  规范化提交
 ```
 
 每个技能可独立使用，不需要走完整管道。
+
+**`wok-intake`** 是特殊入口：在普通对话或 Plan Mode 完成探索/设计后，反向接入 wok 管道，推理候选管道（feat-/feat-s-/fix-/exp-）让用户选择，调度下游 skill 生成对应文档（仅到 wok-plan 之前）。代码审查不通过 intake 接入，直接用 `/wok-code-review`。
 
 ### 多入口路径
 
@@ -135,7 +140,7 @@ wok/
 ├── plugins/
 │   ├── wok/                          # 管道核心
 │   │   ├── .claude-plugin/plugin.json
-│   │   ├── skills/                   # 16 个管道 + 辅助技能
+│   │   ├── skills/                   # 17 个管道 + 辅助技能
 │   │   ├── agents/                   # 5 个审查 agent + 1 个 autopilot agent
 │   │   └── scripts/                  # 系统级脚本
 │   └── wok-kit/                      # 辅助工具集
@@ -159,6 +164,7 @@ wok/
 
 | 技能 | 做什么 |
 |------|--------|
+| `wok-intake` | 非管道对话成果反向接入 wok 管道（调度模式，仅到 wok-plan 之前） |
 | `wok-idea` | 发散功能想法，设计版本化路线图 |
 | `wok-findings` | 探索现有代码的设计约束与架构模式 |
 | `wok-define` | 定义 What：问题、目标、设计锚点、验收标准 |
@@ -196,6 +202,7 @@ wok/
 | `wok-tech-stack` | 技术栈规则管理：按平台选型初始化技术栈规则 |
 | `wok-setup-zzap` | 初始化项目级 zzap 技能：自动版本管理 + CHANGELOG + 发布流程 |
 | `wok-ui-design` | 多端 UI 设计工作流：设计系统生成 → 各端原型 → MD3 合规审计 |
+| `wok-zhipu-mcp-kit` | 管理 zhipu MCP 配套文件（helper + 规则），bundle 化同步增删改 |
 
 ### 审查 Agent（wok）
 
